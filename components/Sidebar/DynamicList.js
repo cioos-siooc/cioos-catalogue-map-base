@@ -1,6 +1,7 @@
 'use client';   
 import { useEffect, useState } from 'react';
-import { useMap} from 'react-leaflet';
+import { useMap } from 'react-leaflet';
+import L from 'leaflet';
 
 const DynamicList = () => {
   const [items, setItems] = useState([]);
@@ -9,7 +10,7 @@ const DynamicList = () => {
   const baseQuery = 'projects=*baseline*';
   let url = `${catalogueUrl}/api/3/action/package_search?q=${baseQuery}`;
 
-  const map = useMap();
+  //const map = useMap();
 
   const handleClick = (item) => {
     map.fitBounds(L.geoJSON(item.spatial).getBounds());

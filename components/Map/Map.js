@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, useMap, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../../app/globals.css';
 import DynamicList from "@/components/Sidebar"; 
+import L from 'leaflet';
 
 function Map(){
 
