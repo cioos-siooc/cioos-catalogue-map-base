@@ -1,14 +1,21 @@
 'use client';   
 import { useEffect, useState } from 'react';
+import { useMap } from 'react-leaflet';
+import L from 'leaflet';
 
-
-const DynamicList = ({ onLocationClick }) => {
+const DynamicList = () => {
   const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
   const catalogueUrl = 'https://catalogue.ogsl.ca';
   const baseQuery = 'projects=*baseline*';
   let url = `${catalogueUrl}/api/3/action/package_search?q=${baseQuery}`;
 
+  //const map = useMap();
+
+  const handleClick = (item) => {
+    map.fitBounds(L.geoJSON(item.spatial).getBounds());
+    setCenter(coords);
+  };
 
   useEffect(() => {
     // Fetch data from an API
@@ -27,7 +34,7 @@ const DynamicList = ({ onLocationClick }) => {
   return (
     <ul id="sidebar">
       {items.map((item) => (
-        <li onClick={() => onLocationClick(item)} key={item.id}>{item.title}</li> // Dynamically create <li> items
+        <li onClick={() => handleClick(item)} key={item.id}>{item.title}</li> // Dynamically create <li> items
       ))}
     </ul>
   );
