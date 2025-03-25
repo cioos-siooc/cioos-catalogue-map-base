@@ -34,7 +34,7 @@ body {
 #map{
   flex:1;
   height: 800px;
-  width: 850px;
+  width: 100vw;
 }
 
 
