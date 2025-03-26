@@ -1,5 +1,5 @@
 'use client';   
-import {useState } from 'react';
+import {useState,useEffect } from 'react';
 
 
 const DynamicList = ({ onItemClick, onItemDoubleClick }) => {
@@ -11,20 +11,23 @@ const DynamicList = ({ onItemClick, onItemDoubleClick }) => {
 
 
   let done = false;
-  // Fetch data from an API
-  fetch(url) // Example API
-    .then((response) => response.json())
-    .then(async (data)  => {
-      const awaitRes = await data;
-      if(!done){
-        done = true;
-        setItems(awaitRes.result.results);
-      }
-    })
-    .catch((err) => setError(err.message));
 
-  if (error) return <p>Error: {error}</p>;
-  if (!items.length) return <p>Loading...</p>;
+  useEffect(() => {
+    // Fetch data from an API
+    fetch(url) // Example API
+      .then((response) => response.json())
+      .then(async (data)  => {
+        const awaitRes = await data;
+        if(!done){
+          done = true;
+          setItems(awaitRes.result.results);
+        }
+      })
+      .catch((err) => setError(err.message));
+    }, []);
+
+    if (error) return <p>Error: {error}</p>;
+    if (!items.length) return <p>Loading...</p>;
     
 
   return (

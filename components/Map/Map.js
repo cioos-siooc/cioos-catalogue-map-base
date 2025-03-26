@@ -18,21 +18,21 @@ const FitBounds = ({ bounds }) => {
     return null;
   };
 
-  const Polylines = ({ polyLines }) => {
-
+  const Polyline = ({ polyLines }) => {
+    let done = false;
     console.log('POLY :: ' + JSON.stringify(polyLines));
 
-    const map = useMap();
-    if (polyLines) {
+      if(polyLines && done === false){
         console.log('POLY 2 :: ' + JSON.stringify(polyLines));
-        let rectangle = L.rectangle(polyLines, {color: "red", weight: 1}).addTo(map);
-        map.fitBounds(rectangle.getBounds());
-    }
-
-    return null;
+        done = true;
+        return (
+          <Polyline positions={polyLines} color="blue" />
+        );
+      }else{
+        console.log('POLY 3 :: null ');
+        return null
+      }
   };
-
-
 
 function Map({center}){
 
@@ -57,11 +57,11 @@ function Map({center}){
                 <DynamicList onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
             </div>
 
-            <MapContainer id="map" center={center} zoom={5} style={{height: '600', width:'1000'}} scrollWheelZoom={true}>
+            <MapContainer id="map" center={center} zoom={6} style={{height: '600', width:'1000'}} scrollWheelZoom={true}>
                 <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-               {bounds && <Polylines positions={bounds.coordinates} />}
+               {bounds && <Polyline polyLines={bounds.coordinates} />}
                {bounds && <FitBounds bounds={bounds} />}
 
             </MapContainer>
