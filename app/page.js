@@ -11,7 +11,7 @@ export default function Home() {
 
   return (
     <div className="h-full items-center justify-items-center gap-16 font-[family-name:var(--font-geist-sans)]">
-      <header id="header" className="grid text-white bg-[#00adef] w-full p-5 top=0 gap-[12px] flex-wrap">
+      <header id="header" className="relative grid text-white bg-[#00adef] w-full p-5 top=0 gap-[12px] flex-wrap">
         <h1 className="text-[32px] font-bold text-left">OGSL Map</h1>
         <div>
           <p className="place-content-center justify-center text-center text-[24px]" >Catalogue cartographique</p>
@@ -19,14 +19,19 @@ export default function Home() {
 
       </header>
       
-      <main> 
+      <main className="relative"> 
        
-        <div >
+        <div className="absolute inset-0 z-40">
             <Map center={center}/>
+        </div>
+
+        <div className="fixed bottom-20 w-full z-50">	
+          <Footer />
         </div>
       </main>
 
-      <Footer className=""/>
+
+
 
     </div>
   );

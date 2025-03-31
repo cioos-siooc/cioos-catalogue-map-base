@@ -59,7 +59,7 @@ function Map({center}){
 
     return(
 
-        <div id="container" className="flex ... z-20"> 
+        <div id="container" className="flex ..."> 
             <div id="records-list" className="flex-none w-1/5 bg-gray-100 dark:bg-gray-900 overflow-y-auto overflow-x-auto">
                 <Canvas onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
             </div>
