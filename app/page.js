@@ -2,29 +2,32 @@
 
 import Map from "@/components/Map";
 import { useState} from 'react';
-
-
- 
+import Footer from "@/components/Footer";
 
 export default function Home() {
+  
 
   const [center] = useState([47.485, -62.48]); // Default center
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <header className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
+    <div className="h-full items-center justify-items-center gap-16 font-[family-name:var(--font-geist-sans)]">
+      <header id="header" className="grid text-white bg-[#00adef] w-full p-5 top=0 gap-[12px] flex-wrap">
+        <h1 className="text-[32px] font-bold text-left">OGSL Map</h1>
+        <div>
+          <p className="place-content-center justify-center text-center text-[24px]" >Catalogue cartographique</p>
+        </div>
 
       </header>
       
-      <main className="flex flex-col gap-[16px] row-start-2 items-center sm:items-start">
+      <main> 
        
-        <div id="map" style={{height: '850', width:'1000'}}>
+        <div >
             <Map center={center}/>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
 
-      </footer>
+      <Footer className=""/>
+
     </div>
   );
 }

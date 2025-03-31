@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import '../../app/globals.css';
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, Polygon, TileLayer, useMap } from "react-leaflet";
 import DynamicList from "@/components/Sidebar";
+import Canvas from "@/components/Canvas";
 import L from 'leaflet';
 
 
@@ -11,29 +12,35 @@ const FitBounds = ({ bounds }) => {
 
     const map = useMap();
     if (bounds) {
-        console.log('BOUNDS 2 :: ' + JSON.stringify(bounds));
-        map.fitBounds(L.geoJSON(bounds).getBounds());
+        ClearMap({map});
+        console.log('BOUNDS 2 :: ' + JSON.stringify(bounds.coordinates));
+
+        var polygon = L.geoJSON(bounds, {color: 'red'}).addTo(map);
+        
+        map.fitBounds(polygon.getBounds(), {
+            animate: true,
+            padding: [50, 50],
+            maxZoom: 10
+        });
     }
 
     return null;
   };
 
-  const Polyline = ({ polyLines }) => {
-    let done = false;
-    console.log('POLY :: ' + JSON.stringify(polyLines));
+  const ClearMap = ({map}) => {
+    map.eachLayer((layer) => {
+        if (layer instanceof L.Polygon) {
+            map.removeLayer(layer);
+        }
+        if (layer instanceof L.Marker) {
+            map.removeLayer(layer);
+        }
 
-      if(polyLines && done === false){
-        console.log('POLY 2 :: ' + JSON.stringify(polyLines));
-        done = true;
-        return (
-          <Polyline positions={polyLines} color="blue" />
-        );
-      }else{
-        console.log('POLY 3 :: null ');
-        return null
-      }
+    });
+
+
+    return null;
   };
-
 function Map({center}){
 
     const [bounds, setBounds] = useState(null);
@@ -52,20 +59,24 @@ function Map({center}){
 
     return(
 
-        <div id="container"> 
-            <div id="records-list" className="sidebar collapsed">
-                <DynamicList onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
+        <div id="container" className="flex ... z-20"> 
+            <div id="records-list" className="flex-none w-1/5 bg-gray-100 dark:bg-gray-900 overflow-y-auto overflow-x-auto">
+                <Canvas onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
             </div>
-
-            <MapContainer id="map" center={center} zoom={6} style={{height: '600', width:'1000'}} scrollWheelZoom={true}>
-                <TileLayer
+            <div className="flex-grow">
+                {center && (
+              
+                <MapContainer className="h-screen w-full"
+                    center={center} zoom={6} 
+                    scrollWheelZoom={true}
+                    boundsOptions={{ padding: [1, 1] }}>
+                    <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-               {bounds && <Polyline polyLines={bounds.coordinates} />}
-               {bounds && <FitBounds bounds={bounds} />}
-
-            </MapContainer>
-            
+                    />
+                  {bounds && <FitBounds bounds={bounds} />}
+                </MapContainer>
+            )}
+            </div>
         </div>
 
     )
