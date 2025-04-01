@@ -13,8 +13,6 @@ const FitBounds = ({ bounds }) => {
     const map = useMap();
     if (bounds) {
         ClearMap({map});
-        console.log('BOUNDS 2 :: ' + JSON.stringify(bounds.coordinates));
-
         var polygon = L.geoJSON(bounds, {color: 'red'}).addTo(map);
         
         map.fitBounds(polygon.getBounds(), {
@@ -59,14 +57,12 @@ function Map({center}){
 
     return(
 
-        <div id="container" className="flex w-full"> 
-            <div id="records-list" className="flex-none w-1/5 bg-gray-100 dark:bg-gray-900 overflow-y-auto overflow-x-auto">
-                <Canvas onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
-            </div>
+        <div id="container" className="flex w-screen"> 
+
             <div className="flex-1">
                 {center && (
               
-                <MapContainer className="h-screen w-full"
+                <MapContainer className="h-screen w-screen"
                     center={center} zoom={6} 
                     scrollWheelZoom={true}
                     boundsOptions={{ padding: [1, 1] }}>

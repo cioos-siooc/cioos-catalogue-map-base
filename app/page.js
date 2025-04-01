@@ -13,28 +13,13 @@ export default function Home() {
   const [center] = useState([47.485, -62.48]); // Default center
 
   return (
-    <div className="gap-16 font-[family-name:var(--font-geist-sans)]">
-      <header id="header" className="relative grid grid-cols-3 text-white bg-[#00adef] w-full pt-5 top=0 gap-[12px]">
-        <div className="col-span-1">
-          <a id="headerImg" href="//ogsl.ca">
-            <img id="headerimgsrc" className="pl-10 pt-5" src="components/Images/OGSL_NoTag_White.png"/>
-            <Image 
-              src="/components/Images/OGSL_NoTag_White.png" // Replace with your image path
-              alt="" 
-              width={48} 
-              height={48} 
-              className="rounded-full"
-            />
-          </a>
+    <div className="relative w-screen gap-16 font-[family-name:var(--font-geist-sans)]">
+     
+      <main>
+        <div className="fixed top-0 right-0 z-60">
+             <DrawerExample/>
         </div>
-
-        <div className="col-span-1 col-start-2" >
-          <p className="place-content-center justify-center text-center text-[24px]" >Catalogue cartographique</p>
-        </div>
-      </header>
-      
-      <main className="relative"> 
-        <div className="absolute inset-0 z-40">
+        <div className="relative z-30">
             <Map center={center}/>
         </div>
 
