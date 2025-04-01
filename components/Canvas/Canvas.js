@@ -74,7 +74,7 @@ const Canvas = ({ onItemClick, onItemDoubleClick }) => {
                   <ul className="bg-gray-200 space-y-2 font-medium p-5 text-gray-900 dark:text-gray-300">
                      {
                         items.map((item) => 
-                              <li className="hover:text-blue-500 bg-white font-bold ml-5 p-5" onClick={() => onItemClick(item)} 
+                              <li className="hover:text-blue-500, cursor-pointer bg-white font-bold ml-5 p-5" onClick={() => onItemClick(item)} 
                                  onDoubleClick={() => onItemDoubleClick(item)} 
                                  key={item.id}>{item.title}
                         

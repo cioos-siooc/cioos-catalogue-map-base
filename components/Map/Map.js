@@ -59,11 +59,11 @@ function Map({center}){
 
     return(
 
-        <div id="container" className="flex ..."> 
+        <div id="container" className="flex w-full"> 
             <div id="records-list" className="flex-none w-1/5 bg-gray-100 dark:bg-gray-900 overflow-y-auto overflow-x-auto">
                 <Canvas onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
             </div>
-            <div className="flex-grow">
+            <div className="flex-1">
                 {center && (
               
                 <MapContainer className="h-screen w-full"
@@ -75,7 +75,7 @@ function Map({center}){
                     />
                   {bounds && <FitBounds bounds={bounds} />}
                 </MapContainer>
-            )}
+                )}
             </div>
         </div>
 

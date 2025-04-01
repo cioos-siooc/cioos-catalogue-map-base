@@ -4,6 +4,7 @@ import Map from "@/components/Map";
 import { useState} from 'react';
 import Footer from "@/components/Footer";
 import Image from 'next/image';
+import DrawerExample from "@/components/Drawer";
 
 
 export default function Home() {
