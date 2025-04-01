@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "flowbite-react patch"
+    "postinstall": "flowbite-react patch",
+    "export": "next build && next export"
   },
   "dependencies": {
     "@react-leaflet/core": "^3.0.0",
