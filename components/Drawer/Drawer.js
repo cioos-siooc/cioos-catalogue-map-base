@@ -56,7 +56,7 @@ export default function DrawerExample({ onItemClick, onItemDoubleClick }) {
 
 
     <div>
-        <div className='top-0 z-70 h-screen py-4 overflow-y-auto'>
+        <div className='top-0 z-70 h-screen py-4 overflow-y-auto scrollbar-hide'>
             <div className="">
                 <h5 id="drawer-navigation-label" className="pl-5 pb-5 pt-5 bg-white w-100 dark:bg-gray-800 text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Liste de jeux de données</h5>
                 <button id="chevronDown" onClick={toggleDrawer} type="button" data-drawer-hide="drawer-navigation" aria-controls="drawer-navigation" className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-5 mt-2.5 end-2.5 inline-flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white" >
@@ -72,7 +72,7 @@ export default function DrawerExample({ onItemClick, onItemDoubleClick }) {
                     <span className="sr-only">Close menu</span>
                 </button>
             </div>
-            <div id="drawer-navigation" className={`bg-white w-100 dark:bg-gray-800" ${
+            <div id="drawer-navigation" className={`bg-[#e8eef1] w-100 dark:bg-gray-800" ${
                                 isOpen ? "translate-x-0" : "translate-x-full"
                               } transition-transform duration-300 ease-in-out`}
                                tabIndex="-1" aria-labelledby="drawer-navigation-label">
@@ -88,7 +88,7 @@ export default function DrawerExample({ onItemClick, onItemDoubleClick }) {
                     </li>
                     {
                         items.map((item) => 
-                              <li className="hover:text-blue-500, cursor-pointer bg-white font-bold ml-5 p-5" 
+                              <li className="hover:text-blue-500, cursor-pointer bg-white font-bold ml-5 mr-5 p-5" 
                                  onClick={() => onItemClick(item)} 
                                  onDoubleClick={() => onItemDoubleClick(item)} 
                                  key={item.id}>{item.title}
