@@ -16,9 +16,6 @@ export default function Home() {
     <div className="relative w-screen gap-16 font-[family-name:var(--font-geist-sans)]">
      
       <main>
-        <div className="fixed top-0 right-0 z-60">
-             <DrawerExample/>
-        </div>
         <div className="relative z-30">
             <Map center={center}/>
         </div>

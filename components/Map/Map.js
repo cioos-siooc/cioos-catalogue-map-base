@@ -5,6 +5,7 @@ import '../../app/globals.css';
 import { MapContainer, Polygon, TileLayer, useMap } from "react-leaflet";
 import DynamicList from "@/components/Sidebar";
 import Canvas from "@/components/Canvas";
+import DrawerExample from "@/components/Drawer";
 import L from 'leaflet';
 
 
@@ -58,6 +59,10 @@ function Map({center}){
     return(
 
         <div id="container" className="flex w-screen"> 
+
+            <div className="fixed top-0 right-0 z-1000">
+                <DrawerExample onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
+            </div>
 
             <div className="flex-1">
                 {center && (
