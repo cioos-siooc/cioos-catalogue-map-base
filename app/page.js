@@ -1,5 +1,4 @@
 'use client';
-
 import Map from "@/components/Map";
 import { useState} from 'react';
 import Footer from "@/components/Footer";
@@ -16,6 +15,9 @@ export default function Home() {
     <div className="relative w-screen gap-16 font-[family-name:var(--font-geist-sans)]">
      
       <main>
+
+
+        
         <div className="relative z-30">
             <Map center={center}/>
         </div>

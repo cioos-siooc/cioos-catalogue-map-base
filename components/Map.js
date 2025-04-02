@@ -1,11 +1,12 @@
 'use client';
 import { useState } from 'react';
 import 'leaflet/dist/leaflet.css';
-import '../../app/globals.css';
+import '../app/globals.css';
 import { MapContainer, Polygon, TileLayer, useMap } from "react-leaflet";
-import DrawerExample from "@/components/Drawer";
+import dynamic from 'next/dynamic';
 import L from 'leaflet';
 
+const Drawer = dynamic(() => import('./Drawer'), {ssr: false})
 
 const FitBounds = ({ bounds }) => {
 
@@ -56,10 +57,15 @@ function Map({center}){
 
     return(
 
-        <div id="container" className="flex w-screen"> 
+        <div id="container" className="flex w-screen">
 
             <div className="fixed top-0 right-0 z-1000">
-                <DrawerExample onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
+                
+            </div>
+
+
+            <div className="fixed top-0 right-0 z-1000">
+                <Drawer onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
             </div>
 
             <div className="flex-1">
