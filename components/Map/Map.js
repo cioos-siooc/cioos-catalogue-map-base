@@ -3,8 +3,6 @@ import { useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import '../../app/globals.css';
 import { MapContainer, Polygon, TileLayer, useMap } from "react-leaflet";
-import DynamicList from "@/components/Sidebar";
-import Canvas from "@/components/Canvas";
 import DrawerExample from "@/components/Drawer";
 import L from 'leaflet';
 
