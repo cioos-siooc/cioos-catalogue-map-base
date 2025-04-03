@@ -6,7 +6,7 @@ import { MapContainer, Polygon, TileLayer, useMap } from "react-leaflet";
 import dynamic from 'next/dynamic';
 import L from 'leaflet';
 
-const Drawer = dynamic(() => import('./Drawer'), {ssr: false})
+const RightMenu = dynamic(() => import('./RightMenu'), {ssr: false})
 
 const FitBounds = ({ bounds }) => {
 
@@ -39,6 +39,8 @@ const FitBounds = ({ bounds }) => {
 
     return null;
   };
+
+
 function Map({center}){
 
     const [bounds, setBounds] = useState(null);
@@ -60,12 +62,7 @@ function Map({center}){
         <div id="container" className="flex w-screen">
 
             <div className="fixed top-0 right-0 z-1000">
-                
-            </div>
-
-
-            <div className="fixed top-0 right-0 z-1000">
-                <Drawer onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
+                <RightMenu onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
             </div>
 
             <div className="flex-1">
