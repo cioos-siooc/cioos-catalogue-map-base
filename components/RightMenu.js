@@ -1,7 +1,7 @@
 'use client';   
 import {useState,useEffect } from 'react';
 
-export default function Drawer({ onItemClick, onItemDoubleClick }) {
+export default function RightMenu({ onItemClick, onItemDoubleClick }) {
     const [items, setItems] = useState([]);
     const [error, setError] = useState(null);
     const [isOpen, setIsOpen] = useState(true);

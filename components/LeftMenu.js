@@ -4,12 +4,15 @@ import dynamic from 'next/dynamic';
 
 
 export default function LeftMenu({ onItemClick }) {
-    const [items, setItems] = useState([]);
+    const [filteredItems, setFilteredItems] = useState([]);
     const [error, setError] = useState(null);
+    const [isFilterClicked, setIsFilterClicked] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const catalogueUrl = 'https://catalogue.ogsl.ca';
     const baseQuery = 'projects=*baseline*';
-    let url = `${catalogueUrl}/api/3/action/package_search?q=${baseQuery}`; 
+    let urlBaseSearch = `${catalogueUrl}/api/3/action/package_search?q=${baseQuery}`;
+    
+    let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
     const ProgressBar = dynamic(() => import('./ProgressBar'), {ssr: false})
 
@@ -25,24 +28,41 @@ export default function LeftMenu({ onItemClick }) {
     const handleChange = (event) => {
         setInputValue(event.target.value); // Update state with input value
       };
-  
-    const fetchData = async () => {
-      // Fetch data from an API
-      try {
-            const response = await fetch(url); // Example API
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-              }
-              const awaitRes = await response.json();
 
-              setItems(awaitRes.result.results);
-            }catch (error) {
-                setError(error.message);
-            }finally {
-                setInputValue('');
-            }        
-        
+      useEffect(() => {
+  
+        const fetchData = async () => {
+            console.log('isFilterClicked :: ' + isFilterClicked);
+            console.log('inputValue :: ' + inputValue);
+        // Fetch data from an API
+        if(isFilterClicked){
+            let url ='';
+            console.log('inputValue :: ' + inputValue);
+            try {
+                if(inputValue === '') {
+                    url = urlBaseSearch;
+                }else{
+                    url = `${urlCustomSearch}${inputValue}`;
+                }
+                console.log('url :: ' + url);    
+                const response = await fetch(url); // Example API
+                console.log('Responseeee :: ' + response);
+
+                const awaitRes = await response.json();
+
+                setFilteredItems(awaitRes.result.results);
+                }catch (error) {
+                    console.log('Error :: ' + error.message);
+                    setError(error.message);
+                    setIsFilterClicked(false);
+                }
+                setIsFilterClicked(false);
+                console.log('filtered :: ' + filteredItems); 
+            }
+
         };
+        fetchData();
+    }, [isFilterClicked]);
   
 
 
@@ -67,7 +87,7 @@ export default function LeftMenu({ onItemClick }) {
                       dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                       placeholder="Rechercher" required  onChange={handleChange} />
                 
-                    <button id="btnFilter" onClick={fetchData} type="button" aria-controls="drawer-navigation" className="text-gray-400 bg-transparent 
+                    <button id="btnFilter" onClick={() => setIsFilterClicked(true)} type="button" aria-controls="drawer-navigation" className="text-gray-400 bg-transparent 
                     hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-15 h-8 top-5 mt-2.5 end-2.5 items-center 
                     justify-center dark:hover:bg-gray-600 dark:hover:text-white" >
 
@@ -83,7 +103,7 @@ export default function LeftMenu({ onItemClick }) {
                     <div className="inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <ul className="space-y-2 font-medium">
                         {
-                            items.map((item) => 
+                            filteredItems.map((item) => 
                                 <li className="hover:text-blue-500, cursor-pointer bg-white mt-5 ml-5 mr-5 p-5" 
                                     onClick={() => onLeftMenuItemClick(item)} 
                                     onDoubleClick={() => onLeftMenuItemDoubleClick(item)} 

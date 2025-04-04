@@ -1,12 +1,11 @@
 'use client';
-import { useState } from 'react';
+
 import 'leaflet/dist/leaflet.css';
 import '../app/globals.css';
 import { MapContainer, Polygon, TileLayer, useMap } from "react-leaflet";
-import dynamic from 'next/dynamic';
 import L from 'leaflet';
 
-const RightMenu = dynamic(() => import('./RightMenu'), {ssr: false})
+
 
 const FitBounds = ({ bounds }) => {
 
@@ -41,29 +40,11 @@ const FitBounds = ({ bounds }) => {
   };
 
 
-function Map({center}){
-
-    const [bounds, setBounds] = useState(null);
-    const catalogueUrl = 'https://catalogue.ogsl.ca';
-
-    console.log('MAP INIT :: ');
-
-    const handleListItemClick = (selectedItem) => {
-        setBounds(selectedItem.spatial);
-        console.log('SPATIAL :: ' + JSON.stringify(selectedItem.spatial.coordinates));
-      };
-
-      const handleListItemDoubleClick = (selectedItem) => {
-        window.open(`${catalogueUrl}/dataset/${selectedItem.name}`);
-      };
+function Map({center,bounds}){
 
     return(
 
         <div id="container" className="flex w-screen">
-
-            <div className="fixed top-0 right-0 z-1000">
-                <RightMenu onItemClick={handleListItemClick} onItemDoubleClick={handleListItemDoubleClick}/>
-            </div>
 
             <div className="flex-1">
                 {center && (
