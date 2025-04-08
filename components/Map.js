@@ -16,7 +16,7 @@ const FitBounds = ({ bounds }) => {
         
         map.fitBounds(polygon.getBounds(), {
             animate: true,
-            padding: [50, 50],
+            padding: [150, 150],
             maxZoom: 10
         });
     }
@@ -43,23 +43,19 @@ const FitBounds = ({ bounds }) => {
 function Map({center,bounds}){
 
     return(
-
-        <div id="container" className="flex w-screen">
-
-            <div className="flex-1">
-                {center && (
-              
-                <MapContainer className="h-screen w-screen"
-                    center={center} zoom={6} 
-                    scrollWheelZoom={true}
-                    boundsOptions={{ padding: [1, 1] }}>
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                  {bounds && <FitBounds bounds={bounds} />}
-                </MapContainer>
-                )}
-            </div>
+        <div id="container">
+            {center && (
+            
+            <MapContainer className="h-screen w-screen md:ml-32 z-10"
+                center={center} zoom={6} 
+                scrollWheelZoom={true}
+                boundsOptions={{ padding: [1, 1] }}>
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {bounds && <FitBounds bounds={bounds} />}
+            </MapContainer>
+            )}
         </div>
 
     )
