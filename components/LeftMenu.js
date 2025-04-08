@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import RightMenu from "@/components/RightMenu";
+import ItemsList from "@/components/ItemsList";
 
 
 
@@ -10,15 +10,30 @@ export default function LeftMenu({ onItemClick }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [error, setError] = useState(null);
     const [isFilterClicked, setIsFilterClicked] = useState(false);
+    const [isFetchDone, setIsFetchDone] = useState(false);
     const [inputValue, setInputValue] = useState('');
+    const [badges, setBadges] = useState([]);
+    const [selectedValue, setSelectedValue] = useState('');
+
+    //TODO: move to config file
     const catalogueUrl = 'https://catalogue.ogsl.ca';
     const baseQuery = 'projects=*baseline*';
     let urlBaseSearch = `${catalogueUrl}/api/3/action/package_search?q=${baseQuery}`;
-
     let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
 
     const ProgressBar = dynamic(() => import('./ProgressBar'), { ssr: false })
+    const Badge = dynamic(() => import('./Badge'),  { ssr: false })
+
+    const AddBadge = (label)=> {
+        let id = badges.length + 1;
+        console.log('id :: ' + id);
+        console.log('label :: ' + label);
+        setBadges([...badges, {id: {id}, nom : label}]);
+    }
+    const handleSelectChange = (event) => {
+        setSelectedValue(event.target.value); // Update the state with the selected value
+      };
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
@@ -36,35 +51,52 @@ export default function LeftMenu({ onItemClick }) {
         setInputValue(event.target.value); // Update state with input value
     };
 
+    const constructFilterUrl = (badges,inputValue,selectedValue) => {
+
+        let url = `${inputValue}`;
+        return url;
+    }
+
     useEffect(() => {
 
         const fetchData = async () => {
             console.log('isFilterClicked :: ' + isFilterClicked);
-            console.log('inputValue :: ' + inputValue);
+            console.log('fetch done :: ' + isFetchDone);
             // Fetch data from an API
-            if (isFilterClicked) {
+            if (!isFetchDone && isFilterClicked) {
+                // If filter is clicked, fetch the filtered data
                 let url = '';
-                console.log('inputValue :: ' + inputValue);
                 try {
-                    if (inputValue === '') {
-                        url = urlBaseSearch;
-                    } else {
-                        url = `${urlCustomSearch}${inputValue}`;
-                    }
+                    url = `${urlCustomSearch}${inputValue}`;
                     console.log('url :: ' + url);
                     const response = await fetch(url); // Example API
                     console.log('Responseeee :: ' + response);
-
                     const awaitRes = await response.json();
-
                     setFilteredItems(awaitRes.result.results);
+                    setIsFetchDone(true);
+                    AddBadge(inputValue);
+                    setInputValue(''); // Clear input value after fetching
+
                 } catch (error) {
                     console.log('Error :: ' + error.message);
                     setError(error.message);
                     setIsFilterClicked(false);
                 }
-                setIsFilterClicked(false);
                 console.log('filtered :: ' + filteredItems);
+            }else {
+                // If no filter is clicked, fetch the default data
+                try {
+                    console.log('Default :: ');
+                    const response = await fetch(urlBaseSearch); // Example API
+                    
+
+                    const awaitRes = await response.json();
+                    console.log('Responseeee default :: ' + awaitRes.result.results);
+                    setFilteredItems(awaitRes.result.results);
+                } catch (error) {
+                    console.log('Error :: ' + error.message);
+                    setError(error.message);
+                }
             }
 
         };
@@ -98,7 +130,8 @@ export default function LeftMenu({ onItemClick }) {
                                 <div className="flex">
                                     <select
                                         className="py-2 pl-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 border border-gray-300 rounded-l-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                        aria-labelledby="dropdown-button">
+                                        aria-labelledby="dropdown-button"
+                                        onChange={handleSelectChange} >
                                         <option value="search">Recherche</option>
                                         <option value="dataset">Organisation</option>
                                         <option value="project">Projet</option>
@@ -130,9 +163,19 @@ export default function LeftMenu({ onItemClick }) {
 
                         </li>
                     </ul>
+                    <div id="badgesSection" className="mt-3 mb-3 relative w-full" >
+                        {badges.map(badge => (
+                            
+                            <Badge key={badge.id} label={badge.nom} />
+
+                        ))}
+                    </div>  
+
+
                     <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">Jeux de données</span>
                     <ul className="flex-grow overflow-y-auto pt-1 mt-1 space-y-2 rounded-md">
-                        <RightMenu onItemClick={onLeftMenuItemClick} onItemDoubleClick={onLeftMenuItemDoubleClick} className="flex-grow overflow-y-auto" />
+                        <ItemsList itemsList={filteredItems} onItemClick={onLeftMenuItemClick} onItemDoubleClick={onLeftMenuItemDoubleClick} 
+                        className="flex-grow overflow-y-auto" />
                     </ul>
                     <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
                         <ProgressBar count={40} total={60} />
