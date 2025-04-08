@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import RightMenu from "@/components/RightMenu";
+import Image from 'next/image';
 
 
 
@@ -77,8 +78,8 @@ export default function LeftMenu({ onItemClick }) {
             <button id="sidebar-toggle" data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" onClick={toggleSidebar} className="flex justify-between w-screen items-center p-2 text-sm text-gray-500 md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600  bg-gray-50 dark:bg-gray-800 ">
                 <div>
                     <a href="https://ogsl.ca" className="">
-                        <img src="/Images/OGSL_NoTag.png" className="h-6 me-3 sm:h-7 dark:hidden" alt="OGSL Logo" />
-                        <img src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7 hidden dark:block" alt="OGSL Logo" />
+                        <Image src="/Images/OGSL_NoTag.png" className="h-6 me-3 sm:h-7 dark:hidden" alt="OGSL Logo" />
+                        <Image src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7 hidden dark:block" alt="OGSL Logo" />
                     </a>
                     <span className="sr-only">Open sidebar</span>
                     <span className="pt-3 self-center text-xl font-semibold whitespace-nowrap strokeLinecap">Carte de l'OGSL</span>
@@ -91,8 +92,8 @@ export default function LeftMenu({ onItemClick }) {
                 <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
                     <a className="flex items-center justify-between ps-2.5 mb-2">
                         <div>
-                            <img src="/Images/OGSL_NoTag.png" className="h-6 me-3 sm:h-7 dark:hidden" alt="OGSL Logo" />
-                            <img src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7 hidden dark:block" alt="OGSL Logo" />
+                            <Image src="/Images/OGSL_NoTag.png" className="h-6 me-3 sm:h-7 dark:hidden" alt="OGSL Logo" />
+                            <Image src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7 hidden dark:block" alt="OGSL Logo" />
                             <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Carte de l'OGSL</span>
                         </div>
                         <button onClick={toggleSidebar} className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="logo-sidebar" data-drawer-toggle="logo-sidebar">
