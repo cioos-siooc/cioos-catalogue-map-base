@@ -88,7 +88,7 @@ export default function LeftMenu({ onItemClick }) {
             </button>
             <aside id="logo-sidebar" className={`fixed top-0 left-0 z-40 md:w-sm w-auto h-screen transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`} aria-label="Sidebar">
                 <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
-                    <a className="flex items-center justify-between ps-2.5 mb-5">
+                    <a className="flex items-center justify-between ps-2.5 mb-2">
                         <div>
                             <img src="/Images/OGSL_NoTag_White.png" href="https://ogsl.ca" className="h-6 me-3 sm:h-7" alt="Hide Sidebar" />
                             <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Carte de l'OGSL</span>
@@ -102,7 +102,7 @@ export default function LeftMenu({ onItemClick }) {
                     <ul className="space-y-2 font-medium">
                         <li>
 
-                            <form className="max-w-lg mx-auto">
+                            <form className="pb-2 max-w-lg mx-auto">
                                 <label>Filtrer par</label>
                                 <div className="flex">
                                     <select
