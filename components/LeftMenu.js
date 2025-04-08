@@ -74,21 +74,23 @@ export default function LeftMenu({ onItemClick }) {
 
     return (
         <div id="sidebar">
-            <button id="sidebar-toggle" data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" onClick={toggleSidebar} className="flex justify-between w-screen items-center p-2 mt-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
-                <span className="sr-only">Open sidebar</span>
+            <button id="sidebar-toggle" data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" onClick={toggleSidebar} className="flex justify-between w-screen items-center p-2 text-sm text-gray-500 md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600  bg-gray-50 dark:bg-gray-800 ">
+                <div>
+                    <a href="https://ogsl.ca" className="">
+                        <img src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
+                    </a>
+                    <span className="sr-only">Open sidebar</span>
+                    <span className="pt-3 self-center text-xl font-semibold whitespace-nowrap dark:text-white">Carte de l'OGSL</span>
+                </div>
                 <svg className="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path clipRule="evenodd" fillRule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                 </svg>
-                <span className="p-3 self-center text-xl font-semibold whitespace-nowrap dark:text-white">Carte de l'OGSL</span>
-                <a href="https://ogsl.ca" className="">
-                    <img src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
-                </a>
             </button>
             <aside id="logo-sidebar" className={`fixed top-0 left-0 z-40 md:w-sm w-auto h-screen transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`} aria-label="Sidebar">
                 <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
                     <a className="flex items-center justify-between ps-2.5 mb-5">
                         <div>
-                        <img src="/Images/OGSL_NoTag_White.png" href="https://ogsl.ca" className="h-6 me-3 sm:h-7" alt="Hide Sidebar" />
+                            <img src="/Images/OGSL_NoTag_White.png" href="https://ogsl.ca" className="h-6 me-3 sm:h-7" alt="Hide Sidebar" />
                             <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Carte de l'OGSL</span>
                         </div>
                         <button onClick={toggleSidebar} className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="logo-sidebar" data-drawer-toggle="logo-sidebar">
