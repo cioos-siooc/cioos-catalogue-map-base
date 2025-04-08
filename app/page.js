@@ -13,7 +13,7 @@ export default function Home() {
   const [selectedLeftMenu, setSelectedLeftMenu] = useState('');
   const [bounds, setBounds] = useState(null);
 
-      const Map = dynamic(() => import('@/components/Map'), { ssr: false });
+    const Map = dynamic(() => import('@/components/Map'), { ssr: false });
 
   const handleLeftMenuSelect = (param) => {
     setSelectedLeftMenu(param); // Update the selected state with the parameter from Sidebar
