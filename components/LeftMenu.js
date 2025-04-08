@@ -84,11 +84,18 @@ export default function LeftMenu({ onItemClick }) {
                     <img src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
                 </a>
             </button>
-            <aside id="logo-sidebar" className={`fixed top-0 left-0 z-40 w-sm h-screen transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`} aria-label="Sidebar">
+            <aside id="logo-sidebar" className={`fixed top-0 left-0 z-40 md:w-sm w-auto h-screen transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`} aria-label="Sidebar">
                 <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
-                    <a href="https://ogsl.ca" className="flex items-center ps-2.5 mb-5">
-                        <img src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
-                        <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Carte de l'OGSL</span>
+                    <a className="flex items-center justify-between ps-2.5 mb-5">
+                        <div>
+                        <img src="/Images/OGSL_NoTag_White.png" href="https://ogsl.ca" className="h-6 me-3 sm:h-7" alt="Hide Sidebar" />
+                            <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Carte de l'OGSL</span>
+                        </div>
+                        <button onClick={toggleSidebar} className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="logo-sidebar" data-drawer-toggle="logo-sidebar">
+                            <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </a>
                     <ul className="space-y-2 font-medium">
                         <li>
@@ -111,7 +118,7 @@ export default function LeftMenu({ onItemClick }) {
                                             className="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
                                             placeholder="Appliquer filtre"
                                             required
-                                            onChange= {handleChange}
+                                            onChange={handleChange}
                                             value={inputValue}
                                         />
                                         <button
