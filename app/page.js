@@ -1,9 +1,9 @@
 'use client';
-import Map from "@/components/Map";
+
 import { useState} from 'react';
 import Image from 'next/image';
 import LeftMenu from "@/components/LeftMenu";
-import MapDynamic from "@/components/MapDynamic";
+import dynamic from "next/dynamic";
 
 
 export default function Home() {
@@ -12,6 +12,8 @@ export default function Home() {
   const [center] = useState([47.485, -62.48]); // Default center
   const [selectedLeftMenu, setSelectedLeftMenu] = useState('');
   const [bounds, setBounds] = useState(null);
+
+      const Map = dynamic(() => import('@/components/Map'), { ssr: false });
 
   const handleLeftMenuSelect = (param) => {
     setSelectedLeftMenu(param); // Update the selected state with the parameter from Sidebar

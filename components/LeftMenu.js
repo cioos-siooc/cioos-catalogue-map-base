@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import RightMenu from "@/components/RightMenu";
 
 
+
 export default function LeftMenu({ onItemClick }) {
     const [filteredItems, setFilteredItems] = useState([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -15,6 +16,7 @@ export default function LeftMenu({ onItemClick }) {
     let urlBaseSearch = `${catalogueUrl}/api/3/action/package_search?q=${baseQuery}`;
 
     let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
+
 
     const ProgressBar = dynamic(() => import('./ProgressBar'), { ssr: false })
 
