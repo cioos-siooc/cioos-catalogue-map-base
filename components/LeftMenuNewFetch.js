@@ -14,6 +14,7 @@ export default function LeftMenu({ onItemClick }) {
     const [inputValue, setInputValue] = useState('');
     const [badges, setBadges] = useState([]);
     const [selectedValue, setSelectedValue] = useState('');
+    const [fetchURLFilter, setFetchURLFilter] = useState("projects=*baseline*");
 
     //TODO: move to config file
     const catalogueUrl = 'https://catalogue.ogsl.ca';
@@ -62,7 +63,7 @@ export default function LeftMenu({ onItemClick }) {
     };
 
     const handleFilterClick = () => {
-        constructFilterUrl(badges,inputValue,selectedValue);
+        constructFilterUrl(badges,inputValue,selectedValue); // Construct filter URL
     };
 
 
@@ -80,57 +81,34 @@ export default function LeftMenu({ onItemClick }) {
         }else if (inputValue) {
             filterString += `${inputValue}`;
         }
+        AddBadge(inputValue);
         // Construct the filter URL based on the selected value and input value
-        console.log("FILTRES :: " + filterString);
-        set
+        console.log("Filter String :: " + filterString);
+        setFetchURLFilter(filterString);
     }
+
 
     useEffect(() => {
 
         const fetchData = async () => {
-            console.log('isFilterClicked :: ' + isFilterClicked);
-            console.log('fetch done :: ' + isFetchDone);
             // Fetch data from an API
-            if (!isFetchDone && isFilterClicked) {
-                // If filter is clicked, fetch the filtered data
-                let url = '';
-                try {
-                    let filterString = constructFilterUrl(badges,inputValue,selectedValue);
-                    console.log('filterString :: ' + filterString);
-                    url = `${urlCustomSearch}${filterString}`;
-                    console.log('url :: ' + url);
-                    const response = await fetch(url); // Example API
-                    console.log('Responseeee :: ' + response);
-                    const awaitRes = await response.json();
-                    setFilteredItems(awaitRes.result.results);
-                    setIsFetchDone(true);
-                    AddBadge(inputValue);
-                    setInputValue(''); // Clear input value after fetching
-                    setSelectedValue(''); // Clear selected value after fetching
-
-                } catch (error) {
-                    console.log('Error :: ' + error.message);
-                    setError(error.message);
-                    setIsFilterClicked(false);
-                }
-                console.log('filtered :: ' + filteredItems);
-            }else {
-                // If no filter is clicked, fetch the default data
-                try {
-                    console.log('Default :: ');
-                    const response = await fetch(urlBaseSearch); // Example API
-                    const awaitRes = await response.json();
-                    console.log('Responseeee default :: ' + awaitRes.result.results);
-                    setFilteredItems(awaitRes.result.results);
-                } catch (error) {
-                    console.log('Error :: ' + error.message);
-                    setError(error.message);
-                }
+            try {
+                console.log('Default :: ');
+                let url = `${urlCustomSearch}${fetchURLFilter}`;
+                const response = await fetch(url); // Example API
+                const awaitRes = await response.json();
+                console.log('Responseeee default :: ' + awaitRes.result.results);
+                setFilteredItems(awaitRes.result.results);
+                setInputValue(''); // Clear input value after fetching data 
+            } catch (error) {
+                console.log('Error :: ' + error.message);
+                setError(error.message);
             }
-
+            console.log('filtered :: ' + filteredItems.length);
+            
         };
         fetchData();
-    }, [isFilterClicked]);
+    }, [fetchURLFilter]);
 
 
     return (

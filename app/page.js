@@ -2,6 +2,7 @@
 
 import { useState} from 'react';
 import LeftMenu from "@/components/LeftMenu";
+import LeftMenuNewFetch from "@/components/LeftMenuNewFetch";
 import dynamic from "next/dynamic";
 
 
@@ -22,7 +23,7 @@ export default function Home() {
     <div className="relative w-screen gap-16 font-[family-name:var(--font-geist-sans)]">
      
       <main>
-        <LeftMenu onItemClick={handleListItemClick}/>        
+        <LeftMenuNewFetch onItemClick={handleListItemClick}/>        
         <div className="md:ml-64">
           <Map center={center} bounds={bounds} />
         </div>
