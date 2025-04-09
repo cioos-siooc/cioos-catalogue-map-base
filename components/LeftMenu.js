@@ -32,7 +32,17 @@ export default function LeftMenu({ onItemClick }) {
         setBadges([...badges, {id: {id}, nom : label}]);
     }
     const handleSelectChange = (event) => {
-        setSelectedValue(event.target.value); // Update the state with the selected value
+        // Handle the change event for the select input
+        if (event.target.value === 'EOV') {
+            setSelectedValue("eov");
+        }else if (event.target.value === 'Organisation') {
+            setSelectedValue("dataset");
+        } else if (event.target.value === 'Project') {
+            setSelectedValue("projects");
+        } else {
+            setSelectedValue("");
+        }
+
       };
 
     const toggleSidebar = () => {
@@ -51,10 +61,28 @@ export default function LeftMenu({ onItemClick }) {
         setInputValue(event.target.value); // Update state with input value
     };
 
+    const handleFilterClick = () => {
+        setIsFilterClicked(true);
+    };
+
+
     const constructFilterUrl = (badges,inputValue,selectedValue) => {
 
-        let url = `${inputValue}`;
-        return url;
+        console.log("Badges :: " + JSON.stringify(badges));
+        let filterString = '';
+        for(let i = 0; i < badges.length; i++) {
+            if (badges[i].nom) {
+                filterString += badges[i].nom;
+            }
+        }
+        if(selectedValue) {
+            filterString += `${selectedValue}=${inputValue}`;
+        }else if (inputValue) {
+            filterString += `${inputValue}`;
+        }
+        // Construct the filter URL based on the selected value and input value
+        console.log("FILTRES :: " + filterString);
+        return filterString;
     }
 
     useEffect(() => {
@@ -67,7 +95,9 @@ export default function LeftMenu({ onItemClick }) {
                 // If filter is clicked, fetch the filtered data
                 let url = '';
                 try {
-                    url = `${urlCustomSearch}${inputValue}`;
+                    let filterString = constructFilterUrl(badges,inputValue,selectedValue);
+                    console.log('filterString :: ' + filterString);
+                    url = `${urlCustomSearch}${filterString}`;
                     console.log('url :: ' + url);
                     const response = await fetch(url); // Example API
                     console.log('Responseeee :: ' + response);
@@ -76,6 +106,7 @@ export default function LeftMenu({ onItemClick }) {
                     setIsFetchDone(true);
                     AddBadge(inputValue);
                     setInputValue(''); // Clear input value after fetching
+                    setSelectedValue(''); // Clear selected value after fetching
 
                 } catch (error) {
                     console.log('Error :: ' + error.message);
@@ -88,8 +119,6 @@ export default function LeftMenu({ onItemClick }) {
                 try {
                     console.log('Default :: ');
                     const response = await fetch(urlBaseSearch); // Example API
-                    
-
                     const awaitRes = await response.json();
                     console.log('Responseeee default :: ' + awaitRes.result.results);
                     setFilteredItems(awaitRes.result.results);
@@ -150,7 +179,7 @@ export default function LeftMenu({ onItemClick }) {
                                         <button
                                             type="button"
                                             className="absolute top-0 end-0 p-2.5 text-sm font-medium h-full text-white bg-blue-700 rounded-e-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                            onClick={() => setIsFilterClicked(true)}
+                                            onClick={handleFilterClick}
                                         >
                                             <svg className="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
