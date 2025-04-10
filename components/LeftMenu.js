@@ -15,7 +15,7 @@ export default function LeftMenu({ onItemClick }) {
     const [inputValue, setInputValue] = useState('');
     const [badges, setBadges] = useState([]);
     const [selectedValue, setSelectedValue] = useState('');
-    const [fetchURLFilter, setFetchURLFilter] = useState("projects=*baseline*");
+    const [fetchURLFilter, setFetchURLFilter] = useState("projects=*baseline*&rows=50");
 
     //TODO: move to config file
     const catalogueUrl = 'https://catalogue.ogsl.ca';
@@ -76,17 +76,19 @@ export default function LeftMenu({ onItemClick }) {
         for(let i = 0; i < badges.length; i++) {
             console.log("NOM :: " + badges[i].nom);
             if (badges[i].nom) {
-                filterString += badges[i].nom;
+                filterString += `${i > 0 ? '%20AND%20' : ''}${badges[i].nom}`;
             }
         }
         console.log("Filter String 1 :: " + filterString);
         console.log("Filter selected value :: " + selectedValue);
 
         if (selectedValue && inputValue) {
-            filterString += `${badges.length > 0 ? '&' : ''}${selectedValue}=${inputValue}`;
+
+            filterString += `${badges.length > 0 ? '%20AND%20' : ''}${selectedValue}=${inputValue}`;
         } else if (inputValue) {
-            filterString += `${badges.length > 0 ? '&' : ''}${inputValue}`;
+            filterString += `${badges.length > 0 ? '%20AND%20' : ''}${inputValue}`;
         }
+        filterString += "&rows=50";
         AddBadge(inputValue);
         // Construct the filter URL based on the selected value and input value
         console.log("Filter String 2 :: " + filterString);
