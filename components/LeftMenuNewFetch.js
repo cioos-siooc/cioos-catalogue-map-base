@@ -122,10 +122,10 @@ export default function LeftMenu({ onItemClick }) {
         <div id="sidebar">
             <button id="sidebar-toggle" data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" onClick={toggleSidebar} className="flex justify-between w-screen items-center p-2 text-sm md:hidden bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                 <div className="flex items-center ps-2.5">
-                    <a href="https://ogsl.ca" className="me-3">
+                    <a className="me-3">
                         <Image src="/Images/OGSL_NoTag.png" className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
                         <Image src="/Images/OGSL_NoTag_White.png" className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
-                        <span className="self-center text-xl font-semibold whitespace-nowrap">Carte de l&apos;OGSL</span>
+          W              <span className="self-center text-xl font-semibold whitespace-nowrap">Carte de l&apos;OGSL</span>
                     </a>
                     <span className="sr-only">Open sidebar</span>
                 </div>
