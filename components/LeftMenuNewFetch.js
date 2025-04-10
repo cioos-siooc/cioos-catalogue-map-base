@@ -1,9 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import ItemsList from "@/components/ItemsList";
-
 
 
 
@@ -16,6 +14,7 @@ export default function LeftMenu({ onItemClick }) {
     const [inputValue, setInputValue] = useState('');
     const [badges, setBadges] = useState([]);
     const [selectedValue, setSelectedValue] = useState('');
+    const [fetchURLFilter, setFetchURLFilter] = useState("projects=*baseline*");
 
     //TODO: move to config file
     const catalogueUrl = 'https://catalogue.ogsl.ca';
@@ -31,15 +30,16 @@ export default function LeftMenu({ onItemClick }) {
         let id = badges.length + 1;
         console.log('id :: ' + id);
         console.log('label :: ' + label);
-        setBadges([...badges, {id: {id}, nom : label}]);
+        setBadges([...badges, {id: id, nom : label}]);
     }
     const handleSelectChange = (event) => {
         // Handle the change event for the select input
-        if (event.target.value === 'EOV') {
+        console.log("ON Selected value :: " + event.target.value);
+        if (event.target.value === 'eov') {
             setSelectedValue("eov");
-        }else if (event.target.value === 'Organisation') {
+        }else if (event.target.value === 'organisation') {
             setSelectedValue("dataset");
-        } else if (event.target.value === 'Project') {
+        } else if (event.target.value === 'project') {
             setSelectedValue("projects");
         } else {
             setSelectedValue("");
@@ -64,7 +64,7 @@ export default function LeftMenu({ onItemClick }) {
     };
 
     const handleFilterClick = () => {
-        constructFilterUrl(badges,inputValue,selectedValue);
+        constructFilterUrl(badges,inputValue,selectedValue); // Construct filter URL
     };
 
 
@@ -73,101 +73,72 @@ export default function LeftMenu({ onItemClick }) {
         console.log("Badges :: " + JSON.stringify(badges));
         let filterString = '';
         for(let i = 0; i < badges.length; i++) {
+            console.log("NOM :: " + badges[i].nom);
             if (badges[i].nom) {
                 filterString += badges[i].nom;
             }
         }
-        if(selectedValue) {
-            filterString += `${selectedValue}=${inputValue}`;
-        }else if (inputValue) {
-            filterString += `${inputValue}`;
+        console.log("Filter String 1 :: " + filterString);
+        console.log("Filter selected value :: " + selectedValue);
+
+        if (selectedValue && inputValue) {
+            filterString += `${badges.length > 0 ? '&' : ''}${selectedValue}=${inputValue}`;
+        } else if (inputValue) {
+            filterString += `${badges.length > 0 ? '&' : ''}${inputValue}`;
         }
+        AddBadge(inputValue);
         // Construct the filter URL based on the selected value and input value
-        console.log("FILTRES :: " + filterString);
-        set
+        console.log("Filter String 2 :: " + filterString);
+        setFetchURLFilter(filterString);
     }
+
 
     useEffect(() => {
 
         const fetchData = async () => {
-            console.log('isFilterClicked :: ' + isFilterClicked);
-            console.log('fetch done :: ' + isFetchDone);
             // Fetch data from an API
-            if (!isFetchDone && isFilterClicked) {
-                // If filter is clicked, fetch the filtered data
-                let url = '';
-                try {
-                    let filterString = constructFilterUrl(badges,inputValue,selectedValue);
-                    console.log('filterString :: ' + filterString);
-                    url = `${urlCustomSearch}${filterString}`;
-                    console.log('url :: ' + url);
-                    const response = await fetch(url); // Example API
-                    console.log('Responseeee :: ' + response);
-                    const awaitRes = await response.json();
-                    setFilteredItems(awaitRes.result.results);
-                    setIsFetchDone(true);
-                    AddBadge(inputValue);
-                    setInputValue(''); // Clear input value after fetching
-                    setSelectedValue(''); // Clear selected value after fetching
+            try {
+                console.log('Default :: ');
+                let url = `${urlCustomSearch}${fetchURLFilter}`;
+                console.log('URL:: ' + url);
+                const response = await fetch(url); // Example API
+                const awaitRes = await response.json();
 
-                } catch (error) {
-                    console.log('Error :: ' + error.message);
-                    setError(error.message);
-                    setIsFilterClicked(false);
-                }
-                console.log('filtered :: ' + filteredItems);
-            }else {
-                // If no filter is clicked, fetch the default data
-                try {
-                    console.log('Default :: ');
-                    const response = await fetch(urlBaseSearch); // Example API
-                    const awaitRes = await response.json();
-                    console.log('Responseeee default :: ' + awaitRes.result.results);
-                    setFilteredItems(awaitRes.result.results);
-                } catch (error) {
-                    console.log('Error :: ' + error.message);
-                    setError(error.message);
-                }
+                setFilteredItems(awaitRes.result.results);
+                setInputValue(''); // Clear input value after fetching data 
+            } catch (error) {
+                console.log('Error :: ' + error.message);
+                setError(error.message);
             }
-
+            console.log('filtered :: ' + filteredItems.length);
+            
         };
         fetchData();
-    }, [isFilterClicked]);
+    }, [fetchURLFilter]);
 
 
     return (
         <div id="sidebar">
-            <button id="sidebar-toggle" data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" onClick={toggleSidebar} className="flex justify-between w-screen items-center p-2 text-sm text-gray-500 md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600  bg-gray-50 dark:bg-gray-800 ">
-                <div>
-                    <a href="https://ogsl.ca" className="">
-                        <Image src="/Images/OGSL_NoTag.png" className="h-6 me-3 sm:h-7 dark:hidden" alt="OGSL Logo" width={100} height={100} />
-                        <Image src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7 hidden dark:block" alt="OGSL Logo" width={100} height={100}/>
-                    </a>
-                    <span className="sr-only">Open sidebar</span>
-                    <span className="pt-3 self-center text-xl font-semibold whitespace-nowrap strokeLinecap">Carte de l&apos;OGSL</span>
-                </div>
+            <button id="sidebar-toggle" data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" onClick={toggleSidebar} className="flex justify-between w-screen items-center p-2 mt-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                <span className="sr-only">Open sidebar</span>
                 <svg className="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path clipRule="evenodd" fillRule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                 </svg>
+                <span className="p-3 self-center text-xl font-semibold whitespace-nowrap dark:text-white">Carte de l'OGSL</span>
+                <a href="https://ogsl.ca" className="">
+                    <img src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
+                </a>
             </button>
-            <aside id="logo-sidebar" className={`fixed top-0 left-0 z-40 md:w-sm w-auto h-screen transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`} aria-label="Sidebar">
+            <aside id="logo-sidebar" className={`fixed top-0 left-0 z-40 w-sm h-screen transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`} aria-label="Sidebar">
                 <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
-                    <a className="flex items-center justify-between ps-2.5 mb-2">
-                        <div>
-                            <Image src="/Images/OGSL_NoTag.png" className="h-6 me-3 sm:h-7 dark:hidden" alt="OGSL Logo" width={100} height={100}/>
-                            <Image src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7 hidden dark:block" alt="OGSL Logo" width={100} height={100}/>
-                            <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Carte de l&apos;OGSL</span>
-                        </div>
-                        <button onClick={toggleSidebar} className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="logo-sidebar" data-drawer-toggle="logo-sidebar">
-                            <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                    <a href="https://ogsl.ca" className="flex items-center ps-2.5 mb-5">
+                        <img src="/Images/OGSL_NoTag_White.png" className="h-6 me-3 sm:h-7" alt="Flowbite Logo" />
+                        <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Carte de l'OGSL</span>
                     </a>
                     <ul className="space-y-2 font-medium">
                         <li>
 
-                            <form className="pb-2 max-w-lg mx-auto">
+                            <form className="max-w-lg mx-auto">
                                 <label>Filtrer par</label>
                                 <div className="flex">
                                     <select
@@ -175,9 +146,9 @@ export default function LeftMenu({ onItemClick }) {
                                         aria-labelledby="dropdown-button"
                                         onChange={handleSelectChange} >
                                         <option value="search">Recherche</option>
-                                        <option value="dataset">Organisation</option>
+                                        <option value="organisation">Organisation</option>
                                         <option value="project">Projet</option>
-                                        <option value="service">EOV</option>
+                                        <option value="eov">EOV</option>
                                     </select>
                                     <div className="relative w-full">
                                         <input
@@ -186,7 +157,7 @@ export default function LeftMenu({ onItemClick }) {
                                             className="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
                                             placeholder="Appliquer filtre"
                                             required
-                                            onChange={handleChange}
+                                            onChange= {handleChange}
                                             value={inputValue}
                                         />
                                         <button
@@ -225,8 +196,8 @@ export default function LeftMenu({ onItemClick }) {
                     <ul className="pt-4 m-3 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
                         <li>
                             <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                                <svg className="shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3" />
                                 </svg>
                                 <span className="flex-1 ms-3 whitespace-nowrap">À propos</span>
                             </a>
