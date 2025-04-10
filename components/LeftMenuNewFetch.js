@@ -30,15 +30,16 @@ export default function LeftMenu({ onItemClick }) {
         let id = badges.length + 1;
         console.log('id :: ' + id);
         console.log('label :: ' + label);
-        setBadges([...badges, {id: {id}, nom : label}]);
+        setBadges([...badges, {id: id, nom : label}]);
     }
     const handleSelectChange = (event) => {
         // Handle the change event for the select input
-        if (event.target.value === 'EOV') {
+        console.log("ON Selected value :: " + event.target.value);
+        if (event.target.value === 'eov') {
             setSelectedValue("eov");
-        }else if (event.target.value === 'Organisation') {
+        }else if (event.target.value === 'organisation') {
             setSelectedValue("dataset");
-        } else if (event.target.value === 'Project') {
+        } else if (event.target.value === 'project') {
             setSelectedValue("projects");
         } else {
             setSelectedValue("");
@@ -72,18 +73,22 @@ export default function LeftMenu({ onItemClick }) {
         console.log("Badges :: " + JSON.stringify(badges));
         let filterString = '';
         for(let i = 0; i < badges.length; i++) {
+            console.log("NOM :: " + badges[i].nom);
             if (badges[i].nom) {
                 filterString += badges[i].nom;
             }
         }
-        if(selectedValue) {
-            filterString += `${selectedValue}=${inputValue}`;
-        }else if (inputValue) {
-            filterString += `${inputValue}`;
+        console.log("Filter String 1 :: " + filterString);
+        console.log("Filter selected value :: " + selectedValue);
+
+        if (selectedValue && inputValue) {
+            filterString += `${badges.length > 0 ? '&' : ''}${selectedValue}=${inputValue}`;
+        } else if (inputValue) {
+            filterString += `${badges.length > 0 ? '&' : ''}${inputValue}`;
         }
         AddBadge(inputValue);
         // Construct the filter URL based on the selected value and input value
-        console.log("Filter String :: " + filterString);
+        console.log("Filter String 2 :: " + filterString);
         setFetchURLFilter(filterString);
     }
 
@@ -95,9 +100,10 @@ export default function LeftMenu({ onItemClick }) {
             try {
                 console.log('Default :: ');
                 let url = `${urlCustomSearch}${fetchURLFilter}`;
+                console.log('URL:: ' + url);
                 const response = await fetch(url); // Example API
                 const awaitRes = await response.json();
-                console.log('Responseeee default :: ' + awaitRes.result.results);
+
                 setFilteredItems(awaitRes.result.results);
                 setInputValue(''); // Clear input value after fetching data 
             } catch (error) {
@@ -140,9 +146,9 @@ export default function LeftMenu({ onItemClick }) {
                                         aria-labelledby="dropdown-button"
                                         onChange={handleSelectChange} >
                                         <option value="search">Recherche</option>
-                                        <option value="dataset">Organisation</option>
+                                        <option value="organisation">Organisation</option>
                                         <option value="project">Projet</option>
-                                        <option value="service">EOV</option>
+                                        <option value="eov">EOV</option>
                                     </select>
                                     <div className="relative w-full">
                                         <input
