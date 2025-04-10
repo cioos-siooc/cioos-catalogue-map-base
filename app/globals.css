@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin "flowbite-react/plugin/tailwindcss";
+@source "../.flowbite-react/class-list.json";
 
 :root {
   --background: #ffffff;
@@ -25,49 +27,15 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-#container {
-  display: flex;
-  height: 800px;
-  width: 100%;
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
-#map{
-  flex:1;
-  height: 800px;
-  width: 850px;
+/* For IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
 
-#sidebar {
-  width: 250px;
-  height: 800px;
-  background-color: #f4f4f4;
-  padding: 40px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
-
-#sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-#sidebar li {
-  margin: 15px 0;
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
-  transition: color 0.3s ease;
-}
-
-#sidebar li:hover {
-  color: #0070f3;
-}
-
-#sidebar.collapsed {
-  overflow-y: scroll;
-}
-
-.collapsed {
-  overflow-y: scroll;
-}
 
