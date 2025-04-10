@@ -1,7 +1,7 @@
 'use client';
 
 import { useState} from 'react';
-import LeftMenuNewFetch from "@/components/LeftMenuNewFetch";
+import LeftMenuNewFetch from "@/components/LeftMenu";
 import dynamic from "next/dynamic";
 
 
