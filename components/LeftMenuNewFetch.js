@@ -125,7 +125,7 @@ export default function LeftMenu({ onItemClick }) {
                     <a className="me-3">
                         <Image src="/Images/OGSL_NoTag.png" className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
                         <Image src="/Images/OGSL_NoTag_White.png" className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
-          W              <span className="self-center text-xl font-semibold whitespace-nowrap">Carte de l&apos;OGSL</span>
+                        <span className="self-center text-xl font-semibold whitespace-nowrap">Carte de l&apos;OGSL</span>
                     </a>
                     <span className="sr-only">Open sidebar</span>
                 </div>
