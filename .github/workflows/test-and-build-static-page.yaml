@@ -11,6 +11,11 @@ on:
       - main
       - development
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -45,13 +50,13 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run Lint
         run: npm run lint
 
       - name: Build Static Files
-        run: npm run build
+        run: npx next build
 
       - name: Build with Next.js
         run: npm run build
