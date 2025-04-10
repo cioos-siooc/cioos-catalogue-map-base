@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef} from 'react';
 import dynamic from 'next/dynamic';
 import ItemsList from "@/components/ItemsList";
 
@@ -9,8 +9,8 @@ export default function LeftMenu({ onItemClick }) {
     const [filteredItems, setFilteredItems] = useState([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [error, setError] = useState(null);
-    const [isFilterClicked, setIsFilterClicked] = useState(false);
-    const [isFetchDone, setIsFetchDone] = useState(false);
+    const [totalResultsCount, setTotalResultsCount] = useState(0);
+    const [filteredResultsCount, setFilteredResultsCount] = useState(0);
     const [inputValue, setInputValue] = useState('');
     const [badges, setBadges] = useState([]);
     const [selectedValue, setSelectedValue] = useState('');
@@ -18,19 +18,16 @@ export default function LeftMenu({ onItemClick }) {
 
     //TODO: move to config file
     const catalogueUrl = 'https://catalogue.ogsl.ca';
-    const baseQuery = 'projects=*baseline*';
-    let urlBaseSearch = `${catalogueUrl}/api/3/action/package_search?q=${baseQuery}`;
     let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
 
     const ProgressBar = dynamic(() => import('./ProgressBar'), { ssr: false })
     const Badge = dynamic(() => import('./Badge'),  { ssr: false })
+    let ref = useRef(0);
 
     const AddBadge = (label)=> {
         let id = badges.length + 1;
-        console.log('id :: ' + id);
-        console.log('label :: ' + label);
-        setBadges([...badges, {id: id, nom : label}]);
+        setBadges([...badges, {index: id, nom : label}]);
     }
     const handleSelectChange = (event) => {
         // Handle the change event for the select input
@@ -65,21 +62,25 @@ export default function LeftMenu({ onItemClick }) {
 
     const handleFilterClick = () => {
         constructFilterUrl(badges,inputValue,selectedValue); // Construct filter URL
+        ref.current = ref.current + 1;//detect when we use the filter button to check the total results count
     };
+
+    const onRemoveClick = (id) => {
+        console.log("Remove badge id :: " + id);
+        setBadges(badges.filter((badge) => badge.id !== id)); // Remove badge by ID
+        console.log("Badges after remove :: " + badges.length);
+        udateFilterUrlAfterRemove(badges,inputValue,selectedValue); // Reapply filter after removing badge
+    }
 
 
     const constructFilterUrl = (badges,inputValue,selectedValue) => {
 
-        console.log("Badges :: " + JSON.stringify(badges));
         let filterString = '';
         for(let i = 0; i < badges.length; i++) {
-            console.log("NOM :: " + badges[i].nom);
             if (badges[i].nom) {
                 filterString += `${i > 0 ? '%20AND%20' : ''}${badges[i].nom}`;
             }
         }
-        console.log("Filter String 1 :: " + filterString);
-        console.log("Filter selected value :: " + selectedValue);
 
         if (selectedValue && inputValue) {
             filterString += `${badges.length > 0 ? '%20AND%20' : ''}${selectedValue}=${inputValue}`;
@@ -89,7 +90,26 @@ export default function LeftMenu({ onItemClick }) {
         filterString += "&rows=50";
         AddBadge(inputValue);
         // Construct the filter URL based on the selected value and input value
-        console.log("Filter String 2 :: " + filterString);
+        setFetchURLFilter(filterString);
+    }
+
+    const udateFilterUrlAfterRemove = (badges,inputValue,selectedValue) => {
+
+        let filterString = '';
+        for(let i = 0; i < badges.length; i++) {
+            if (badges[i].nom) {
+                filterString += `${i > 0 ? '%20AND%20' : ''}${badges[i].nom}`;
+            }
+        }
+
+        if (selectedValue && inputValue) {
+            filterString += `${badges.length > 0 ? '%20AND%20' : ''}${selectedValue}=${inputValue}`;
+        } else if (inputValue) {
+            filterString += `${badges.length > 0 ? '%20AND%20' : ''}${inputValue}`;
+        }
+        filterString += "&rows=50";
+        // Construct the filter URL based on the selected value and input value
+        console.log("Update filter string remove :: " + filterString);
         setFetchURLFilter(filterString);
     }
 
@@ -99,19 +119,20 @@ export default function LeftMenu({ onItemClick }) {
         const fetchData = async () => {
             // Fetch data from an API
             try {
-                console.log('Default :: ');
                 let url = `${urlCustomSearch}${fetchURLFilter}`;
-                console.log('URL:: ' + url);
                 const response = await fetch(url); // Example API
                 const awaitRes = await response.json();
-
                 setFilteredItems(awaitRes.result.results);
-                setInputValue(''); // Clear input value after fetching data 
+                setInputValue(''); // Clear input value after fetching data
+                if (ref.current === 0) {
+                    setTotalResultsCount(awaitRes.result.results.length);
+                } else{
+                    setFilteredResultsCount(awaitRes.result.results.length);
+                }
             } catch (error) {
-                console.log('Error :: ' + error.message);
                 setError(error.message);
             }
-            console.log('filtered :: ' + filteredItems.length);
+            console.log('filtered count :: ' + filteredItems.length);
             
         };
         fetchData();
@@ -180,7 +201,7 @@ export default function LeftMenu({ onItemClick }) {
                     <div id="badgesSection" className="mt-3 mb-3 relative w-full" >
                         {badges.map(badge => (
                             
-                            <Badge key={badge.id} label={badge.nom} />
+                            <Badge key={badge.index} index={badge.index} label={badge.nom} onRemoveClick={onRemoveClick} />
 
                         ))}
                     </div>  
@@ -192,7 +213,7 @@ export default function LeftMenu({ onItemClick }) {
                         className="flex-grow overflow-y-auto" />
                     </ul>
                     <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
-                        <ProgressBar count={40} total={60} />
+                        <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
                     </div>
                     <ul className="pt-4 m-3 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
                         <li>
