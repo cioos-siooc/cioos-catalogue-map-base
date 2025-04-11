@@ -13,7 +13,7 @@ export default function LeftMenu({ onItemClick }) {
     const [filteredResultsCount, setFilteredResultsCount] = useState(0);
     const [inputValue, setInputValue] = useState('');
     const [badges, setBadges] = useState([]);
-    const [selectedValue, setSelectedValue] = useState('');
+    const [selectedValue, setSelectedValue] = useState("");
     const [fetchURLFilter, setFetchURLFilter] = useState("projects=*baseline*&rows=50");
 
     //TODO: move to config file
@@ -61,19 +61,25 @@ export default function LeftMenu({ onItemClick }) {
     };
 
     const handleFilterClick = () => {
-        constructFilterUrl(badges,inputValue,selectedValue); // Construct filter URL
+        constructFilterUrl(); // Construct filter URL
         ref.current = ref.current + 1;//detect when we use the filter button to check the total results count
     };
 
-    const onRemoveClick = (id) => {
-        console.log("Remove badge id :: " + id);
-        setBadges(badges.filter((badge) => badge.id !== id)); // Remove badge by ID
-        console.log("Badges after remove :: " + badges.length);
-        udateFilterUrlAfterRemove(badges,inputValue,selectedValue); // Reapply filter after removing badge
+    const resetSelectedValue = () => {
+        const selectElement = document.getElementById("selectCategory");
+        selectElement.selectedIndex = 0; // Reset to the first option
     }
 
+    const onRemoveClick = (id) => {
+        resetSelectedValue(); // Reset the selected value in the dropdown
+        const filteredListAfterRemove = badges.filter(item => item.index !== id);
+        console.log("Badges after remove :: " + filteredListAfterRemove.length);
 
-    const constructFilterUrl = (badges,inputValue,selectedValue) => {
+        setBadges(filteredListAfterRemove); // Remove badge by ID
+
+        updateFilterUrlAfterRemove(filteredListAfterRemove); // Reapply filter after removing badge
+    }
+    const constructFilterUrl = () => {
 
         let filterString = '';
         for(let i = 0; i < badges.length; i++) {
@@ -89,23 +95,24 @@ export default function LeftMenu({ onItemClick }) {
         }
         filterString += "&rows=50";
         AddBadge(inputValue);
-        // Construct the filter URL based on the selected value and input value
         setFetchURLFilter(filterString);
     }
 
-    const udateFilterUrlAfterRemove = (badges,inputValue,selectedValue) => {
+    const updateFilterUrlAfterRemove = (badgeList) => {
 
         let filterString = '';
-        for(let i = 0; i < badges.length; i++) {
-            if (badges[i].nom) {
-                filterString += `${i > 0 ? '%20AND%20' : ''}${badges[i].nom}`;
+        for(let i = 0; i < badgeList.length; i++) {
+            if (badgeList[i].nom) {
+                filterString += `${i > 0 ? '%20AND%20' : ''}${badgeList[i].nom}`;
             }
         }
-
+        console.log("SELECT :: " + selectedValue)
         if (selectedValue && inputValue) {
-            filterString += `${badges.length > 0 ? '%20AND%20' : ''}${selectedValue}=${inputValue}`;
+            filterString += `${badgeList.length > 0 ? '%20AND%20' : ''}${selectedValue}=${inputValue}`;
         } else if (inputValue) {
-            filterString += `${badges.length > 0 ? '%20AND%20' : ''}${inputValue}`;
+            filterString += `${badgeList.length > 0 ? '%20AND%20' : ''}${inputValue}`;
+        }else if (badgeList.length === 0) {
+            filterString += "projects=*baseline*";
         }
         filterString += "&rows=50";
         // Construct the filter URL based on the selected value and input value
@@ -120,10 +127,12 @@ export default function LeftMenu({ onItemClick }) {
             // Fetch data from an API
             try {
                 let url = `${urlCustomSearch}${fetchURLFilter}`;
+                console.log("URL :: " + url);   
                 const response = await fetch(url); // Example API
                 const awaitRes = await response.json();
                 setFilteredItems(awaitRes.result.results);
                 setInputValue(''); // Clear input value after fetching data
+                console.log("FETCH :: ");
                 if (ref.current === 0) {
                     setTotalResultsCount(awaitRes.result.results.length);
                 } else{
@@ -164,7 +173,9 @@ export default function LeftMenu({ onItemClick }) {
                                 <label>Filtrer par</label>
                                 <div className="flex">
                                     <select
-                                        className="py-2 pl-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 border border-gray-300 rounded-l-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        id="selectCategory"
+                                        className="py-2 pl-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 border 
+                                        border-gray-300 rounded-l-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                         aria-labelledby="dropdown-button"
                                         onChange={handleSelectChange} >
                                         <option value="search">Recherche</option>
