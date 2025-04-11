@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef} from 'react';
 import dynamic from 'next/dynamic';
 import ItemsList from "@/components/ItemsList";
+import ModalAPropos from "@/components/ModalAPropos";
 import Image from 'next/image';
 
 
@@ -16,6 +17,8 @@ export default function LeftMenu({ onItemClick }) {
     const [badges, setBadges] = useState([]);
     const [selectedValue, setSelectedValue] = useState("");
     const [fetchURLFilter, setFetchURLFilter] = useState("projects=*baseline*&rows=50");
+    const [showModal, setShowModal] = useState(false);
+
 
     //TODO: move to config file
     const catalogueUrl = 'https://catalogue.ogsl.ca';
@@ -24,6 +27,7 @@ export default function LeftMenu({ onItemClick }) {
 
     const ProgressBar = dynamic(() => import('./ProgressBar'), { ssr: false })
     const Badge = dynamic(() => import('./Badge'),  { ssr: false })
+    //const ModalAPropos = dynamic(() => import('./ModalAPropos'),  { ssr: false })
     let ref = useRef(0);
 
     const AddBadge = (label)=> {
@@ -51,6 +55,14 @@ export default function LeftMenu({ onItemClick }) {
 
     const onLeftMenuItemClick = (selectedItem) => {
         onItemClick(selectedItem);
+    };
+
+    const onInfoClick = () => {
+        console.log("INFO CLICKED");
+        setShowModal(true);
+    };
+    const handleCloseModal = () => {
+        setShowModal(false);
     };
 
     const onLeftMenuItemDoubleClick = (selectedItem) => {
@@ -241,16 +253,17 @@ export default function LeftMenu({ onItemClick }) {
                     <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
                         <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
                     </div>
-                    <ul className="pt-4 m-3 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
-                        <li>
-                            <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-                                </svg>
-                                <span className="flex-1 ms-3 whitespace-nowrap">À propos</span>
-                            </a>
-                        </li>
-                    </ul>
+                    <div className="pt-4 m-3 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+                        <span onClick={onInfoClick} className="hover:text-blue-500 cursor-pointer bg-gray-100 dark:bg-gray-900 m-2 p-4 text-sm rounded-md" >
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+                            </svg>
+                            À propos
+                            
+                        </span>
+                        <ModalAPropos className="absolute z-70 w-500 h-500 top-200 right-200" show={showModal} onClose={handleCloseModal} />
+                    </div>
                 </div>
             </aside>
         </div>
