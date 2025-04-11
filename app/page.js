@@ -1,7 +1,7 @@
 'use client';
 
 import { useState} from 'react';
-import LeftMenu from "@/components/LeftMenu";
+import { LeftMenu, TopBanner } from "@/components/LeftMenu";
 import dynamic from "next/dynamic";
 
 
@@ -19,15 +19,18 @@ export default function Home() {
 
 
   return (
-    <div className="relative w-screen gap-16 font-[family-name:var(--font-geist-sans)]">
-     
-      <main>
-        <LeftMenu onItemClick={handleListItemClick}/>        
-        <div className="md:ml-64">
+    <div className="h-screen flex flex-col">
+      <header className="md:hidden">
+        <TopBanner />
+      </header>
+      <div className="h-screen flex flex-1">
+        <aside className="hidden md:block w-sm h-screen overflow-auto">
+          <LeftMenu onItemClick={handleListItemClick} />
+        </aside>
+        <main className="flex-1 h-full w-full">
           <Map center={center} bounds={bounds} />
-        </div>
-      </main>
-
+        </main>
+      </div>
     </div>
   );
 }
