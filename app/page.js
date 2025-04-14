@@ -37,11 +37,6 @@ const handleCloseModal = () => {
         <div className="md:ml-64">
           <Map center={center} bounds={bounds} />
         </div>
-        <div className="z-60 bg-white flex justify-center items-center 
-                  w-3xl h-3xl rounded-md border-solid border-black">
-            <ModalAPropos show={showModal} onClose={handleCloseModal} />
-        </div>
-
       </main>
 
     </div>
