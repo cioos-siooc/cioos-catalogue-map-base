@@ -3,7 +3,7 @@ import { useState, useEffect, useRef} from 'react';
 import dynamic from 'next/dynamic';
 import ItemsList from "@/components/ItemsList";
 import Image from 'next/image';
-
+import ModalAPropos from '@/components/ModalAPropos';
 
 
 
@@ -251,9 +251,5 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                 </div>
             </aside>
         </div>
-
-
-        
-
     );
 }
