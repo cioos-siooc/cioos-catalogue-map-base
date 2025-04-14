@@ -248,7 +248,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                     <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
                         <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
                     </div>
-                    <ModalAPropos show={showModal} onClose={handleCloseModal} />
+                    <ModalAPropos />
                 </div>
             </aside>
         </div>
