@@ -7,14 +7,19 @@ import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "flowbite-rea
 export default function ModalAPropos({ show, onClose }) {
 
   return (
-    <>
+    
       <Modal show={show} onClose={onClose}>
-        <ModalHeader>Terms of Service</ModalHeader>
+        <ModalHeader>À propos du catalogue cartographique</ModalHeader>
         <ModalBody>
           <div className="space-y-6">
             <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-              With less than a month to go before the European Union enacts new consumer privacy laws for its citizens,
-              companies around the world are updating their terms of service agreements to comply.
+                Le catalogue cartographique est un outil d’exploration de données qui permet 
+                d’afficher les entrées du Catalogue de données de l’OGSL sur une carte, avec la 
+                possibilité de filtrer les résultats par variable océanique* tels que la température
+                 de surface de l’eau ou le phytoplancton. En cliquant sur les points de données et 
+                 leur étendue géospatiale, le panneau latéral affiche les informations 
+                 du jeu de données (titre, description, producteur de donnée et liens pour la page du 
+                 Catalogue et les fichiers de données).
             </p>
             <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
               The European Union’s General Data Protection Regulation (G.D.P.R.) goes into effect on May 25 and is meant
@@ -24,12 +29,11 @@ export default function ModalAPropos({ show, onClose }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={onClose}>I accept</Button>
-          <Button color="gray" onClick={onClose}>
+          <Button className="bg-grey" onClick={onClose}>I accept</Button>
+          <Button className="bg-grey" onClick={onClose}>
             Decline
           </Button>
         </ModalFooter>
       </Modal>
-    </>
   );
 }

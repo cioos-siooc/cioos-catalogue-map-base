@@ -6,7 +6,7 @@ export default function ItemsList({ itemsList, onItemClick, onItemDoubleClick })
 
 
     <div>
-        <div className='grid grid-flow-row z-70'>
+        <div className='grid grid-flow-row z-50'>
             <div id="drawer-navigation" className="bg-gray-200 dark:bg-gray-700 w-full transition-transform duration-300 ease-in-out rounded-md">
                 <ul className="space-y-2 font-medium">
                     {

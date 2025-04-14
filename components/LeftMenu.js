@@ -2,12 +2,12 @@
 import { useState, useEffect, useRef} from 'react';
 import dynamic from 'next/dynamic';
 import ItemsList from "@/components/ItemsList";
-import ModalAPropos from "@/components/ModalAPropos";
 import Image from 'next/image';
 
 
 
-export default function LeftMenu({ onItemClick }) {
+
+export default function LeftMenu({ onInfoClick, onItemClick }) {
     const [filteredItems, setFilteredItems] = useState([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [error, setError] = useState(null);
@@ -17,7 +17,7 @@ export default function LeftMenu({ onItemClick }) {
     const [badges, setBadges] = useState([]);
     const [selectedValue, setSelectedValue] = useState("");
     const [fetchURLFilter, setFetchURLFilter] = useState("projects=*baseline*&rows=50");
-    const [showModal, setShowModal] = useState(false);
+
 
 
     //TODO: move to config file
@@ -57,13 +57,6 @@ export default function LeftMenu({ onItemClick }) {
         onItemClick(selectedItem);
     };
 
-    const onInfoClick = () => {
-        console.log("INFO CLICKED");
-        setShowModal(true);
-    };
-    const handleCloseModal = () => {
-        setShowModal(false);
-    };
 
     const onLeftMenuItemDoubleClick = (selectedItem) => {
         window.open(`${catalogueUrl}/dataset/${selectedItem.name}`);
@@ -181,10 +174,11 @@ export default function LeftMenu({ onItemClick }) {
                 <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
                     <div className="flex items-center justify-between ps-2.5 mb-5">
                         <div>
-                        <Image src="/Images/OGSL_NoTag.png" className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
-                        <Image src="/Images/OGSL_NoTag_White.png" className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
-                            <span className="self-center text-xl font-semibold whitespace-nowra">Carte de l&apos;OGSL</span>
+                            <Image src="/Images/OGSL_NoTag.png" className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
+                            <Image src="/Images/OGSL_NoTag_White.png" className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
+                            <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">Carte de l&apos;OGSL</span>
                         </div>
+                        <a className="mr-10" id="headerTranslation" href="">EN</a>
                         <button onClick={toggleSidebar} className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="logo-sidebar" data-drawer-toggle="logo-sidebar">
                             <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -253,8 +247,8 @@ export default function LeftMenu({ onItemClick }) {
                     <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
                         <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
                     </div>
-                    <div className="pt-4 m-3 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
-                        <span onClick={onInfoClick} className="hover:text-blue-500 cursor-pointer bg-gray-100 dark:bg-gray-900 m-2 p-4 text-sm rounded-md" >
+                    <div className="pt-4 ml-13 mb-5 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+                        <span onClick={onInfoClick} className="hover:text-blue-500 cursor-pointer m-2 p-4 text-sm rounded-md" >
                         
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
@@ -262,11 +256,13 @@ export default function LeftMenu({ onItemClick }) {
                             À propos
                             
                         </span>
-                        <ModalAPropos className="absolute z-70 w-500 h-500 top-200 right-200" show={showModal} onClose={handleCloseModal} />
                     </div>
                 </div>
             </aside>
         </div>
+
+
+        
 
     );
 }
