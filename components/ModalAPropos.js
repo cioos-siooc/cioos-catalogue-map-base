@@ -5,29 +5,21 @@ import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "flowbite-rea
 
 
 export default function ModalAPropos({ show, onClose }) {
-  const [openModal, setOpenModal] = useState(true);
-
 
   return (
-    <>
-      <Button onClick={() => setOpenModal(true)}>A propos</Button>
-      <Modal
-        size="sm"
-        position="center"
-        show={openModal}
-        onClose={() => setOpenModal(false)}
-      >
+    
+      <Modal show={show} onClose={onClose}>
         <ModalHeader>À propos du catalogue cartographique</ModalHeader>
         <ModalBody>
           <div className="space-y-6">
             <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-              Le catalogue cartographique est un outil d’exploration de données qui permet
-              d’afficher les entrées du Catalogue de données de l’OGSL sur une carte, avec la
-              possibilité de filtrer les résultats par variable océanique* tels que la température
-              de surface de l’eau ou le phytoplancton. En cliquant sur les points de données et
-              leur étendue géospatiale, le panneau latéral affiche les informations
-              du jeu de données (titre, description, producteur de donnée et liens pour la page du
-              Catalogue et les fichiers de données).
+                Le catalogue cartographique est un outil d’exploration de données qui permet 
+                d’afficher les entrées du Catalogue de données de l’OGSL sur une carte, avec la 
+                possibilité de filtrer les résultats par variable océanique* tels que la température
+                 de surface de l’eau ou le phytoplancton. En cliquant sur les points de données et 
+                 leur étendue géospatiale, le panneau latéral affiche les informations 
+                 du jeu de données (titre, description, producteur de donnée et liens pour la page du 
+                 Catalogue et les fichiers de données).
             </p>
             <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
               The European Union’s General Data Protection Regulation (G.D.P.R.) goes into effect on May 25 and is meant
@@ -43,6 +35,5 @@ export default function ModalAPropos({ show, onClose }) {
           </Button>
         </ModalFooter>
       </Modal>
-    </>
   );
 }
