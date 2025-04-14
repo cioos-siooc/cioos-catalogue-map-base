@@ -247,16 +247,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                     <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
                         <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
                     </div>
-                    <div className="pt-4 ml-13 mb-5 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
-                        <span onClick={onInfoClick} className="hover:text-blue-500 cursor-pointer m-2 p-4 text-sm rounded-md" >
-                        
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-                            </svg>
-                            À propos
-                            
-                        </span>
-                    </div>
+                    <ModalAPropos />
                 </div>
             </aside>
         </div>

@@ -2,9 +2,11 @@
 "use client";
 
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "flowbite-react";
+import { useState } from "react";
 
 
-export default function ModalAPropos({ show, onClose }) {
+export default function ModalAPropos() {
+  const [openModal, setOpenModal] = useState(true);
 
   return (
     
@@ -29,10 +31,6 @@ export default function ModalAPropos({ show, onClose }) {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button className="bg-grey" onClick={onClose}>I accept</Button>
-          <Button className="bg-grey" onClick={onClose}>
-            Decline
-          </Button>
         </ModalFooter>
       </Modal>
   );
