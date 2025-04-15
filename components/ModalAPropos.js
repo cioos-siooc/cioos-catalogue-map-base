@@ -10,8 +10,8 @@ export default function ModalAPropos() {
 
   return (
     <>
-      <Button onClick={() => setOpenModal(true)}>Toggle modal</Button>
-      <Modal show={openModal} onClose={() => setOpenModal(false)}>
+      <Button color='dark' className="p-2 m-2" onClick={() => setOpenModal(true)}>À Propos</Button>
+      <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
         <ModalHeader>À propos du catalogue cartographique</ModalHeader>
         <ModalBody>
           <div className="space-y-6">
