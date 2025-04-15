@@ -1,15 +1,17 @@
-basePath: /custom-path
-
+---
 catalogue_url: https://catalogue.ogsl.ca
 base_query: projects=*baseline*&rows=50
 
+title:
+  en: SLGO's Catalogue Map
+  fr: Carte Catalogue de l'OGSL
 metadata:
   en:
-    title: My YAML Powered App
-    description: A Next.js site powered by YAML
+    title: SLGO's Catalogue Map
+    description: SLGO Catalogue Map is a web application that allows users to visualize and explore the catalogue of SLGO.
   fr:
-    title: Mon application alimentée par YAML
-    description: Un site Next.js alimenté par YAML
+    title: Carte Catalogue de l'OGSL
+    description: La carte du catalogue de l'OGSL est une application Web qui permet aux utilisateurs de visualiser et d'explorer le catalogue de l'OGSL.
 
 theme:
   backgroundColor: "#f3f4f6"

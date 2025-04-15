@@ -161,7 +161,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                     <a className="me-3">
                         <Image src={`${basePath}${config.logos.main_light}`} className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
                         <Image src={`${basePath}${config.logos.main_dark }`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
-                        <span className="self-center text-xl font-semibold whitespace-nowrap">Carte de l&apos;OGSL</span>
+                        <span className="self-center text-xl font-semibold whitespace-nowrap">{config.title.fr}</span>
                     </a>
                     <span className="sr-only">Open sidebar</span>
                 </div>
@@ -175,7 +175,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                         <div>
                             <Image src={`${basePath}${config.logos.main_light}`} className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
                             <Image src={`${basePath}${config.logos.main_dark}`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
-                            <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">Carte de l&apos;OGSL</span>
+                            <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">{ config.title.fr }</span>
                         </div>
                         <a className="mr-10" id="headerTranslation" href="">EN</a>
                         <button onClick={toggleSidebar} className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="logo-sidebar" data-drawer-toggle="logo-sidebar">
