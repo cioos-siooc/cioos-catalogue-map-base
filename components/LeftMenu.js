@@ -21,7 +21,6 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
 
 
 
-    //TODO: move to config file
     const catalogueUrl = config.catalogue_url;
     let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
