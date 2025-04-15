@@ -1,5 +1,8 @@
 basePath: /custom-path
 
+catalogue_url: https://catalogue.ogsl.ca
+base_query: projects=*baseline*&rows=50
+
 metadata:
   en:
     title: My YAML Powered App

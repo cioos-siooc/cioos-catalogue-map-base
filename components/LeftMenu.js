@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import ItemsList from "@/components/ItemsList";
 import Image from 'next/image';
 import ModalAPropos from '@/components/ModalAPropos';
+import config from "@/app/config.js";
 
 
 
@@ -16,12 +17,12 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
     const [inputValue, setInputValue] = useState('');
     const [badges, setBadges] = useState([]);
     const [selectedValue, setSelectedValue] = useState("");
-    const [fetchURLFilter, setFetchURLFilter] = useState("projects=*baseline*&rows=50");
+    const [fetchURLFilter, setFetchURLFilter] = useState(config.base_query);
 
 
 
     //TODO: move to config file
-    const catalogueUrl = 'https://catalogue.ogsl.ca';
+    const catalogueUrl = config.catalogue_url;
     let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
 
