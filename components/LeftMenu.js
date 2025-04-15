@@ -101,7 +101,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
         } else if (inputValue) {
             filterString += `${badges.length > 0 ? '%20AND%20' : ''}${inputValue}`;
         }
-        filterString += "%20AND%20projects=*baseline*&rows=50";
+        filterString += `%20AND%20${config.base_query}`;
         AddBadge(inputValue);
         setFetchURLFilter(filterString);
     }
