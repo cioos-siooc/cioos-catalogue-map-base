@@ -1,37 +1,39 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef} from 'react';
 import dynamic from 'next/dynamic';
 import ItemsList from "@/components/ItemsList";
 import Image from 'next/image';
+import ModalAPropos from '@/components/ModalAPropos';
+import config from "@/app/config.js";
 
 
 
-export default function LeftMenu({ onItemClick }) {
+export default function LeftMenu({ onInfoClick, onItemClick }) {
     const [filteredItems, setFilteredItems] = useState([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [error, setError] = useState(null);
-    const [isFilterClicked, setIsFilterClicked] = useState(false);
-    const [isFetchDone, setIsFetchDone] = useState(false);
+    const [totalResultsCount, setTotalResultsCount] = useState(0);
+    const [filteredResultsCount, setFilteredResultsCount] = useState(0);
     const [inputValue, setInputValue] = useState('');
     const [badges, setBadges] = useState([]);
-    const [selectedValue, setSelectedValue] = useState('');
-    const [fetchURLFilter, setFetchURLFilter] = useState("projects=*baseline*&rows=50");
+    const [selectedValue, setSelectedValue] = useState("");
+    const [fetchURLFilter, setFetchURLFilter] = useState(config.base_query);
 
-    //TODO: move to config file
-    const catalogueUrl = 'https://catalogue.ogsl.ca';
-    const baseQuery = 'projects=*baseline*';
-    let urlBaseSearch = `${catalogueUrl}/api/3/action/package_search?q=${baseQuery}`;
+    
+    const basePath = process.env.BASE_PATH || '';
+
+    const catalogueUrl = config.catalogue_url;
     let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
 
     const ProgressBar = dynamic(() => import('./ProgressBar'), { ssr: false })
     const Badge = dynamic(() => import('./Badge'),  { ssr: false })
+    //const ModalAPropos = dynamic(() => import('./ModalAPropos'),  { ssr: false })
+    let ref = useRef(0);
 
     const AddBadge = (label)=> {
         let id = badges.length + 1;
-        console.log('id :: ' + id);
-        console.log('label :: ' + label);
-        setBadges([...badges, {id: id, nom : label}]);
+        setBadges([...badges, {index: id, nom : label}]);
     }
     const handleSelectChange = (event) => {
         // Handle the change event for the select input
@@ -56,6 +58,7 @@ export default function LeftMenu({ onItemClick }) {
         onItemClick(selectedItem);
     };
 
+
     const onLeftMenuItemDoubleClick = (selectedItem) => {
         window.open(`${catalogueUrl}/dataset/${selectedItem.name}`);
     };
@@ -65,22 +68,32 @@ export default function LeftMenu({ onItemClick }) {
     };
 
     const handleFilterClick = () => {
-        constructFilterUrl(badges,inputValue,selectedValue); // Construct filter URL
+        constructFilterUrl(); // Construct filter URL
+        ref.current = ref.current + 1;//detect when we use the filter button to check the total results count
     };
 
+    const resetSelectedValue = () => {
+        const selectElement = document.getElementById("selectCategory");
+        selectElement.selectedIndex = 0; // Reset to the first option
+    }
 
-    const constructFilterUrl = (badges,inputValue,selectedValue) => {
+    const onRemoveClick = (id) => {
+        resetSelectedValue(); // Reset the selected value in the dropdown
+        const filteredListAfterRemove = badges.filter(item => item.index !== id);
+        console.log("Badges after remove :: " + filteredListAfterRemove.length);
 
-        console.log("Badges :: " + JSON.stringify(badges));
+        setBadges(filteredListAfterRemove); // Remove badge by ID
+
+        updateFilterUrlAfterRemove(filteredListAfterRemove); // Reapply filter after removing badge
+    }
+    const constructFilterUrl = () => {
+
         let filterString = '';
         for(let i = 0; i < badges.length; i++) {
-            console.log("NOM :: " + badges[i].nom);
             if (badges[i].nom) {
                 filterString += `${i > 0 ? '%20AND%20' : ''}${badges[i].nom}`;
             }
         }
-        console.log("Filter String 1 :: " + filterString);
-        console.log("Filter selected value :: " + selectedValue);
 
         if (selectedValue && inputValue) {
 
@@ -88,10 +101,28 @@ export default function LeftMenu({ onItemClick }) {
         } else if (inputValue) {
             filterString += `${badges.length > 0 ? '%20AND%20' : ''}${inputValue}`;
         }
-        filterString += "&rows=50";
+        filterString += `%20AND%20${config.base_query}`;
         AddBadge(inputValue);
+        setFetchURLFilter(filterString);
+    }
+
+    const updateFilterUrlAfterRemove = (badgeList) => {
+
+        let filterString = '';
+        for(let i = 0; i < badgeList.length; i++) {
+            if (badgeList[i].nom) {
+                filterString += `${i > 0 ? '%20AND%20' : ''}${badgeList[i].nom}`;
+            }
+        }
+        console.log("SELECT :: " + selectedValue)
+        if (selectedValue && inputValue) {
+            filterString += `${badgeList.length > 0 ? '%20AND%20' : ''}${selectedValue}=${inputValue}`;
+        } else if (inputValue) {
+            filterString += `${badgeList.length > 0 ? '%20AND%20' : ''}${inputValue}`;
+        }
+        filterString += `${badgeList.length > 0 ? '%20AND%20projects=*baseline*&rows=50' : 'projects=*baseline*&rows=50'}`;
         // Construct the filter URL based on the selected value and input value
-        console.log("Filter String 2 :: " + filterString);
+        console.log("Update filter string remove :: " + filterString);
         setFetchURLFilter(filterString);
     }
 
@@ -101,19 +132,22 @@ export default function LeftMenu({ onItemClick }) {
         const fetchData = async () => {
             // Fetch data from an API
             try {
-                console.log('Default :: ');
                 let url = `${urlCustomSearch}${fetchURLFilter}`;
-                console.log('URL:: ' + url);
+                console.log("URL :: " + url);   
                 const response = await fetch(url); // Example API
                 const awaitRes = await response.json();
-
                 setFilteredItems(awaitRes.result.results);
-                setInputValue(''); // Clear input value after fetching data 
+                setInputValue(''); // Clear input value after fetching data
+                console.log("FETCH :: ");
+                if (ref.current === 0) {
+                    setTotalResultsCount(awaitRes.result.results.length);
+                } else{
+                    setFilteredResultsCount(awaitRes.result.results.length);
+                }
             } catch (error) {
-                console.log('Error :: ' + error.message);
                 setError(error.message);
             }
-            console.log('filtered :: ' + filteredItems.length);
+            console.log('filtered count :: ' + filteredItems.length);
             
         };
         fetchData();
@@ -125,8 +159,8 @@ export default function LeftMenu({ onItemClick }) {
             <button id="sidebar-toggle" data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" onClick={toggleSidebar} className="flex justify-between w-screen items-center p-2 text-sm md:hidden bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                 <div className="flex items-center ps-2.5">
                     <a className="me-3">
-                        <Image src="/Images/OGSL_NoTag.png" className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
-                        <Image src="/Images/OGSL_NoTag_White.png" className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
+                        <Image src={`${basePath}${config.logos.main_light}`} className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
+                        <Image src={`${basePath}${config.logos.main_dark }`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
                         <span className="self-center text-xl font-semibold whitespace-nowrap">Carte de l&apos;OGSL</span>
                     </a>
                     <span className="sr-only">Open sidebar</span>
@@ -139,10 +173,11 @@ export default function LeftMenu({ onItemClick }) {
                 <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
                     <div className="flex items-center justify-between ps-2.5 mb-5">
                         <div>
-                        <Image src="/Images/OGSL_NoTag.png" className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
-                        <Image src="/Images/OGSL_NoTag_White.png" className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
-                            <span className="self-center text-xl font-semibold whitespace-nowra">Carte de l&apos;OGSL</span>
+                            <Image src={`${basePath}${config.logos.main_light}`} className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
+                            <Image src={`${basePath}${config.logos.main_dark}`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
+                            <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">Carte de l&apos;OGSL</span>
                         </div>
+                        <a className="mr-10" id="headerTranslation" href="">EN</a>
                         <button onClick={toggleSidebar} className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="logo-sidebar" data-drawer-toggle="logo-sidebar">
                             <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -158,7 +193,9 @@ export default function LeftMenu({ onItemClick }) {
                                 <label>Filtrer par</label>
                                 <div className="flex">
                                     <select
-                                        className="py-2 pl-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 border border-gray-300 rounded-l-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        id="selectCategory"
+                                        className="py-2 pl-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 border 
+                                        border-gray-300 rounded-l-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                                         aria-labelledby="dropdown-button"
                                         onChange={handleSelectChange} >
                                         <option value="search">Recherche</option>
@@ -195,7 +232,7 @@ export default function LeftMenu({ onItemClick }) {
                     <div id="badgesSection" className="mt-3 mb-3 relative w-full" >
                         {badges.map(badge => (
                             
-                            <Badge key={badge.id} label={badge.nom} />
+                            <Badge key={badge.index} index={badge.index} label={badge.nom} onRemoveClick={onRemoveClick} />
 
                         ))}
                     </div>  
@@ -207,21 +244,11 @@ export default function LeftMenu({ onItemClick }) {
                         className="flex-grow overflow-y-auto" />
                     </ul>
                     <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
-                        <ProgressBar count={40} total={60} />
+                        <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
                     </div>
-                    <ul className="pt-4 m-3 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
-                        <li>
-                            <a href="#" className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
-                                </svg>
-                                <span className="flex-1 ms-3 whitespace-nowrap">À propos</span>
-                            </a>
-                        </li>
-                    </ul>
+                    <ModalAPropos />
                 </div>
             </aside>
         </div>
-
     );
 }

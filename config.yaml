@@ -1,0 +1,27 @@
+basePath: /custom-path
+
+catalogue_url: https://catalogue.ogsl.ca
+base_query: projects=*baseline*&rows=50
+
+metadata:
+  en:
+    title: My YAML Powered App
+    description: A Next.js site powered by YAML
+  fr:
+    title: Mon application alimentée par YAML
+    description: Un site Next.js alimenté par YAML
+
+theme:
+  backgroundColor: "#f3f4f6"
+  color: "#1f2937"
+  backgroundColor_dark: "#111827"
+  color_dark: "#e5e7eb"
+  primary_color: "#3b82f6"
+  accent_color: "#f97316"
+  font: "'Inter', sans-serif"
+
+logos:
+  main_light: "/Images/OGSL_NoTag.png"
+  main_dark: "/Images/OGSL_NoTag_White.png"
+  favicon: "/images/favicon.ico"
+
