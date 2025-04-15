@@ -8,7 +8,7 @@ import config from "@/app/config.js";
 
 
 
-export default function LeftMenu({ onInfoClick, onItemClick }) {
+export function LeftMenu({ onInfoClick, onItemClick }) {
     const [filteredItems, setFilteredItems] = useState([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [error, setError] = useState(null);
