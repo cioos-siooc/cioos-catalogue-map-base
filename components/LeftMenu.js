@@ -19,7 +19,8 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
     const [selectedValue, setSelectedValue] = useState("");
     const [fetchURLFilter, setFetchURLFilter] = useState(config.base_query);
 
-
+    
+    const basePath = process.env.BASE_PATH || '';
 
     const catalogueUrl = config.catalogue_url;
     let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
@@ -160,8 +161,8 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
             <button id="sidebar-toggle" data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" onClick={toggleSidebar} className="flex justify-between w-screen items-center p-2 text-sm md:hidden bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                 <div className="flex items-center ps-2.5">
                     <a className="me-3">
-                        <Image src={ config.logos.main_light } className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
-                        <Image src={ config.logos.main_dark } className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
+                        <Image src={`{basePath}{config.logos.main_light}`} className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
+                        <Image src={`{basePath}{config.logos.main_dark }`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
                         <span className="self-center text-xl font-semibold whitespace-nowrap">Carte de l&apos;OGSL</span>
                     </a>
                     <span className="sr-only">Open sidebar</span>
@@ -174,8 +175,8 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                 <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
                     <div className="flex items-center justify-between ps-2.5 mb-5">
                         <div>
-                            <Image src={ config.logos.main_light } className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
-                            <Image src={ config.logos.main_dark } className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
+                            <Image src={`{basePath}{config.logos.main_light}`} className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
+                            <Image src={`{basePath}{config.logos.main_dark }`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
                             <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">Carte de l&apos;OGSL</span>
                         </div>
                         <a className="mr-10" id="headerTranslation" href="">EN</a>
