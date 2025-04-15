@@ -1,0 +1,23 @@
+basePath: /custom-path
+
+metadata:
+  en:
+    title: My YAML Powered App
+    description: A Next.js site powered by YAML
+  fr:
+    title: Mon application alimentée par YAML
+    description: Un site Next.js alimenté par YAML
+
+theme:
+  backgroundColor: "#f3f4f6"
+  color: "#1f2937"
+  backgroundColor_dark: "#111827"
+  color_dark: "#e5e7eb"
+  primary_color: "#3b82f6"
+  accent_color: "#f97316"
+  font: "'Inter', sans-serif"
+
+logos:
+  main: "/images/logo.svg"
+  favicon: "/images/favicon.ico"
+
