@@ -100,7 +100,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
         } else if (inputValue) {
             filterString += `${badges.length > 0 ? '%20AND%20' : ''}${inputValue}`;
         }
-        filterString += "&rows=50";
+        filterString += "%20AND%20projects=*baseline*&rows=50";
         AddBadge(inputValue);
         setFetchURLFilter(filterString);
     }
@@ -118,10 +118,8 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
             filterString += `${badgeList.length > 0 ? '%20AND%20' : ''}${selectedValue}=${inputValue}`;
         } else if (inputValue) {
             filterString += `${badgeList.length > 0 ? '%20AND%20' : ''}${inputValue}`;
-        }else if (badgeList.length === 0) {
-            filterString += "projects=*baseline*";
         }
-        filterString += "&rows=50";
+        filterString += `${badgeList.length > 0 ? '%20AND%20projects=*baseline*&rows=50' : 'projects=*baseline*&rows=50'}`;
         // Construct the filter URL based on the selected value and input value
         console.log("Update filter string remove :: " + filterString);
         setFetchURLFilter(filterString);
