@@ -1,4 +1,8 @@
 const withFlowbiteReact = require("flowbite-react/plugin/nextjs");
+const yaml = require('js-yaml');
+const fs = require('fs');
+
+const config = yaml.load(fs.readFileSync('./config.yaml', 'utf8'));
 
 const github_repository = process.env.GITHUB_REPOSITORY;
 var basePath = ''
@@ -11,6 +15,7 @@ module.exports = withFlowbiteReact({
     images: { unoptimized: true },
     basePath: basePath,
     env: {
+        CONFIG: JSON.stringify(config),
         BASE_PATH: basePath,
     }
 });

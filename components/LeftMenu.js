@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import ItemsList from "@/components/ItemsList";
 import Image from 'next/image';
 import ModalAPropos from '@/components/ModalAPropos';
+import config from "@/app/config.js";
 
 
 
@@ -16,12 +17,12 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
     const [inputValue, setInputValue] = useState('');
     const [badges, setBadges] = useState([]);
     const [selectedValue, setSelectedValue] = useState("");
-    const [fetchURLFilter, setFetchURLFilter] = useState("projects=*baseline*&rows=50");
+    const [fetchURLFilter, setFetchURLFilter] = useState(config.base_query);
 
+    
+    const basePath = process.env.BASE_PATH || '';
 
-
-    //TODO: move to config file
-    const catalogueUrl = 'https://catalogue.ogsl.ca';
+    const catalogueUrl = config.catalogue_url;
     let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
 
@@ -100,7 +101,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
         } else if (inputValue) {
             filterString += `${badges.length > 0 ? '%20AND%20' : ''}${inputValue}`;
         }
-        filterString += "%20AND%20projects=*baseline*&rows=50";
+        filterString += `%20AND%20${config.base_query}`;
         AddBadge(inputValue);
         setFetchURLFilter(filterString);
     }
@@ -158,8 +159,8 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
             <button id="sidebar-toggle" data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" onClick={toggleSidebar} className="flex justify-between w-screen items-center p-2 text-sm md:hidden bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                 <div className="flex items-center ps-2.5">
                     <a className="me-3">
-                        <Image src="/Images/OGSL_NoTag.png" className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
-                        <Image src="/Images/OGSL_NoTag_White.png" className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
+                        <Image src={`${basePath}${config.logos.main_light}`} className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
+                        <Image src={`${basePath}${config.logos.main_dark }`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
                         <span className="self-center text-xl font-semibold whitespace-nowrap">Carte de l&apos;OGSL</span>
                     </a>
                     <span className="sr-only">Open sidebar</span>
@@ -172,8 +173,8 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                 <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
                     <div className="flex items-center justify-between ps-2.5 mb-5">
                         <div>
-                            <Image src="/Images/OGSL_NoTag.png" className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
-                            <Image src="/Images/OGSL_NoTag_White.png" className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
+                            <Image src={`${basePath}${config.logos.main_light}`} className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
+                            <Image src={`${basePath}${config.logos.main_dark}`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
                             <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">Carte de l&apos;OGSL</span>
                         </div>
                         <a className="mr-10" id="headerTranslation" href="">EN</a>
