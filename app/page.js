@@ -38,7 +38,7 @@ const handleCloseModal = () => {
         <aside className="hidden md:block w-sm h-screen overflow-auto">
           <LeftMenu onItemClick={handleListItemClick} />
         </aside>
-        <main className="flex-1 h-full w-full">
+        <main className="z-20 flex-1 h-full w-full">
           <Map center={center} bounds={bounds} />
         </main>
       </div>
