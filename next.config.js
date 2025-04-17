@@ -23,11 +23,11 @@ function GenerateTheme() {
     const accentColor = config.theme.accent_color;
     
     const cssContent = `@theme {
-        ${generateTailwindPalette(primaryColor, 'grey')}
+        ${generateTailwindPalette(primaryColor, 'gray')}
         ${generateTailwindPalette(accentColor, 'accent')}
         }\n`;
     
-    const outputPath = path.join(__dirname, "../app/theme.css");
+    const outputPath = path.join(__dirname, "./app/theme.css");
     
     fs.writeFileSync(outputPath, cssContent);
     console.log("Color custom palette with primary=" + primaryColor + " and accent=" + accentColor);
