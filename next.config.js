@@ -10,7 +10,7 @@ const config = yaml.load(fs.readFileSync('./config.yaml', 'utf8'));
 const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 function generateTailwindPalette(color, label) {
   const palette = chroma
-    .scale(["white", color, "black"])
+    .scale([config.theme.light, color, config.theme.dark])
   const cssVariables = steps
     .map((step, i) => `--color-${label}-${step}: ${palette(step / 1000).hex()};`)
     .join("\n");
