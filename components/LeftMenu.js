@@ -5,6 +5,8 @@ import ItemsList from "@/components/ItemsList";
 import Image from 'next/image';
 import ModalAPropos from '@/components/ModalAPropos';
 import config from "@/app/config.js";
+import FilterSection from './FilterSection';
+import { HR } from 'flowbite-react'
 
 
 
@@ -184,9 +186,9 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                             </svg>
                         </button>
                     </div>
-                    
-                    
-                    <ul className="space-y-2 font-medium">
+                    <HR className="my-2" />
+                    <FilterSection />
+                    {/* <ul className="space-y-2 font-medium">
                         <li>
 
                             <form className="max-w-lg mx-auto">
@@ -228,7 +230,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                             </form>
 
                         </li>
-                    </ul>
+                    </ul> */}
                     <div id="badgesSection" className="mt-3 mb-3 relative w-full" >
                         {badges.map(badge => (
                             
