@@ -1,0 +1,22 @@
+@theme {
+
+    --font-display: "Verdana", "sans-serif";
+
+    /* To Generate a new Palette
+    go to https://uicolors.app/generate/db270e 
+    */
+    --color-gray-50: #f0f7ff;
+    --color-gray-100: #e0eefe;
+    --color-gray-200: #b9dcfe;
+    --color-gray-300: #7cc0fd;
+    --color-gray-400: #36a2fa;
+    --color-gray-500: #0c86eb;
+    --color-gray-600: #0064c2;
+    --color-gray-700: #0152a3;
+    --color-gray-800: #064786;
+    --color-gray-900: #0b3c6f;
+    --color-gray-950: #07254a;
+    /* ...
+    
+    */
+  }
