@@ -7,7 +7,6 @@ import ModalAPropos from "@/components/ModalAPropos";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
-import { HR } from "flowbite-react";
 
 export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
   const [filteredItems, setFilteredItems] = useState([]);
