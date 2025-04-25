@@ -161,7 +161,7 @@ export default function FilterSection({ lang, badges, setBadges }) {
   return (
     <>
       <span>{t.filters}</span>
-      <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
+      <div className="m-1 flex flex-row items-center gap-1 flex-wrap justify-center">
         <SearchFilter lang={lang} setBadges={setBadges} />
         <FilterItems
           filter_type="organization"
@@ -179,7 +179,7 @@ export default function FilterSection({ lang, badges, setBadges }) {
       </div>
 
       {/* Render Badges */}
-      <div className="mt-4 flex flex-wrap gap-2 justify-center">
+      <div className="m-1 flex flex-wrap gap-1 justify-center">
         {Object.entries(badges).map(([filterType, value]) => (
           getBadge(filterType, value, lang, removeBadge)
         ))}
