@@ -181,7 +181,7 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
               </span>
             </div>
             <a
-              className="p-2 uppercase"
+              className="p-1 uppercase cursor-pointer"
               id="headerTranslation"
               onClick={toggleLanguage}
             >
