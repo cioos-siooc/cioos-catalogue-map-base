@@ -59,9 +59,10 @@ export function SearchFilter({lang}) {
   );
 }
 
-export function FilterItems({ label }) {
+export function FilterItems({ label, lang }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
+  const t = getLocale(lang);
 
   function onCloseModal() {
     setOpenModal(false);
@@ -92,9 +93,9 @@ export function FilterItems({ label }) {
         onClose={onCloseModal}
         popup
       >
-        <ModalHeader>Filter by {label}</ModalHeader>
+        <ModalHeader>{t.filter_by} {label.toLowerCase()}</ModalHeader>
         <ModalBody>
-          <Select id={`${label}-select`}>
+          <Select id={`${label.toLowerCase()}-select`}>
             <option>org-1</option>
             <option>org-2</option>
             <option>org-3</option>
@@ -114,11 +115,11 @@ export default function FilterSection({lang}) {
       <span>Filtres</span>
       <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
         <SearchFilter lang={lang} />
-        <FilterItems label={t.organization} />
-        <FilterItems label={t.project} />
-        <FilterItems label={t.eov} />
-        <FilterItems label={t.time} />
-        <FilterItems label={t.spatial} />
+        <FilterItems label={t.organization} lang={lang} />
+        <FilterItems label={t.project} lang={lang}/>
+        <FilterItems label={t.eov} lang={lang}/>
+        <FilterItems label={t.time} lang={lang}/>
+        <FilterItems label={t.spatial} lang={lang}/>
       </div>
     </>
   );
