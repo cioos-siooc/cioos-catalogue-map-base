@@ -48,7 +48,7 @@ export function SearchFilter({lang}) {
         <FloatingLabel
           id="query-input"
           variant="filled"
-          label="Recherche"
+          label={t.search}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
