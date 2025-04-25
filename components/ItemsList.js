@@ -1,5 +1,5 @@
 'use client';   
-export default function ItemsList({ itemsList, onItemClick, onItemDoubleClick }) {
+export default function ItemsList({ itemsList, onItemClick, onItemDoubleClick , lang}) {
   
 
   return (
@@ -14,7 +14,7 @@ export default function ItemsList({ itemsList, onItemClick, onItemDoubleClick })
                               <li className="hover:text-blue-500 cursor-pointer bg-gray-100 dark:bg-gray-900 m-2 p-4 text-sm rounded-md" 
                                  onClick={() => onItemClick(item)} 
                                  onDoubleClick={() => onItemDoubleClick(item)} 
-                                 key={item.id}>{item.title}
+                                 key={item.id}>{item.title_translated[lang]}
                         
                               </li> // Dynamically create <li> items
                            )
