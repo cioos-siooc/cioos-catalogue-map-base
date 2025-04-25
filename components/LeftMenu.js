@@ -5,10 +5,11 @@ import ItemsList from "@/components/ItemsList";
 import Image from 'next/image';
 import ModalAPropos from '@/components/ModalAPropos';
 import config from "@/app/config.js";
+import {getLocale} from "@/app/get-locale.js";
 
 
 
-export default function LeftMenu({ onInfoClick, onItemClick }) {
+export default function LeftMenu({ onInfoClick, onItemClick, lang, setLang }) {
     const [filteredItems, setFilteredItems] = useState([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [error, setError] = useState(null);
@@ -19,6 +20,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
     const [selectedValue, setSelectedValue] = useState("");
     const [fetchURLFilter, setFetchURLFilter] = useState(config.base_query);
 
+    const t = getLocale(lang)
     
     const basePath = process.env.BASE_PATH || '';
 
@@ -48,7 +50,13 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
             setSelectedValue("");
         }
 
-      };
+    };
+    
+    const toggleLanguage = () => {
+        const opposite_langue = lang
+        setLang(lang === "en" ? "fr" : "en")
+        return opposite_langue
+    }
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
@@ -163,7 +171,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                         <Image src={`${basePath}${config.logos.main_dark }`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
                         <span className="self-center text-xl font-semibold whitespace-nowrap">{config.title.fr}</span>
                     </a>
-                    <span className="sr-only">Open sidebar</span>
+                    <span className="sr-only">{t.open_sidebar}</span>
                 </div>
                 <svg className="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path clipRule="evenodd" fillRule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
@@ -177,7 +185,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                             <Image src={`${basePath}${config.logos.main_dark}`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
                             <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">{ config.title.fr }</span>
                         </div>
-                        <a className="mr-10" id="headerTranslation" href="">EN</a>
+                        <button className="p-1 uppercase cursor-pointer" id="headerTranslation" onClick={toggleLanguage}>{lang}</button>
                         <button onClick={toggleSidebar} className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="logo-sidebar" data-drawer-toggle="logo-sidebar">
                             <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -190,7 +198,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                         <li>
 
                             <form className="max-w-lg mx-auto">
-                                <label>Filtrer par</label>
+                                <label>{t.filter_by}</label>
                                 <div className="flex">
                                     <select
                                         id="selectCategory"
@@ -238,9 +246,9 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                     </div>  
 
 
-                    <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">Jeux de données</span>
+                    <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">{t.datasets}</span>
                     <ul className="flex-grow overflow-y-auto pt-1 mt-1 space-y-2 rounded-md">
-                        <ItemsList itemsList={filteredItems} onItemClick={onLeftMenuItemClick} onItemDoubleClick={onLeftMenuItemDoubleClick} 
+                        <ItemsList itemsList={filteredItems} onItemClick={onLeftMenuItemClick} onItemDoubleClick={onLeftMenuItemDoubleClick} lang={lang}
                         className="flex-grow overflow-y-auto" />
                     </ul>
                     <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
