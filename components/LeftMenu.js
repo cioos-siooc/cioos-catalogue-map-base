@@ -209,6 +209,7 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
               </svg>
             </button>
           </div>
+          <HR className="m-2"/>
           <FilterSection lang={lang} />
           <div id="badgesSection" className="mt-3 mb-3 relative w-full">
             {badges.map((badge) => (
