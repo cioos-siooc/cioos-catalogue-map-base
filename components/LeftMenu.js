@@ -17,7 +17,7 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
   const [inputValue, setInputValue] = useState("");
   const [badges, setBadges] = useState([]);
   const [selectedValue, setSelectedValue] = useState("");
-  const [fetchURLFilter, setFetchURLFilter] = useState(config.base_query);
+  const [fetchURLFilter, setFetchURLFilter] = useState("");
 
   const t = getLocale(lang);
 
@@ -50,7 +50,9 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
 
   const generateQueryString = (badges) => {
     return Object.entries(badges)
-      .map(([filterType, value]) => `${filterType}=${value}`)
+      .map(([filterType, value]) => 
+      filterType === "search" ? `${value}` : `${filterType}=${value}`
+      )
       .join("%20AND%20");
   };
 
@@ -68,7 +70,11 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
     const fetchData = async () => {
       // Fetch data from an API
       try {
-        let url = `${urlCustomSearch}${fetchURLFilter}`;
+        let url = `${urlCustomSearch}${config.base_query}`
+        if (fetchURLFilter) {
+          url += `%20AND%20${fetchURLFilter}`
+        }
+        url += `&rows=1000`;
         console.log("URL :: " + url);
         const response = await fetch(url); // Example API
         const awaitRes = await response.json();
