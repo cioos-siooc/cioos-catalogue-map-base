@@ -1,7 +1,7 @@
 'use client';
 
 import { useState} from 'react';
-import { LeftMenu, TopBanner } from "@/components/LeftMenu";
+import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import dynamic from "next/dynamic";
 import ModalAPropos from "@/components/ModalAPropos";
 import config from "./config"
@@ -37,7 +37,7 @@ const handleCloseModal = () => {
       </header>
       <div className="h-screen flex flex-1">
         <aside className="hidden md:block w-sm h-screen overflow-auto">
-          <LeftMenu onInfoClick={onInfoClick} onItemClick={handleListItemClick} lang={lang} setLang={setLang} />
+          <Sidebar onInfoClick={onInfoClick} onItemClick={handleListItemClick} lang={lang} setLang={setLang} />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
           <Map center={center} bounds={bounds} />

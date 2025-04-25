@@ -9,7 +9,7 @@ import {getLocale} from "@/app/get-locale.js";
 
 
 
-export default function LeftMenu({ onInfoClick, onItemClick, lang, setLang }) {
+export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
     const [filteredItems, setFilteredItems] = useState([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [error, setError] = useState(null);
