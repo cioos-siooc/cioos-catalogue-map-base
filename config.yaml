@@ -2,9 +2,11 @@
 catalogue_url: https://catalogue.ogsl.ca
 base_query: projects=*baseline*&rows=50
 
+default_language: en
 title:
   en: SLGO's Catalogue Map
   fr: Carte Catalogue de l'OGSL
+
 metadata:
   en:
     title: SLGO's Catalogue Map
@@ -26,4 +28,3 @@ logos:
   main_light: "/Images/OGSL_NoTag.png"
   main_dark: "/Images/OGSL_NoTag_White.png"
   favicon: "/images/favicon.ico"
-

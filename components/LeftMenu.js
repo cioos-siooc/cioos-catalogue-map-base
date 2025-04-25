@@ -1,160 +1,157 @@
-'use client';
-import { useState, useEffect, useRef} from 'react';
-import dynamic from 'next/dynamic';
+"use client";
+import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import ItemsList from "@/components/ItemsList";
-import Image from 'next/image';
-import ModalAPropos from '@/components/ModalAPropos';
+import Image from "next/image";
+import ModalAPropos from "@/components/ModalAPropos";
 import config from "@/app/config.js";
+import { getLocale } from "@/app/get-locale.js";
 import FilterSection from './FilterSection';
 import { HR } from 'flowbite-react'
 
+export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
+  const [filteredItems, setFilteredItems] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [error, setError] = useState(null);
+  const [totalResultsCount, setTotalResultsCount] = useState(0);
+  const [filteredResultsCount, setFilteredResultsCount] = useState(0);
+  const [inputValue, setInputValue] = useState("");
+  const [badges, setBadges] = useState([]);
+  const [selectedValue, setSelectedValue] = useState("");
+  const [fetchURLFilter, setFetchURLFilter] = useState(config.base_query);
 
+  const t = getLocale(lang);
 
-export default function LeftMenu({ onInfoClick, onItemClick }) {
-    const [filteredItems, setFilteredItems] = useState([]);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [error, setError] = useState(null);
-    const [totalResultsCount, setTotalResultsCount] = useState(0);
-    const [filteredResultsCount, setFilteredResultsCount] = useState(0);
-    const [inputValue, setInputValue] = useState('');
-    const [badges, setBadges] = useState([]);
-    const [selectedValue, setSelectedValue] = useState("");
-    const [fetchURLFilter, setFetchURLFilter] = useState(config.base_query);
+  const basePath = process.env.BASE_PATH || "";
 
-    
-    const basePath = process.env.BASE_PATH || '';
+  const catalogueUrl = config.catalogue_url;
+  let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
-    const catalogueUrl = config.catalogue_url;
-    let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
+  const ProgressBar = dynamic(() => import("./ProgressBar"), { ssr: false });
+  const Badge = dynamic(() => import("./Badge"), { ssr: false });
+  //const ModalAPropos = dynamic(() => import('./ModalAPropos'),  { ssr: false })
+  let ref = useRef(0);
 
-
-    const ProgressBar = dynamic(() => import('./ProgressBar'), { ssr: false })
-    const Badge = dynamic(() => import('./Badge'),  { ssr: false })
-    //const ModalAPropos = dynamic(() => import('./ModalAPropos'),  { ssr: false })
-    let ref = useRef(0);
-
-    const AddBadge = (label)=> {
-        let id = badges.length + 1;
-        setBadges([...badges, {index: id, nom : label}]);
+  const AddBadge = (label) => {
+    let id = badges.length + 1;
+    setBadges([...badges, { index: id, nom: label }]);
+  };
+  const handleSelectChange = (event) => {
+    // Handle the change event for the select input
+    console.log("ON Selected value :: " + event.target.value);
+    if (event.target.value === "eov") {
+      setSelectedValue("eov");
+    } else if (event.target.value === "organisation") {
+      setSelectedValue("dataset");
+    } else if (event.target.value === "project") {
+      setSelectedValue("projects");
+    } else {
+      setSelectedValue("");
     }
-    const handleSelectChange = (event) => {
-        // Handle the change event for the select input
-        console.log("ON Selected value :: " + event.target.value);
-        if (event.target.value === 'eov') {
-            setSelectedValue("eov");
-        }else if (event.target.value === 'organisation') {
-            setSelectedValue("dataset");
-        } else if (event.target.value === 'project') {
-            setSelectedValue("projects");
+  };
+
+  const toggleLanguage = () => {
+    const opposite_langue = lang;
+    setLang(lang === "en" ? "fr" : "en");
+    return opposite_langue;
+  };
+
+  const toggleSidebar = () => {
+    console.log("Toggle Sidebar :: " + isSidebarOpen);
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const onLeftMenuItemClick = (selectedItem) => {
+    onItemClick(selectedItem);
+  };
+
+  const onLeftMenuItemDoubleClick = (selectedItem) => {
+    window.open(`${catalogueUrl}/dataset/${selectedItem.name}`);
+  };
+
+  const handleChange = (event) => {
+    setInputValue(event.target.value); // Update state with input value
+  };
+
+  const handleFilterClick = () => {
+    constructFilterUrl(); // Construct filter URL
+    ref.current = ref.current + 1; //detect when we use the filter button to check the total results count
+  };
+
+  const resetSelectedValue = () => {
+    const selectElement = document.getElementById("selectCategory");
+    selectElement.selectedIndex = 0; // Reset to the first option
+  };
+
+  const onRemoveClick = (id) => {
+    resetSelectedValue(); // Reset the selected value in the dropdown
+    const filteredListAfterRemove = badges.filter((item) => item.index !== id);
+    console.log("Badges after remove :: " + filteredListAfterRemove.length);
+
+    setBadges(filteredListAfterRemove); // Remove badge by ID
+
+    updateFilterUrlAfterRemove(filteredListAfterRemove); // Reapply filter after removing badge
+  };
+  const constructFilterUrl = () => {
+    let filterString = "";
+    for (let i = 0; i < badges.length; i++) {
+      if (badges[i].nom) {
+        filterString += `${i > 0 ? "%20AND%20" : ""}${badges[i].nom}`;
+      }
+    }
+
+    if (selectedValue && inputValue) {
+      filterString += `${badges.length > 0 ? "%20AND%20" : ""}${selectedValue}=${inputValue}`;
+    } else if (inputValue) {
+      filterString += `${badges.length > 0 ? "%20AND%20" : ""}${inputValue}`;
+    }
+    filterString += `%20AND%20${config.base_query}`;
+    AddBadge(inputValue);
+    setFetchURLFilter(filterString);
+  };
+
+  const updateFilterUrlAfterRemove = (badgeList) => {
+    let filterString = "";
+    for (let i = 0; i < badgeList.length; i++) {
+      if (badgeList[i].nom) {
+        filterString += `${i > 0 ? "%20AND%20" : ""}${badgeList[i].nom}`;
+      }
+    }
+    console.log("SELECT :: " + selectedValue);
+    if (selectedValue && inputValue) {
+      filterString += `${badgeList.length > 0 ? "%20AND%20" : ""}${selectedValue}=${inputValue}`;
+    } else if (inputValue) {
+      filterString += `${badgeList.length > 0 ? "%20AND%20" : ""}${inputValue}`;
+    }
+    filterString += `${badgeList.length > 0 ? "%20AND%20projects=*baseline*&rows=50" : "projects=*baseline*&rows=50"}`;
+    // Construct the filter URL based on the selected value and input value
+    console.log("Update filter string remove :: " + filterString);
+    setFetchURLFilter(filterString);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fetch data from an API
+      try {
+        let url = `${urlCustomSearch}${fetchURLFilter}`;
+        console.log("URL :: " + url);
+        const response = await fetch(url); // Example API
+        const awaitRes = await response.json();
+        setFilteredItems(awaitRes.result.results);
+        setInputValue(""); // Clear input value after fetching data
+        console.log("FETCH :: ");
+        if (ref.current === 0) {
+          setTotalResultsCount(awaitRes.result.results.length);
         } else {
-            setSelectedValue("");
+          setFilteredResultsCount(awaitRes.result.results.length);
         }
-
-      };
-
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
+      } catch (error) {
+        setError(error.message);
+      }
+      console.log("filtered count :: " + filteredItems.length);
     };
-
-    const onLeftMenuItemClick = (selectedItem) => {
-        onItemClick(selectedItem);
-    };
-
-
-    const onLeftMenuItemDoubleClick = (selectedItem) => {
-        window.open(`${catalogueUrl}/dataset/${selectedItem.name}`);
-    };
-
-    const handleChange = (event) => {
-        setInputValue(event.target.value); // Update state with input value
-    };
-
-    const handleFilterClick = () => {
-        constructFilterUrl(); // Construct filter URL
-        ref.current = ref.current + 1;//detect when we use the filter button to check the total results count
-    };
-
-    const resetSelectedValue = () => {
-        const selectElement = document.getElementById("selectCategory");
-        selectElement.selectedIndex = 0; // Reset to the first option
-    }
-
-    const onRemoveClick = (id) => {
-        resetSelectedValue(); // Reset the selected value in the dropdown
-        const filteredListAfterRemove = badges.filter(item => item.index !== id);
-        console.log("Badges after remove :: " + filteredListAfterRemove.length);
-
-        setBadges(filteredListAfterRemove); // Remove badge by ID
-
-        updateFilterUrlAfterRemove(filteredListAfterRemove); // Reapply filter after removing badge
-    }
-    const constructFilterUrl = () => {
-
-        let filterString = '';
-        for(let i = 0; i < badges.length; i++) {
-            if (badges[i].nom) {
-                filterString += `${i > 0 ? '%20AND%20' : ''}${badges[i].nom}`;
-            }
-        }
-
-        if (selectedValue && inputValue) {
-
-            filterString += `${badges.length > 0 ? '%20AND%20' : ''}${selectedValue}=${inputValue}`;
-        } else if (inputValue) {
-            filterString += `${badges.length > 0 ? '%20AND%20' : ''}${inputValue}`;
-        }
-        filterString += `%20AND%20${config.base_query}`;
-        AddBadge(inputValue);
-        setFetchURLFilter(filterString);
-    }
-
-    const updateFilterUrlAfterRemove = (badgeList) => {
-
-        let filterString = '';
-        for(let i = 0; i < badgeList.length; i++) {
-            if (badgeList[i].nom) {
-                filterString += `${i > 0 ? '%20AND%20' : ''}${badgeList[i].nom}`;
-            }
-        }
-        console.log("SELECT :: " + selectedValue)
-        if (selectedValue && inputValue) {
-            filterString += `${badgeList.length > 0 ? '%20AND%20' : ''}${selectedValue}=${inputValue}`;
-        } else if (inputValue) {
-            filterString += `${badgeList.length > 0 ? '%20AND%20' : ''}${inputValue}`;
-        }
-        filterString += `${badgeList.length > 0 ? '%20AND%20projects=*baseline*&rows=50' : 'projects=*baseline*&rows=50'}`;
-        // Construct the filter URL based on the selected value and input value
-        console.log("Update filter string remove :: " + filterString);
-        setFetchURLFilter(filterString);
-    }
-
-
-    useEffect(() => {
-
-        const fetchData = async () => {
-            // Fetch data from an API
-            try {
-                let url = `${urlCustomSearch}${fetchURLFilter}`;
-                console.log("URL :: " + url);   
-                const response = await fetch(url); // Example API
-                const awaitRes = await response.json();
-                setFilteredItems(awaitRes.result.results);
-                setInputValue(''); // Clear input value after fetching data
-                console.log("FETCH :: ");
-                if (ref.current === 0) {
-                    setTotalResultsCount(awaitRes.result.results.length);
-                } else{
-                    setFilteredResultsCount(awaitRes.result.results.length);
-                }
-            } catch (error) {
-                setError(error.message);
-            }
-            console.log('filtered count :: ' + filteredItems.length);
-            
-        };
-        fetchData();
-    }, [fetchURLFilter]);
-
+    fetchData();
+  }, [fetchURLFilter]);
 
     return (
         <div id="sidebar">
@@ -186,9 +183,9 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                             </svg>
                         </button>
                     </div>
-                    <HR className="my-2" />
-                    <FilterSection />
-                    {/* <ul className="space-y-2 font-medium">
+                    
+                    
+                    <ul className="space-y-2 font-medium">
                         <li>
 
                             <form className="max-w-lg mx-auto">
@@ -230,7 +227,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                             </form>
 
                         </li>
-                    </ul> */}
+                    </ul>
                     <div id="badgesSection" className="mt-3 mb-3 relative w-full" >
                         {badges.map(badge => (
                             
@@ -254,3 +251,57 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
         </div>
     );
 }
+
+export const TopBanner = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+  return (
+    <button
+      id="sidebar-toggle"
+      data-drawer-target="logo-sidebar"
+      data-drawer-toggle="logo-sidebar"
+      aria-controls="logo-sidebar"
+      type="button"
+      onClick={toggleSidebar}
+      className="w-screen flex justify-between items-center p-2 text-sm bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+    >
+      <div className="flex items-center ps-2.5">
+        <a className="me-3">
+          <Image
+            src="/Images/OGSL_NoTag.png"
+            className="h-auto dark:hidden"
+            alt="OGSL Logo"
+            height={0}
+            width={120}
+          />
+          <Image
+            src="/Images/OGSL_NoTag_White.png"
+            className="h-auto hidden dark:block"
+            alt="OGSL Logo"
+            height={0}
+            width={129}
+          />
+          <span className="self-center text-xl font-semibold whitespace-nowrap">
+            Carte de l&apos;OGSL
+          </span>
+        </a>
+        <span className="sr-only">Open sidebar</span>
+      </div>
+      <svg
+        className="w-6 h-6"
+        aria-hidden="true"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          clipRule="evenodd"
+          fillRule="evenodd"
+          d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
+        ></path>
+      </svg>
+    </button>
+  );
+};
