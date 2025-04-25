@@ -185,7 +185,7 @@ export default function LeftMenu({ onInfoClick, onItemClick, lang, setLang }) {
                             <Image src={`${basePath}${config.logos.main_dark}`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
                             <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">{ config.title.fr }</span>
                         </div>
-                        <button className="mr-10" id="headerTranslation" onClick={toggleLanguage}>{lang}</button>
+                        <button className="p-1 uppercase cursor-pointer" id="headerTranslation" onClick={toggleLanguage}>{lang}</button>
                         <button onClick={toggleSidebar} className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="logo-sidebar" data-drawer-toggle="logo-sidebar">
                             <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
