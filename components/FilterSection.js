@@ -91,9 +91,12 @@ export function FilterItems({ filter_type, lang, setBadges }) {
   const t = getLocale(lang);
 
   function onCloseModal() {
+    setBadges((prevBadges) => ({
+      ...prevBadges,
+      [filter_type]: query,
+    }));
     setOpenModal(false);
   }
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       console.log("Enter pressed! Searching for:", query);
@@ -130,6 +133,7 @@ export function FilterItems({ filter_type, lang, setBadges }) {
           <Select
             id={`${t[filter_type].toLowerCase()}-select`}
             onChange={(e) => setQuery(e.target.value)}
+            onSelect={onCloseModal}
             onKeyDown={handleKeyDown}
           >
             <option value="">Select an option</option>
