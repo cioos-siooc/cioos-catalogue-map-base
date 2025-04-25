@@ -11,7 +11,7 @@ import {
 import { useRef, useState } from "react";
 import { getLocale } from "@/app/get-locale";
 
-export function SearchFilter({lang}) {
+export function SearchFilter({ lang }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -93,7 +93,9 @@ export function FilterItems({ label, lang }) {
         onClose={onCloseModal}
         popup
       >
-        <ModalHeader>{t.filter_by} {label.toLowerCase()}</ModalHeader>
+        <ModalHeader>
+          {t.filter_by} {label.toLowerCase()}
+        </ModalHeader>
         <ModalBody>
           <Select id={`${label.toLowerCase()}-select`}>
             <option>org-1</option>
@@ -106,7 +108,7 @@ export function FilterItems({ label, lang }) {
   );
 }
 
-export default function FilterSection({lang}) {
+export default function FilterSection({ lang }) {
   const [badges, setBadges] = useState([]);
   const t = getLocale(lang);
 
@@ -116,10 +118,10 @@ export default function FilterSection({lang}) {
       <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
         <SearchFilter lang={lang} />
         <FilterItems label={t.organization} lang={lang} />
-        <FilterItems label={t.project} lang={lang}/>
-        <FilterItems label={t.eov} lang={lang}/>
-        <FilterItems label={t.time} lang={lang}/>
-        <FilterItems label={t.spatial} lang={lang}/>
+        <FilterItems label={t.project} lang={lang} />
+        <FilterItems label={t.eov} lang={lang} />
+        <FilterItems label={t.time} lang={lang} />
+        <FilterItems label={t.spatial} lang={lang} />
       </div>
     </>
   );

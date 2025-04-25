@@ -6,8 +6,8 @@ import Image from "next/image";
 import ModalAPropos from "@/components/ModalAPropos";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
-import FilterSection from './FilterSection';
-import { HR } from 'flowbite-react'
+import FilterSection from "./FilterSection";
+import { HR } from "flowbite-react";
 
 export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
   const [filteredItems, setFilteredItems] = useState([]);
@@ -20,7 +20,7 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
   const [selectedValue, setSelectedValue] = useState("");
   const [fetchURLFilter, setFetchURLFilter] = useState(config.base_query);
 
-    const t = getLocale(lang);
+  const t = getLocale(lang);
 
   const basePath = process.env.BASE_PATH || "";
 
@@ -152,47 +152,100 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
     fetchData();
   }, [fetchURLFilter]);
 
-    return (
-        <div id="sidebar">
-            <aside id="logo-sidebar" className={`fixed top-0 left-0 z-40 w-sm h-screen transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`} aria-label="Sidebar">
-                <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
-                    <div className="flex items-center justify-between ps-2.5 mb-5">
-                        <div>
-                            <Image src={`${basePath}${config.logos.main_light}`} className="h-auto dark:hidden" alt="OGSL Logo" height={0}  width={120} />
-                            <Image src={`${basePath}${config.logos.main_dark}`} className="h-auto hidden dark:block" alt="OGSL Logo" height={0} width={129} />
-                            <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">{ config.title[lang] }</span>
-                        </div>
-                        <a className="p-2 uppercase" id="headerTranslation" onClick={toggleLanguage}>{opposite_lang}</a>
-                        <button onClick={toggleSidebar} className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="logo-sidebar" data-drawer-toggle="logo-sidebar">
-                            <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    <FilterSection lang={lang} />
-                    <div id="badgesSection" className="mt-3 mb-3 relative w-full" >
-                        {badges.map(badge => (
-                            <Badge key={badge.index} index={badge.index} label={badge.nom} onRemoveClick={onRemoveClick} />
+  return (
+    <div id="sidebar">
+      <aside
+        id="logo-sidebar"
+        className={`fixed top-0 left-0 z-40 w-sm h-screen transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+        aria-label="Sidebar"
+      >
+        <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
+          <div className="flex items-center justify-between ps-2.5 mb-5">
+            <div>
+              <Image
+                src={`${basePath}${config.logos.main_light}`}
+                className="h-auto dark:hidden"
+                alt="OGSL Logo"
+                height={0}
+                width={120}
+              />
+              <Image
+                src={`${basePath}${config.logos.main_dark}`}
+                className="h-auto hidden dark:block"
+                alt="OGSL Logo"
+                height={0}
+                width={129}
+              />
+              <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">
+                {config.title[lang]}
+              </span>
+            </div>
+            <a
+              className="p-2 uppercase"
+              id="headerTranslation"
+              onClick={toggleLanguage}
+            >
+              {opposite_lang}
+            </a>
+            <button
+              onClick={toggleSidebar}
+              className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+              aria-controls="logo-sidebar"
+              data-drawer-toggle="logo-sidebar"
+            >
+              <svg
+                className="w-5 h-5 text-gray-600 dark:text-gray-300"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <FilterSection lang={lang} />
+          <div id="badgesSection" className="mt-3 mb-3 relative w-full">
+            {badges.map((badge) => (
+              <Badge
+                key={badge.index}
+                index={badge.index}
+                label={badge.nom}
+                onRemoveClick={onRemoveClick}
+              />
+            ))}
+          </div>
 
-                        ))}
-                    </div>  
-
-
-            <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">{t.datasets}</span>
-                    <ul className="flex-grow overflow-y-auto pt-1 mt-1 space-y-2 rounded-md">
-                        <ItemsList itemsList={filteredItems} onItemClick={onLeftMenuItemClick} onItemDoubleClick={onLeftMenuItemDoubleClick} lang={lang} />
-                    </ul>
-                    <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
-                        <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
-                    </div>
-                    <ModalAPropos />
-                </div>
-            </aside>
+          <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">
+            {t.datasets}
+          </span>
+          <ul className="flex-grow overflow-y-auto pt-1 mt-1 space-y-2 rounded-md">
+            <ItemsList
+              itemsList={filteredItems}
+              onItemClick={onLeftMenuItemClick}
+              onItemDoubleClick={onLeftMenuItemDoubleClick}
+              lang={lang}
+            />
+          </ul>
+          <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
+            <ProgressBar
+              count={filteredResultsCount}
+              total={totalResultsCount}
+            />
+          </div>
+          <ModalAPropos />
         </div>
-    );
+      </aside>
+    </div>
+  );
 }
 
-export const TopBanner = ({lang}) => {
+export const TopBanner = ({ lang }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
