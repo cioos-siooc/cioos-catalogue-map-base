@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import dynamic from "next/dynamic";
 import ModalAPropos from "@/components/ModalAPropos";
@@ -11,6 +11,16 @@ export default function Home() {
   const [bounds, setBounds] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [lang, setLang] = useState(config.default_language);
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("preferredLanguage");
+    const browserLanguage = navigator.language.split("-")[0];
+    const initialLanguage = savedLanguage || browserLanguage || config.default_language;
+    setLang(initialLanguage);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("preferredLanguage", lang);
+  }, [lang]);
 
   const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
