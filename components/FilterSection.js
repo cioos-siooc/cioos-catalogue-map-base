@@ -176,7 +176,7 @@ export default function FilterSection({ lang }) {
       </div>
 
       {/* Render Badges */}
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-2 justify-center">
         {Object.entries(badges).map(([filterType, value]) => (
           getBadge(filterType, value, lang)
         ))}
