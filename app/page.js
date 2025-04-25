@@ -1,7 +1,7 @@
 'use client';
 
 import { useState} from 'react';
-import LeftMenu from "@/components/LeftMenu";
+import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import dynamic from "next/dynamic";
 import ModalAPropos from "@/components/ModalAPropos";
 import config from "./config"
@@ -31,15 +31,18 @@ const handleCloseModal = () => {
 
 
   return (
-    <div className="gap-16 font-[family-name:var(--font-geist-sans)]">
-     
-      <main>
-        <LeftMenu onInfoClick={onInfoClick} onItemClick={handleListItemClick} lang={lang} setLang={setLang} />        
-        <div className="md:ml-64">
+    <div className="h-screen flex flex-col">
+      <header className="md:hidden">
+        <TopBanner />
+      </header>
+      <div className="h-screen flex flex-1">
+        <aside className="hidden md:block w-sm h-screen overflow-auto">
+          <Sidebar onInfoClick={onInfoClick} onItemClick={handleListItemClick} lang={lang} setLang={setLang} />
+        </aside>
+        <main className="z-20 flex-1 h-full w-full">
           <Map center={center} bounds={bounds} />
-        </div>
-      </main>
-
+        </main>
+      </div>
     </div>
   );
 }

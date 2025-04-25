@@ -16,7 +16,7 @@ const FitBounds = ({ bounds }) => {
         
         map.fitBounds(polygon.getBounds(), {
             animate: true,
-            padding: [150, 150],
+            padding: [50, 50],
             maxZoom: 10
         });
     }
@@ -43,10 +43,11 @@ const FitBounds = ({ bounds }) => {
 function Map({center,bounds}){
 
     return(
-        <div id="container">
+        <div id="container" className="h-full w-full">
             {center && (
             
-            <MapContainer className="h-screen w-screen md:ml-32 z-10"
+                <MapContainer
+                className="h-full w-full"
                 center={center} zoom={6} 
                 scrollWheelZoom={true}
                 boundsOptions={{ padding: [1, 1] }}>
