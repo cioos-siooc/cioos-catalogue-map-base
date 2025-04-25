@@ -48,10 +48,9 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
     }
   };
 
+  const opposite_lang = lang === "en" ? "fr" : "en";
   const toggleLanguage = () => {
-    const opposite_langue = lang;
     setLang(lang === "en" ? "fr" : "en");
-    return opposite_langue;
   };
 
   const toggleSidebar = () => {
@@ -229,7 +228,7 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
               id="headerTranslation"
               onClick={toggleLanguage}
             >
-              {lang}
+              {opposite_lang}
             </button>
             <button
               onClick={toggleSidebar}
