@@ -9,11 +9,13 @@ import {
   Select,
 } from "flowbite-react";
 import { useRef, useState } from "react";
+import { getLocale } from "@/app/get-locale";
 
-export function SearchFilter() {
+export function SearchFilter({lang}) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
 
+  const t = getLocale(lang);
   function onCloseModal() {
     setOpenModal(false);
   }
@@ -34,7 +36,7 @@ export function SearchFilter() {
         size="xs"
         onClick={() => setOpenModal(true)}
       >
-        Recherche
+        {t.search}
       </Button>
       <Modal
         dismissible
@@ -103,19 +105,20 @@ export function FilterItems({ label }) {
   );
 }
 
-export default function FilterSection() {
+export default function FilterSection({lang}) {
   const [badges, setBadges] = useState([]);
+  const t = getLocale(lang);
 
   return (
     <>
       <span>Filtres</span>
       <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
-        <SearchFilter />
-        <FilterItems label="Organisation" />
-        <FilterItems label="Projet" />
-        <FilterItems label="Variable Océanique Essentiel" />
-        <FilterItems label="Temps" />
-        <FilterItems label="Spatiale" />
+        <SearchFilter lang={lang} />
+        <FilterItems label={t.organization} />
+        <FilterItems label={t.project} />
+        <FilterItems label={t.eov} />
+        <FilterItems label={t.time} />
+        <FilterItems label={t.spatial} />
       </div>
     </>
   );
