@@ -40,7 +40,7 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col">
       <header className="md:hidden">
-        <TopBanner />
+        <TopBanner lang={lang} />
       </header>
       <div className="h-screen flex flex-1">
         <aside className="hidden md:block w-sm h-screen overflow-auto">
