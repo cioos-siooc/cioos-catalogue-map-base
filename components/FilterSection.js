@@ -147,8 +147,7 @@ export function FilterItems({ filter_type, lang, setBadges }) {
   );
 }
 
-export default function FilterSection({ lang }) {
-  const [badges, setBadges] = useState({});
+export default function FilterSection({ lang, badges, setBadges }) {
   const t = getLocale(lang);
 
   const removeBadge = (filterType) => {

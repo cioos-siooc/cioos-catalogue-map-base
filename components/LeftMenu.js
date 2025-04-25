@@ -27,27 +27,8 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
   let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
   const ProgressBar = dynamic(() => import("./ProgressBar"), { ssr: false });
-  const Badge = dynamic(() => import("./Badge"), { ssr: false });
-  //const ModalAPropos = dynamic(() => import('./ModalAPropos'),  { ssr: false })
   let ref = useRef(0);
 
-  const AddBadge = (label) => {
-    let id = badges.length + 1;
-    setBadges([...badges, { index: id, nom: label }]);
-  };
-  const handleSelectChange = (event) => {
-    // Handle the change event for the select input
-    console.log("ON Selected value :: " + event.target.value);
-    if (event.target.value === "eov") {
-      setSelectedValue("eov");
-    } else if (event.target.value === "organisation") {
-      setSelectedValue("dataset");
-    } else if (event.target.value === "project") {
-      setSelectedValue("projects");
-    } else {
-      setSelectedValue("");
-    }
-  };
 
   const opposite_lang = lang === "en" ? "fr" : "en";
   const toggleLanguage = () => {
@@ -67,65 +48,21 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
     window.open(`${catalogueUrl}/dataset/${selectedItem.name}`);
   };
 
-  const handleChange = (event) => {
-    setInputValue(event.target.value); // Update state with input value
+  const generateQueryString = (badges) => {
+    return Object.entries(badges)
+      .map(([filterType, value]) => `${filterType}=${value}`)
+      .join("%20AND%20");
   };
 
-  const handleFilterClick = () => {
-    constructFilterUrl(); // Construct filter URL
-    ref.current = ref.current + 1; //detect when we use the filter button to check the total results count
-  };
+  // Trigger reharvest when badges change
+  useEffect(() => {
+    const queryString = generateQueryString(badges);
+    console.log("Query String :: " + queryString);
+    setFetchURLFilter(
+      `${queryString}`
+    );
+  }, [badges]); // Re-run whenever badges change
 
-  const resetSelectedValue = () => {
-    const selectElement = document.getElementById("selectCategory");
-    selectElement.selectedIndex = 0; // Reset to the first option
-  };
-
-  const onRemoveClick = (id) => {
-    resetSelectedValue(); // Reset the selected value in the dropdown
-    const filteredListAfterRemove = badges.filter((item) => item.index !== id);
-    console.log("Badges after remove :: " + filteredListAfterRemove.length);
-
-    setBadges(filteredListAfterRemove); // Remove badge by ID
-
-    updateFilterUrlAfterRemove(filteredListAfterRemove); // Reapply filter after removing badge
-  };
-  const constructFilterUrl = () => {
-    let filterString = "";
-    for (let i = 0; i < badges.length; i++) {
-      if (badges[i].nom) {
-        filterString += `${i > 0 ? "%20AND%20" : ""}${badges[i].nom}`;
-      }
-    }
-
-    if (selectedValue && inputValue) {
-      filterString += `${badges.length > 0 ? "%20AND%20" : ""}${selectedValue}=${inputValue}`;
-    } else if (inputValue) {
-      filterString += `${badges.length > 0 ? "%20AND%20" : ""}${inputValue}`;
-    }
-    filterString += `%20AND%20${config.base_query}`;
-    AddBadge(inputValue);
-    setFetchURLFilter(filterString);
-  };
-
-  const updateFilterUrlAfterRemove = (badgeList) => {
-    let filterString = "";
-    for (let i = 0; i < badgeList.length; i++) {
-      if (badgeList[i].nom) {
-        filterString += `${i > 0 ? "%20AND%20" : ""}${badgeList[i].nom}`;
-      }
-    }
-    console.log("SELECT :: " + selectedValue);
-    if (selectedValue && inputValue) {
-      filterString += `${badgeList.length > 0 ? "%20AND%20" : ""}${selectedValue}=${inputValue}`;
-    } else if (inputValue) {
-      filterString += `${badgeList.length > 0 ? "%20AND%20" : ""}${inputValue}`;
-    }
-    filterString += `${badgeList.length > 0 ? "%20AND%20projects=*baseline*&rows=50" : "projects=*baseline*&rows=50"}`;
-    // Construct the filter URL based on the selected value and input value
-    console.log("Update filter string remove :: " + filterString);
-    setFetchURLFilter(filterString);
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -208,17 +145,7 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
               </svg>
             </button>
           </div>
-          <FilterSection lang={lang} />
-          <div id="badgesSection" className="mt-3 mb-3 relative w-full">
-            {badges.map((badge) => (
-              <Badge
-                key={badge.index}
-                index={badge.index}
-                label={badge.nom}
-                onRemoveClick={onRemoveClick}
-              />
-            ))}
-          </div>
+          <FilterSection lang={lang} badges={badges} setBadges={setBadges}/>
 
           <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">
             {t.datasets}
