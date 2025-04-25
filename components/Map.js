@@ -2,14 +2,20 @@
 
 import "leaflet/dist/leaflet.css";
 import "../app/globals.css";
-import { MapContainer, Polygon, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 
-const FitBounds = ({ bounds }) => {
+
+
+const FitBounds = ({ bounds, onPolygonClick}) => {
   const map = useMap();
   if (bounds) {
     ClearMap({ map });
     var polygon = L.geoJSON(bounds, { color: "red" }).addTo(map);
+
+    polygon.on("click", (e) => { onPolygonClick(true);
+      console.log("Polygon clicked 11111");
+    });
 
     map.fitBounds(polygon.getBounds(), {
       animate: true,
@@ -34,7 +40,7 @@ const ClearMap = ({ map }) => {
   return null;
 };
 
-function Map({ center, bounds }) {
+function Map({ center, bounds, onPolygonClick}) {
   return (
     <div id="container" className="h-full w-full">
       {center && (
@@ -46,7 +52,7 @@ function Map({ center, bounds }) {
           boundsOptions={{ padding: [1, 1] }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {bounds && <FitBounds bounds={bounds} />}
+          {bounds && <FitBounds bounds={bounds} onPolygonClick={onPolygonClick}/>}
         </MapContainer>
       )}
     </div>

@@ -2,29 +2,35 @@
 
 import { useState } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
+import { DatasetDetails } from "@/components/DatasetDetails";
 import dynamic from "next/dynamic";
-import ModalAPropos from "@/components/ModalAPropos";
 import config from "./config";
+
 
 export default function Home() {
   const [center] = useState([47.485, -62.48]); // Default center
   const [bounds, setBounds] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [lang, setLang] = useState(config.default_language);
+  const [openDataDetails, setOpenDataDetails] = useState(false);
+  const[dataSetInfo, setDatasetInfo] = useState(null);
 
   const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
   const handleListItemClick = (selectedItem) => {
     setBounds(selectedItem.spatial);
+    setDatasetInfo(selectedItem);
   };
 
   const onInfoClick = () => {
     console.log("INFO CLICKED");
     setShowModal(true);
   };
-  const handleCloseModal = () => {
-    setShowModal(false);
+
+  const handlePolygonClick = () => {
+    console.log("Polygon clicked 2222 ");
+    setOpenDataDetails(true);
   };
+
 
   return (
     <div className="h-screen flex flex-col">
@@ -41,8 +47,14 @@ export default function Home() {
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
-          <Map center={center} bounds={bounds} />
+          <Map center={center} bounds={bounds} onPolygonClick={handlePolygonClick}/>
         </main>
+        <aside className="hidden md:block w-1/3 h-screen overflow-auto">
+          <DatasetDetails 
+            isOpenParam={openDataDetails} 
+            dataSetInfo={dataSetInfo}
+          />
+        </aside>
       </div>
     </div>
   );
