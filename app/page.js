@@ -14,7 +14,8 @@ export default function Home() {
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
     const browserLanguage = navigator.language.split("-")[0];
-    const initialLanguage = savedLanguage || browserLanguage || config.default_language;
+    const initialLanguage =
+      savedLanguage || browserLanguage || config.default_language;
     setLang(initialLanguage);
   }, []);
 
