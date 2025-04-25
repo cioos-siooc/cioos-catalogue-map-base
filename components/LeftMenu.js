@@ -193,8 +193,7 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
 
                     <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">Jeux de données</span>
                     <ul className="flex-grow overflow-y-auto pt-1 mt-1 space-y-2 rounded-md">
-                        <ItemsList itemsList={filteredItems} onItemClick={onLeftMenuItemClick} onItemDoubleClick={onLeftMenuItemDoubleClick} 
-                        className="flex-grow overflow-y-auto" />
+                        <ItemsList itemsList={filteredItems} onItemClick={onLeftMenuItemClick} onItemDoubleClick={onLeftMenuItemDoubleClick} lang={lang} />
                     </ul>
                     <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
                         <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
