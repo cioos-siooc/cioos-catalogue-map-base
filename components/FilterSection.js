@@ -114,7 +114,7 @@ export default function FilterSection({ lang }) {
 
   return (
     <>
-      <span>Filtres</span>
+      <span>{t.filters}</span>
       <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
         <SearchFilter lang={lang} />
         <FilterItems label={t.organization} lang={lang} />
