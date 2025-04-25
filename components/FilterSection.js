@@ -8,14 +8,36 @@ import {
   FloatingLabel,
   Select,
 } from "flowbite-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
 
-export function SearchFilter({ lang }) {
+function getBadge(filterType, value, lang) {
+  const t = getLocale(lang);
+  return (
+    <div
+      key={filterType}
+      value={value}
+      className="flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full"
+    >
+      <span>
+        {t[filterType].toLowerCase()}: {value}
+      </span>
+      <button
+        className="ml-2 text-white hover:text-blue-700"
+        onClick={() => removeBadge(filterType)}
+      >
+        &times;
+      </button>
+    </div>
+  );
+}
+
+export function SearchFilter({ lang, setBadges }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
 
   const t = getLocale(lang);
+
   function onCloseModal() {
     setOpenModal(false);
   }
@@ -23,7 +45,11 @@ export function SearchFilter({ lang }) {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       console.log("Enter pressed! Searching for:", query);
-      // close modal and add badge
+      // Close modal and add badge
+      setBadges((prevBadges) => ({
+        ...prevBadges,
+        search: query,
+      }));
       setOpenModal(false);
     }
   };
@@ -59,7 +85,7 @@ export function SearchFilter({ lang }) {
   );
 }
 
-export function FilterItems({ label, lang }) {
+export function FilterItems({ filter_type, lang, setBadges }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
   const t = getLocale(lang);
@@ -71,7 +97,11 @@ export function FilterItems({ label, lang }) {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       console.log("Enter pressed! Searching for:", query);
-      // close modal and add badge
+      // Close modal and add badge
+      setBadges((prevBadges) => ({
+        ...prevBadges,
+        [filter_type]: query,
+      }));
       setOpenModal(false);
     }
   };
@@ -84,7 +114,7 @@ export function FilterItems({ label, lang }) {
         size="xs"
         onClick={() => setOpenModal(true)}
       >
-        {label}
+        {t[filter_type]}
       </Button>
       <Modal
         dismissible
@@ -94,13 +124,18 @@ export function FilterItems({ label, lang }) {
         popup
       >
         <ModalHeader>
-          {t.filter_by} {label.toLowerCase()}
+          {t.filter_by} {t[filter_type].toLowerCase()}
         </ModalHeader>
         <ModalBody>
-          <Select id={`${label.toLowerCase()}-select`}>
-            <option>org-1</option>
-            <option>org-2</option>
-            <option>org-3</option>
+          <Select
+            id={`${t[filter_type].toLowerCase()}-select`}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+          >
+            <option value="">Select an option</option>
+            <option value="org-1">org-1</option>
+            <option value="org-2">org-2</option>
+            <option value="org-3">org-3</option>
           </Select>
         </ModalBody>
       </Modal>
@@ -109,19 +144,42 @@ export function FilterItems({ label, lang }) {
 }
 
 export default function FilterSection({ lang }) {
-  const [badges, setBadges] = useState([]);
+  const [badges, setBadges] = useState({});
   const t = getLocale(lang);
+
+  const removeBadge = (filterType) => {
+    setBadges((prevBadges) => {
+      const updatedBadges = { ...prevBadges };
+      delete updatedBadges[filterType];
+      return updatedBadges;
+    });
+  };
 
   return (
     <>
       <span>{t.filters}</span>
       <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
-        <SearchFilter lang={lang} />
-        <FilterItems label={t.organization} lang={lang} />
-        <FilterItems label={t.project} lang={lang} />
-        <FilterItems label={t.eov} lang={lang} />
-        <FilterItems label={t.time} lang={lang} />
-        <FilterItems label={t.spatial} lang={lang} />
+        <SearchFilter lang={lang} setBadges={setBadges} />
+        <FilterItems
+          filter_type="organization"
+          lang={lang}
+          setBadges={setBadges}
+        />
+        <FilterItems filter_type="project" lang={lang} setBadges={setBadges} />
+        <FilterItems filter_type="eov" lang={lang} setBadges={setBadges} />
+        <FilterItems filter_type="time" lang={lang} setBadges={setBadges} />
+        <FilterItems
+          filter_type="spatial"
+          lang={lang}
+          setBadges={setBadges}
+        />
+      </div>
+
+      {/* Render Badges */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {Object.entries(badges).map(([filterType, value]) => (
+          getBadge(filterType, value, lang)
+        ))}
       </div>
     </>
   );
