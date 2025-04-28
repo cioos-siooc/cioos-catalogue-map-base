@@ -132,12 +132,10 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
       // Fetch data from an API
       try {
         let url = `${urlCustomSearch}${fetchURLFilter}`;
-        console.log("URL :: " + url);
         const response = await fetch(url); // Example API
         const awaitRes = await response.json();
         setFilteredItems(awaitRes.result.results);
         setInputValue(""); // Clear input value after fetching data
-        console.log("FETCH :: ");
         if (ref.current === 0) {
           setTotalResultsCount(awaitRes.result.results.length);
         } else {

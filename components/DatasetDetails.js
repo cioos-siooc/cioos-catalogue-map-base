@@ -2,33 +2,32 @@
 "use client";
 
 import { Drawer, DrawerHeader, DrawerItems } from "flowbite-react";
-import { useState } from "react";
 import { useDrawer } from "../app/context/DrawerContext";
 
-export function DatasetDetails({isOpenParam , dataSetInfo}) {
+export function DatasetDetails({ dataSetInfo}) {
 
   //const [isOpen, setIsOpen] = useState(isOpenParam);
   const {isDrawerOpen, closeDrawer} = useDrawer();
 
-  /*const handleClose = () => setIsOpen(false);
+  //const handleClose = () => setIsOpen(false);
 
   console.log("DATASET INFO", dataSetInfo);
-  console.log("IS OPEN PARAM", isOpenParam);
+ /* console.log("IS OPEN PARAM", isOpenParam);
   console.log("IS OPEN", isOpen);*/
 
     return (
         <>
         <Drawer open={isDrawerOpen} onClose={closeDrawer} position="right">
-            <DrawerHeader title="Drawer" />
+            <DrawerHeader className="m-5" title={dataSetInfo && dataSetInfo.title} />
             <DrawerItems>
             <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-                Supercharge your hiring by taking advantage of our&nbsp;
+                LOGO
                 <a href="#" className="text-cyan-600 underline hover:no-underline dark:text-cyan-500">
-                limited-time sale
+                
                 </a>
-                &nbsp;for Flowbite Docs + Job Board. Unlimited access to over 190K top-ranked candidates and the #1 design
-                job board.
+
             </p>
+
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <a
                 href="#"

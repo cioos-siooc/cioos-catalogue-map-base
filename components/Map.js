@@ -8,14 +8,14 @@ import L from "leaflet";
 
 
 
-const FitBounds = ({ bounds, onPolygonClick}) => {
+const FitBounds = ({ bounds}) => {
   const { openDrawer } = useDrawer();
   const map = useMap();
   if (bounds) {
     ClearMap({ map });
     var polygon = L.geoJSON(bounds, { color: "red" }).addTo(map);
 
-    polygon.on("click", (e) => { 
+    polygon.on("click", () => { 
       
       console.log("Polygon clicked 11111");
       openDrawer()
@@ -44,7 +44,7 @@ const ClearMap = ({ map }) => {
   return null;
 };
 
-function Map({ center, bounds, onPolygonClick}) {
+function Map({ center, bounds}) {
   return (
     <div id="container" className="h-full w-full">
       {center && (
@@ -56,7 +56,7 @@ function Map({ center, bounds, onPolygonClick}) {
           boundsOptions={{ padding: [1, 1] }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {bounds && <FitBounds bounds={bounds} onPolygonClick={onPolygonClick}/>}
+          {bounds && <FitBounds bounds={bounds}/>}
         </MapContainer>
       )}
     </div>

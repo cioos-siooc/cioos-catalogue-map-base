@@ -12,7 +12,6 @@ export default function Home() {
   const [center] = useState([47.485, -62.48]); // Default center
   const [bounds, setBounds] = useState(null);
   const [lang, setLang] = useState(config.default_language);
-  const [openDataDetails, setOpenDataDetails] = useState(false);
   const[dataSetInfo, setDatasetInfo] = useState(null);
 
   const Map = dynamic(() => import("@/components/Map"), { ssr: false });
@@ -27,10 +26,6 @@ export default function Home() {
     setShowModal(true);
   };
 
-  const handlePolygonClick = () => {
-    console.log("Polygon clicked 2222 ");
-    setOpenDataDetails(true);
-  };
 
 
   return (
@@ -49,14 +44,12 @@ export default function Home() {
             />
           </aside>
           <main className="z-20 flex-1 h-full w-full">
-            <Map center={center} bounds={bounds} onPolygonClick={handlePolygonClick}/>
+            <Map center={center} bounds={bounds}/>
           </main>
-          <aside className="hidden md:block w-1/3 h-screen overflow-auto">
+
             <DatasetDetails 
-              isOpenParam={openDataDetails} 
               dataSetInfo={dataSetInfo}
             />
-          </aside>
         </div>
       </div>
     </DrawerProvider>
