@@ -12,6 +12,7 @@ import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
 
 function getBadge(filterType, value, lang, removeBadge) {
+  if (!value) return null; // Return null if value is empty
   const t = getLocale(lang);
   return (
     <div
@@ -179,7 +180,7 @@ export default function FilterSection({ lang, badges, setBadges }) {
       </div>
 
       {/* Render Badges */}
-      <div className="m-1 flex flex-wrap gap-1 justify-center">
+      <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
         {Object.entries(badges).map(([filterType, value]) => (
           getBadge(filterType, value, lang, removeBadge)
         ))}
