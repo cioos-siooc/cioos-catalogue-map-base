@@ -168,7 +168,7 @@ export default function FilterSection({ lang, badges, setBadges }) {
           lang={lang}
           setBadges={setBadges}
         />
-        <FilterItems filter_type="project" lang={lang} setBadges={setBadges} />
+        <FilterItems filter_type="projects" lang={lang} setBadges={setBadges} />
         <FilterItems filter_type="eov" lang={lang} setBadges={setBadges} />
         <FilterItems filter_type="time" lang={lang} setBadges={setBadges} />
         <FilterItems
