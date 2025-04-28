@@ -3,18 +3,22 @@
 import "leaflet/dist/leaflet.css";
 import "../app/globals.css";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { useDrawer } from "../app/context/DrawerContext";
 import L from "leaflet";
 
 
 
 const FitBounds = ({ bounds, onPolygonClick}) => {
+  const { openDrawer } = useDrawer();
   const map = useMap();
   if (bounds) {
     ClearMap({ map });
     var polygon = L.geoJSON(bounds, { color: "red" }).addTo(map);
 
-    polygon.on("click", (e) => { onPolygonClick(true);
+    polygon.on("click", (e) => { 
+      
       console.log("Polygon clicked 11111");
+      openDrawer()
     });
 
     map.fitBounds(polygon.getBounds(), {
