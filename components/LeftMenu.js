@@ -196,14 +196,14 @@ export const TopBanner = ({ lang }) => {
       <div className="flex items-center ps-2.5">
         <a className="me-3">
           <Image
-            src="/Images/OGSL_NoTag.png"
+            src={`${basePath}${config.logos.main_light}`}
             className="h-auto dark:hidden"
             alt="OGSL Logo"
             height={0}
             width={120}
           />
           <Image
-            src="/Images/OGSL_NoTag_White.png"
+            src={`${basePath}${config.logos.main_dark}`}
             className="h-auto hidden dark:block"
             alt="OGSL Logo"
             height={0}
