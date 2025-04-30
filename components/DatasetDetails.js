@@ -2,21 +2,22 @@
 "use client";
 
 import { Drawer, DrawerHeader, DrawerItems } from "flowbite-react";
-import { useDrawer } from "../app/context/DrawerContext";
+import { DrawerContext } from "../app/context/DrawerContext";
 import Image from 'next/image';
 import Citation from "@/components/Citation";
-
+import { useContext } from "react";
 
 export function DatasetDetails({ dataSetInfo, lang}) {
 
-  const {isDrawerOpen, closeDrawer} = useDrawer();
+  const {isDrawerOpen, closeDrawer} = useContext(DrawerContext);
 
 
   console.log("DATASET INFO :: ", dataSetInfo);
 
     return (
         <>
-        <Drawer open={isDrawerOpen} onClose={closeDrawer} position="right">
+        <Drawer open={isDrawerOpen} onClose={closeDrawer} position="right" backdrop={false}>
+          <DrawerHeader />
             <DrawerItems>
 
                 {dataSetInfo && dataSetInfo.organization ? (

@@ -3,13 +3,14 @@
 import "leaflet/dist/leaflet.css";
 import "../app/globals.css";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import { useDrawer } from "../app/context/DrawerContext";
+import { useContext } from "react";
+import { DrawerContext } from "../app/context/DrawerContext";
 import L from "leaflet";
 
 
 
 const FitBounds = ({ bounds}) => {
-  const { openDrawer } = useDrawer();
+  const { openDrawer } = useContext(DrawerContext);
   const map = useMap();
   if (bounds) {
     ClearMap({ map });
@@ -18,7 +19,7 @@ const FitBounds = ({ bounds}) => {
     polygon.on("click", () => { 
       
       console.log("Polygon clicked 11111");
-      openDrawer()
+      openDrawer();
     });
 
     map.fitBounds(polygon.getBounds(), {
