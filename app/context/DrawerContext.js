@@ -7,13 +7,12 @@ export const DrawerContext = createContext();
 
 export const DrawerProvider = ({ children }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [dataSetInfo, setDatasetInfo] = useState(null);
 
   const openDrawer = () => setIsDrawerOpen(true);
   const closeDrawer = () => setIsDrawerOpen(false);
 
   return (
-    <DrawerContext.Provider value={{ isDrawerOpen,  openDrawer, closeDrawer , dataSetInfo, setDatasetInfo }}>
+    <DrawerContext.Provider value={{ isDrawerOpen,  openDrawer, closeDrawer }}>
       {children}
     </DrawerContext.Provider>
   );

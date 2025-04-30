@@ -1,9 +1,8 @@
 "use client";
 
-import { useState,useContext} from "react";
+import { useState} from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
-import { DrawerContext} from "../app/context/DrawerContext";
 import dynamic from "next/dynamic";
 import config from "./config";
 
@@ -12,7 +11,7 @@ export default function Home() {
   const [center] = useState([47.485, -62.48]); // Default center
   const [bounds, setBounds] = useState(null);
   const [lang, setLang] = useState(config.default_language);
-  const {dataSetInfo, setDatasetInfo} = useContext(DrawerContext);
+  const [dataSetInfo, setDatasetInfo] = useState(null);
 
   const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
