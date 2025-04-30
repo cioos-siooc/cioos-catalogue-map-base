@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useState } from "react";
 
-const DrawerContext = createContext();
+export const DrawerContext = createContext();
 
 export const DrawerProvider = ({ children }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -20,13 +20,6 @@ export const DrawerProvider = ({ children }) => {
 
 export const useDrawer = () => useContext(DrawerContext);
 
-export const MyConsumerComponent = () => {
-    return (
-      <DrawerContext.Consumer>
-        {isDrawerOpen}
-      </DrawerContext.Consumer>
-    );
-  };
 
 
 

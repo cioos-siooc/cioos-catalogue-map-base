@@ -3,13 +3,15 @@
 import "leaflet/dist/leaflet.css";
 import "../app/globals.css";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import { useDrawer } from "../app/context/DrawerContext";
+import { DrawerContext } from "../app/context/DrawerContext";
+import { useContext } from "react";
 import L from "leaflet";
+import { Drawer } from "flowbite-react";
 
 
 
 const FitBounds = ({ bounds}) => {
-  const { openDrawer } = useDrawer();
+  const { openDrawer } = useContext(DrawerContext);
   const map = useMap();
   if (bounds) {
     ClearMap({ map });
