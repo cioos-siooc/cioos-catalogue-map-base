@@ -3,6 +3,7 @@ export default function ItemsList({
   itemsList,
   onItemClick,
   onItemDoubleClick,
+  lang,
 }) {
   return (
     <div>
@@ -20,7 +21,7 @@ export default function ItemsList({
                   onDoubleClick={() => onItemDoubleClick(item)}
                   key={item.id}
                 >
-                  {item.title}
+                  {item.title_translated[lang]}
                 </li>
               ), // Dynamically create <li> items
             )}

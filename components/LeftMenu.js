@@ -5,8 +5,9 @@ import ItemsList from "@/components/ItemsList";
 import Image from "next/image";
 import ModalAPropos from "@/components/ModalAPropos";
 import config from "@/app/config.js";
+import { getLocale } from "@/app/get-locale.js";
 
-export default function LeftMenu({ onInfoClick, onItemClick }) {
+export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
   const [filteredItems, setFilteredItems] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [error, setError] = useState(null);
@@ -16,6 +17,8 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
   const [badges, setBadges] = useState([]);
   const [selectedValue, setSelectedValue] = useState("");
   const [fetchURLFilter, setFetchURLFilter] = useState(config.base_query);
+
+  const t = getLocale(lang);
 
   const basePath = process.env.BASE_PATH || "";
 
@@ -45,7 +48,13 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
     }
   };
 
+  const opposite_lang = lang === "en" ? "fr" : "en";
+  const toggleLanguage = () => {
+    setLang(lang === "en" ? "fr" : "en");
+  };
+
   const toggleSidebar = () => {
+    console.log("Toggle Sidebar :: " + isSidebarOpen);
     setIsSidebarOpen(!isSidebarOpen);
   };
 
@@ -172,7 +181,7 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
               {config.title.fr}
             </span>
           </a>
-          <span className="sr-only">Open sidebar</span>
+          <span className="sr-only">{t.open_sidebar}</span>
         </div>
         <svg
           className="w-6 h-6"
@@ -214,9 +223,13 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
                 {config.title.fr}
               </span>
             </div>
-            <a className="mr-10" id="headerTranslation" href="">
-              EN
-            </a>
+            <button
+              className="p-1 uppercase cursor-pointer"
+              id="headerTranslation"
+              onClick={toggleLanguage}
+            >
+              {opposite_lang}
+            </button>
             <button
               onClick={toggleSidebar}
               className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
@@ -239,11 +252,10 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
               </svg>
             </button>
           </div>
-
           <ul className="space-y-2 font-medium">
             <li>
               <form className="max-w-lg mx-auto">
-                <label>Filtrer par</label>
+                <label>{t.filter_by}</label>
                 <div className="flex">
                   <select
                     id="selectCategory"
@@ -304,15 +316,15 @@ export default function LeftMenu({ onInfoClick, onItemClick }) {
               />
             ))}
           </div>
-
           <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">
-            Jeux de données
+            {t.datasets}
           </span>
           <ul className="flex-grow overflow-y-auto pt-1 mt-1 space-y-2 rounded-md">
             <ItemsList
               itemsList={filteredItems}
               onItemClick={onLeftMenuItemClick}
               onItemDoubleClick={onLeftMenuItemDoubleClick}
+              lang={lang}
               className="flex-grow overflow-y-auto"
             />
           </ul>

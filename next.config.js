@@ -42,7 +42,9 @@ GenerateTheme();
 
 const github_repository = process.env.GITHUB_REPOSITORY;
 var basePath = "";
+var basePath = "";
 if (github_repository) {
+  basePath = `/${github_repository.split("/")[1]}`;
   basePath = `/${github_repository.split("/")[1]}`;
 }
 
@@ -54,4 +56,12 @@ module.exports = withFlowbiteReact({
     CONFIG: JSON.stringify(config),
     BASE_PATH: basePath,
   },
+  output: "export", // Enables static export
+  images: { unoptimized: true },
+  basePath: basePath,
+  env: {
+    CONFIG: JSON.stringify(config),
+    BASE_PATH: basePath,
+  },
 });
+
