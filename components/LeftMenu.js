@@ -70,6 +70,7 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
     const fetchData = async () => {
       // Fetch data from an API
       try {
+
         let url = `${urlCustomSearch}${config.base_query}`
         if (fetchURLFilter) {
           url += `%20AND%20${fetchURLFilter}`
@@ -80,7 +81,6 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
         const awaitRes = await response.json();
         setFilteredItems(awaitRes.result.results);
         setInputValue(""); // Clear input value after fetching data
-        console.log("FETCH :: ");
         if (ref.current === 0) {
           setTotalResultsCount(awaitRes.result.results.length);
         } else {
