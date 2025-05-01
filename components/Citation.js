@@ -40,7 +40,7 @@ export default function Citation( {dataSetInfo, lang }) {
   }, [dataSetInfo, lang]);
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 mt-5">
+    <div className="bg-white mt-5">
       { citationHtml ? (
         // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
         <div>

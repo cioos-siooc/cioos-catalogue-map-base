@@ -30,21 +30,21 @@ export function DatasetDetails({ dataSetInfo, lang}) {
                     ) : (
                     <p>No image available</p>
                     )}
-                    <h4 className="bg-gray-100 dark:bg-gray-900 text-sm font-bold mb-5">{dataSetInfo && dataSetInfo.title_translated[lang]}</h4>
-
-                    <p className="bg-gray-100 dark:bg-gray-900 ">
-                            {dataSetInfo && dataSetInfo.license_title}
-                    </p>
 
                     <div className="text-justify mt-5 mb-5 bg-gray-100 dark:bg-gray-900 ">
-                            {dataSetInfo && dataSetInfo.notes_translated[lang]}
-                    </div>
+                        <h4 className="bg-white text-sm font-bold mb-5">{dataSetInfo && dataSetInfo.title_translated[lang]}</h4>
 
+                        <p className="bg-white text-sm mb-5">
+                                {dataSetInfo && dataSetInfo.license_title}
+                        </p>
 
-                    <Citation dataSetInfo={dataSetInfo} lang={lang}/>
+                        <div className="text-justify mt-5 mb-5 bg-white text-sm">
+                            <h4 className="mb-5">
+                                {dataSetInfo && dataSetInfo.notes_translated[lang]}
 
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-
+                            </h4>
+                        </div>
+                        <Citation dataSetInfo={dataSetInfo} lang={lang}/>
                     </div>
                 </DrawerItems>
         </Drawer>
