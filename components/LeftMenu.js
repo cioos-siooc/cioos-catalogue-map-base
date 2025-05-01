@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect} from "react";
 import dynamic from "next/dynamic";
 import ItemsList from "@/components/ItemsList";
 import Image from "next/image";
@@ -10,25 +10,18 @@ import FilterSection from "./FilterSection";
 
 const basePath = process.env.BASE_PATH || "";
 
-export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
-  const [filteredItems, setFilteredItems] = useState([]);
+export function Sidebar({ filteredItems, onInfoClick, onItemClick, lang, setLang,
+   setFetchURLFilter, filteredResultsCount, totalResultsCount }) {
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [error, setError] = useState(null);
-  const [totalResultsCount, setTotalResultsCount] = useState(0);
-  const [filteredResultsCount, setFilteredResultsCount] = useState(0);
-  const [inputValue, setInputValue] = useState("");
   const [badges, setBadges] = useState([]);
-  const [selectedValue, setSelectedValue] = useState("");
-  const [fetchURLFilter, setFetchURLFilter] = useState("");
+
+
 
   const t = getLocale(lang);
 
-  const catalogueUrl = config.catalogue_url;
-  let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
-
   const ProgressBar = dynamic(() => import("./ProgressBar"), { ssr: false });
-  let ref = useRef(0);
-
 
   const opposite_lang = lang === "en" ? "fr" : "en";
   const toggleLanguage = () => {
@@ -66,33 +59,7 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
   }, [badges]); // Re-run whenever badges change
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // Fetch data from an API
-      try {
 
-        let url = `${urlCustomSearch}${config.base_query}`
-        if (fetchURLFilter) {
-          url += `%20AND%20${fetchURLFilter}`
-        }
-        url += `&rows=1000`;
-        console.log("URL :: " + url);
-        const response = await fetch(url); // Example API
-        const awaitRes = await response.json();
-        setFilteredItems(awaitRes.result.results);
-        setInputValue(""); // Clear input value after fetching data
-        if (ref.current === 0) {
-          setTotalResultsCount(awaitRes.result.results.length);
-        } else {
-          setFilteredResultsCount(awaitRes.result.results.length);
-        }
-      } catch (error) {
-        setError(error.message);
-      }
-      console.log("filtered count :: " + filteredItems.length);
-    };
-    fetchData();
-  }, [fetchURLFilter]);
 
   return (
     <div id="sidebar">
