@@ -8,6 +8,8 @@ import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
 
+const basePath = process.env.BASE_PATH || "";
+
 export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
   const [filteredItems, setFilteredItems] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -20,8 +22,6 @@ export function Sidebar({ onInfoClick, onItemClick, lang, setLang }) {
   const [fetchURLFilter, setFetchURLFilter] = useState("");
 
   const t = getLocale(lang);
-
-  const basePath = process.env.BASE_PATH || "";
 
   const catalogueUrl = config.catalogue_url;
   let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
