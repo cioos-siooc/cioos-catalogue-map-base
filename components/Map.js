@@ -3,9 +3,10 @@
 import "leaflet/dist/leaflet.css";
 import "../app/globals.css";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import { useContext } from "react";
 import { DrawerContext } from "../app/context/DrawerContext";
+import { useContext } from "react";
 import L from "leaflet";
+import { Drawer } from "flowbite-react";
 
 
 
@@ -17,9 +18,8 @@ const FitBounds = ({ bounds}) => {
     var polygon = L.geoJSON(bounds, { color: "red" }).addTo(map);
 
     polygon.on("click", () => { 
-      
-      console.log("Polygon clicked 11111");
-      openDrawer();
+    openDrawer()
+
     });
 
     map.fitBounds(polygon.getBounds(), {

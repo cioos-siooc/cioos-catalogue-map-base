@@ -1,8 +1,9 @@
 "use client";
 
-import { useState} from "react";
+import { useState, useContext, useEffect} from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
+import { DrawerContext } from "../app/context/DrawerContext";
 import dynamic from "next/dynamic";
 import config from "./config";
 
@@ -11,7 +12,21 @@ export default function Home() {
   const [center] = useState([47.485, -62.48]); // Default center
   const [bounds, setBounds] = useState(null);
   const [lang, setLang] = useState(config.default_language);
-  const [dataSetInfo, setDatasetInfo] = useState(null);
+
+  const[dataSetInfo, setDatasetInfo] = useState(null);
+  const {isDrawerOpen, closeDrawer} = useContext(DrawerContext);
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("preferredLanguage");
+    const browserLanguage = navigator.language.split("-")[0];
+    const initialLanguage =
+      savedLanguage || browserLanguage || config.default_language;
+    setLang(initialLanguage);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("preferredLanguage", lang);
+  }, [lang]);
+
 
   const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 

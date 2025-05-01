@@ -1,11 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from 'next/link';
 import Cite from "citation-js"; // Import Citation.js
+import { HiMiniLink } from "react-icons/hi2";
 
 export default function Citation( {dataSetInfo, lang }) {
   // State to hold the formatted citation (HTML formatted)
   const [citationHtml, setCitationHtml] = useState("");
+  const [citationURL, setCitationURL] = useState("");
+
+  const citationLanguage = lang === "fr" ? "fr-FR" : "en-US";
 
   useEffect( () => {
     // Example bibliographic data in JSON format:
@@ -13,18 +18,18 @@ export default function Citation( {dataSetInfo, lang }) {
     try {
         // Create a new Cite instance with your bibliographic data
         if(dataSetInfo && dataSetInfo.citation) {
-            console.log("CITATION DATA :: ", dataSetInfo.citation[lang]);
-            const cit = JSON.parse(dataSetInfo.citation[lang]);
-            console.log("CITATION JSON :: ", cit);
-            const cite = new Cite(dataSetInfo.citation[lang]);
-            console.log("CITE :: ", cite);
+            const cleanedString = dataSetInfo.citation[lang].replace(/\\/g, "");
+            const modifiedString = cleanedString.slice(1, -1);
+            const json = JSON.parse(modifiedString);
+            setCitationURL(json.URL);
+            const cite = new Cite(modifiedString);
             // Format as a bibliography entry in APA style and output in HTML
             const formatted = cite.format("bibliography", {
-            format: "html",
-            template: "apa",
-            lang: "en-US"
+                format: "html",
+                template: "apa",
+                lang: citationLanguage,
             });
-            console.log("CITATION :: ", formatted);
+
             setCitationHtml(formatted);
         }else {
             console.log("Citation data is not available");
@@ -35,13 +40,24 @@ export default function Citation( {dataSetInfo, lang }) {
   }, [dataSetInfo, lang]);
 
   return (
-    <div className="p-8">
-      <h4 className="text-2xl font-bold mb-4">
-        Citation.js Example in Next.js
-      </h4>
+    <div className="bg-white mt-5">
       { citationHtml ? (
         // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
-        <div dangerouslySetInnerHTML={{ __html: citationHtml }} />
+        <div>
+            <div dangerouslySetInnerHTML={{ __html: citationHtml }}>
+            
+
+            </div>
+            <div className="mt-2">
+
+               <Link href={citationURL} legacyBehavior>
+                    <a style={{ color: 'blue', textDecoration: 'underline', fontSize: '12px' }}>
+                        
+                        <HiMiniLink />
+                    </a>
+                </Link>
+            </div>
+        </div>
         ) : (
         <p>Loading citation...</p>
         )

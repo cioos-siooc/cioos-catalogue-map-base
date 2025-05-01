@@ -20,13 +20,6 @@ export const DrawerProvider = ({ children }) => {
 
 export const useDrawer = () => useContext(DrawerContext);
 
-export const MyConsumerComponent = () => {
-    return (
-      <DrawerContext.Consumer>
-        {isDrawerOpen}
-      </DrawerContext.Consumer>
-    );
-  };
 
 
 
