@@ -92,6 +92,10 @@ export function FilterItems({ filter_type, lang, setBadges }) {
   const t = getLocale(lang);
 
   function onCloseModal() {
+    if (!query) {
+      setOpenModal(false);
+      return;
+    }
     setBadges((prevBadges) => ({
       ...prevBadges,
       [filter_type]: query,
@@ -99,7 +103,15 @@ export function FilterItems({ filter_type, lang, setBadges }) {
     setOpenModal(false);
   }
   const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      setOpenModal(false);
+    }
+
     if (e.key === "Enter") {
+      if (!query) {
+        console.log("No query entered");
+        return;
+      }
       console.log("Enter pressed! Searching for:", query);
       // Close modal and add badge
       setBadges((prevBadges) => ({
