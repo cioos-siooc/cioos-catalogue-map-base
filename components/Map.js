@@ -18,8 +18,6 @@ const FitBounds = ({ bounds}) => {
     var polygon = L.geoJSON(bounds, { color: "red" }).addTo(map);
 
     polygon.on("click", () => { 
-      
-      console.log("Polygon clicked 11111");
       openDrawer()
     });
 
