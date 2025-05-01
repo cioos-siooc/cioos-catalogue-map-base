@@ -1,5 +1,12 @@
 {
   "filter_by": "Filtrer par",
   "open_sidebar": "Ouvrir la barre latérale",
-  "datasets": "Jeux de données"
+  "datasets": "Jeux de données",
+  "filters": "Filtres",
+  "search": "Recherche",
+  "organization": "Organisation",
+  "projects": "Projets",
+  "eov": "Variable Océanique Essentielle",
+  "time": "Temps",
+  "spatial": "Spatial"
 }
