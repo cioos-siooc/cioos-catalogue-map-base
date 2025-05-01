@@ -16,13 +16,10 @@ metadata:
     description: La carte du catalogue de l'OGSL est une application Web qui permet aux utilisateurs de visualiser et d'explorer le catalogue de l'OGSL.
 
 theme:
-  backgroundColor: "#f3f4f6"
-  color: "#1f2937"
-  backgroundColor_dark: "#111827"
-  color_dark: "#e5e7eb"
+  light: "#ffff"
+  dark: "#0000"
   primary_color: "#3b82f6"
-  accent_color: "#f97316"
-  font: "'Inter', sans-serif"
+  accent_color: "#F6AF3B"
 
 logos:
   main_light: "/Images/OGSL_NoTag.png"
