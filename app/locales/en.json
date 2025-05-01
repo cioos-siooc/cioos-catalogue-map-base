@@ -1,5 +1,12 @@
 {
   "filter_by": "Filter by",
   "open_sidebar": "Open sidebar",
-  "datasets": "Datasets"
+  "datasets": "Datasets",
+  "filters": "Filters",
+  "search": "Search",
+  "organization": "Organization",
+  "projects": "Projects",
+  "eov": "Essential Ocean Variables",
+  "time": "Time",
+  "spatial": "Spatial"
 }
