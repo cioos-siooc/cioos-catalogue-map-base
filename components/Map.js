@@ -1,30 +1,31 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import "../app/globals.css";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { Marker, Popup } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-markercluster";
+import * as turf from "@turf/turf";
 import { DrawerContext } from "../app/context/DrawerContext";
 import { useContext } from "react";
 import L from "leaflet";
 import { Drawer } from "flowbite-react";
 
-
-
-const FitBounds = ({ bounds}) => {
+const FitBounds = ({ bounds }) => {
   const { openDrawer } = useContext(DrawerContext);
   const map = useMap();
   if (bounds) {
     ClearMap({ map });
     var polygon = L.geoJSON(bounds, { color: "red" }).addTo(map);
 
-    polygon.on("click", () => { 
-      openDrawer()
+    polygon.on("click", () => {
+      openDrawer();
     });
 
-    map.fitBounds(polygon.getBounds(), {
+    map.flyToBounds(polygon.getBounds(), {
       animate: true,
       padding: [50, 50],
       maxZoom: 10,
+      duration: 1,
     });
   }
 
@@ -44,7 +45,27 @@ const ClearMap = ({ map }) => {
   return null;
 };
 
-function Map({ center, bounds}) {
+function Map({ center, bounds, filteredItems }) {
+  // get the centroid of each filteredItem.spatial which is a geojson and add as a marker and add makers as a cluster on the map
+  const markers = filteredItems.map((item) => {
+    const centroid = turf.centroid(item.spatial);
+    return (
+      <Marker
+        key={item.id}
+        position={[
+          centroid.geometry.coordinates[1],
+          centroid.geometry.coordinates[0],
+        ]}
+        icon={L.divIcon({ className: "custom-icon" })}
+      >
+        <Popup>
+          <div className="text-sm font-semibold">{item.title}</div>
+          <div className="text-xs">{item.description}</div>
+        </Popup>
+      </Marker>
+    );
+  });
+
   return (
     <div id="container" className="h-full w-full">
       {center && (
@@ -56,7 +77,8 @@ function Map({ center, bounds}) {
           boundsOptions={{ padding: [1, 1] }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {bounds && <FitBounds bounds={bounds}/>}
+          {bounds && <FitBounds bounds={bounds} />}
+          <MarkerClusterGroup>{markers}</MarkerClusterGroup>
         </MapContainer>
       )}
     </div>

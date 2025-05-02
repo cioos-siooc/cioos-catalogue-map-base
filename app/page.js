@@ -4,8 +4,8 @@ import { useState, useContext, useEffect } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import { DrawerContext } from "../app/context/DrawerContext";
+import Map from "@/components/Map";
 
-import dynamic from "next/dynamic";
 import config from "./config";
 
 export default function Home() {
@@ -80,7 +80,7 @@ export default function Home() {
     return url + `&rows=1000`;
   }
 
-  const Map = dynamic(() => import("@/components/Map"), { ssr: false });
+  // const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
   const handleListItemClick = (selectedItem) => {
     setBounds(selectedItem.spatial);
@@ -112,7 +112,7 @@ export default function Home() {
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
-          <Map center={center} bounds={bounds} />
+          <Map center={center} bounds={bounds} filteredItems={filteredItems} />
         </main>
 
         {isDrawerOpen && dataSetInfo && (
