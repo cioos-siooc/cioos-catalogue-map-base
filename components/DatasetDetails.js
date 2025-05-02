@@ -42,9 +42,8 @@ export function DatasetDetails({ dataSetInfo, lang}) {
                         <div className="text-sm overflow-auto mt-4 mb-4">
                             {dataSetInfo && dataSetInfo.notes_translated[lang]}
                         </div>
-                        <div className="text-xs p-2 border-gray-200 border-2 rounded-md">
-                            <Citation dataSetInfo={dataSetInfo} lang={lang} />
-                        </div>
+                        <Citation dataSetInfo={dataSetInfo} lang={lang} />
+                        
                     </div>
                 </DrawerItems>
         </Drawer>
