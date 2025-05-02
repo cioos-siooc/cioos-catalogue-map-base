@@ -48,7 +48,6 @@ export default function Citation({ dataSetInfo, lang }) {
           <div dangerouslySetInnerHTML={{ __html: citationHtml }}></div>
           <div className="absolute -top-4 flex flex-row gap-1 text-xs items-center rounded-md">Citation <GoLinkExternal /></div>
         </a>
-
       ) : (
         <p>Loading citation...</p>
       )
