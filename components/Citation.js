@@ -20,8 +20,6 @@ export default function Citation( {dataSetInfo, lang }) {
         if(dataSetInfo && dataSetInfo.citation) {
             const cleanedString = dataSetInfo.citation[lang].replace(/\\/g, "");
             const modifiedString = cleanedString.slice(1, -1);
-            const json = JSON.parse(modifiedString);
-            setCitationURL(json.URL);
             const cite = new Cite(modifiedString);
             // Format as a bibliography entry in APA style and output in HTML
             const formatted = cite.format("bibliography", {
