@@ -11,7 +11,7 @@ export default function ItemsList({
   const t = getLocale(lang);
   if (itemsList.length === 0) {
     return (
-      <div className="flex justify-center items-center h-full text-gray-500 dark:text-gray-400">
+      <div className="flex flex-col justify-center items-center bg-gray-200 dark:bg-gray-700 w-full h-full text-gray-500 dark:text-gray-400 rounded-md">
         <p>{t.load_datasets} ...</p>
         <br />
         <ImSpinner2 className="animate-spin inline-block w-4 h-4 text-gray-500 dark:text-gray-400" />
