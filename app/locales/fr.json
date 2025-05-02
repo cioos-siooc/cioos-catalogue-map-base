@@ -1,5 +1,16 @@
 {
-    "filter_by": "Filtrer par",
-    "open_sidebar": "Ouvrir la barre latérale",
-    "datasets": "Jeux de données"
+  "filter_by": "Filtrer par",
+  "open_sidebar": "Ouvrir la barre latérale",
+  "datasets": "Jeux de données",
+  "filters": "Filtres",
+  "search": "Recherche",
+  "organization": "Organisation",
+  "projects": "Projets",
+  "eov": "Variable Océanique Essentielle",
+  "time": "Temps",
+  "spatial": "Spatial",
+  "license": "Licence",
+  "citation": "Citation",
+  "load_datasets": "Chargement des jeux de données",
+  "no_datasets": "Aucun jeu de données trouvé"
 }

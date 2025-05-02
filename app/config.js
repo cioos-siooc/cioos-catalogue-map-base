@@ -1,2 +1,2 @@
-const config = JSON.parse(process.env.CONFIG || '{}');
+const config = JSON.parse(process.env.CONFIG || "{}");
 export default config;
