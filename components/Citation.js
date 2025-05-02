@@ -47,7 +47,7 @@ export default function Citation({ dataSetInfo, lang }) {
         // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
         <a
           href={citationURL}
-          className="relative text-xs p-1 border-gray-200 border-2 rounded-md mt-4"
+          className="flex-shrink-0 relative text-xs p-1 border-gray-200 border-2 rounded-md mt-4"
         >
           <div dangerouslySetInnerHTML={{ __html: citationHtml }}></div>
           <div className="absolute -top-4 flex flex-row gap-1 text-xs items-center rounded-md">
