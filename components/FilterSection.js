@@ -11,7 +11,9 @@ import {
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
 
+
 function getBadge(filterType, value, lang, removeBadge) {
+
   if (!value) return null; // Return null if value is empty
   const t = getLocale(lang);
   return (
@@ -34,6 +36,7 @@ function getBadge(filterType, value, lang, removeBadge) {
 }
 
 export function SearchFilter({ lang, setBadges }) {
+
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -86,7 +89,7 @@ export function SearchFilter({ lang, setBadges }) {
   );
 }
 
-export function FilterItems({ filter_type, lang, setBadges }) {
+export function FilterItems({ filter_type, lang, setBadges}) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
   const t = getLocale(lang);
@@ -118,6 +121,7 @@ export function FilterItems({ filter_type, lang, setBadges }) {
         ...prevBadges,
         [filter_type]: query,
       }));
+
       setOpenModal(false);
     }
   };
@@ -160,7 +164,7 @@ export function FilterItems({ filter_type, lang, setBadges }) {
   );
 }
 
-export default function FilterSection({ lang, badges, setBadges }) {
+export default function FilterSection({ lang, badges, setBadges}) {
   const t = getLocale(lang);
 
   const removeBadge = (filterType) => {
@@ -182,8 +186,8 @@ export default function FilterSection({ lang, badges, setBadges }) {
           setBadges={setBadges}
         />
         <FilterItems filter_type="projects" lang={lang} setBadges={setBadges} />
-        <FilterItems filter_type="eov" lang={lang} setBadges={setBadges} />
-        <FilterItems filter_type="time" lang={lang} setBadges={setBadges} />
+        <FilterItems filter_type="eov" lang={lang} setBadges={setBadges}/>
+        <FilterItems filter_type="time" lang={lang} setBadges={setBadges}/>
         <FilterItems
           filter_type="spatial"
           lang={lang}
@@ -193,6 +197,7 @@ export default function FilterSection({ lang, badges, setBadges }) {
 
       {/* Render Badges */}
       <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
+        {console.log("badges length :: ", Object.entries(badges).length)}
         {Object.entries(badges).map(([filterType, value]) => (
           getBadge(filterType, value, lang, removeBadge)
         ))}

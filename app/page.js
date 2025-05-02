@@ -16,6 +16,19 @@ export default function Home() {
 
   const[dataSetInfo, setDatasetInfo] = useState(null);
   const {isDrawerOpen, closeDrawer} = useContext(DrawerContext);
+
+  const [filteredItems, setFilteredItems] = useState([]);
+  const [fetchURLFilter, setFetchURLFilter] = useState("");
+  const [totalResultsCount, setTotalResultsCount] = useState(0);
+  const [filteredResultsCount, setFilteredResultsCount] = useState(0);
+  const [badgeCount, setBadgeCount] = useState(0);
+  const [inputValue, setInputValue] = useState("");
+  const [error, setError] = useState("");
+
+  const catalogueUrl = config.catalogue_url;
+  let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
+
+
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
     const browserLanguage = navigator.language.split("-")[0];
@@ -28,6 +41,39 @@ export default function Home() {
     localStorage.setItem("preferredLanguage", lang);
   }, [lang]);
 
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // Fetch data from an API
+      try {
+
+        let url = `${urlCustomSearch}${config.base_query}`;
+        console.log("FETCH :: ", fetchURLFilter);
+        if (fetchURLFilter) {
+          url += `%20AND%20${fetchURLFilter}`
+        }
+        url += `&rows=1000`;
+        console.log("URL :: " + url);
+        const response = await fetch(url); // Example API
+        const awaitRes = await response.json();
+        setFilteredItems(awaitRes.result.results);
+        setInputValue(""); // Clear input value after fetching data
+        if(fetchURLFilter){
+          setFilteredResultsCount(awaitRes.result.results.length);
+        }
+        else{
+          setTotalResultsCount(awaitRes.result.results.length);
+        }
+        if(badgeCount === 0){
+            setFilteredResultsCount(0);
+        }
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+    fetchData();
+  }, [fetchURLFilter]);
+
   const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
   const handleListItemClick = (selectedItem) => {
@@ -36,7 +82,6 @@ export default function Home() {
   };
 
   const onInfoClick = () => {
-    console.log("INFO CLICKED");
     setShowModal(true);
   };
 
@@ -48,10 +93,15 @@ export default function Home() {
         <div className="h-screen flex flex-1">
           <aside className="hidden md:block w-sm h-screen overflow-auto">
             <Sidebar
+              filteredItems={filteredItems}
               onInfoClick={onInfoClick}
               onItemClick={handleListItemClick}
               lang={lang}
               setLang={setLang}
+              setFetchURLFilter={setFetchURLFilter}
+              filteredResultsCount ={filteredResultsCount}
+              totalResultsCount ={totalResultsCount}
+              setBadgeCount={setBadgeCount}
             />
           </aside>
           <main className="z-20 flex-1 h-full w-full">
