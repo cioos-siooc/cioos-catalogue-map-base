@@ -56,13 +56,7 @@ function Map({ center, bounds, filteredItems }) {
           centroid.geometry.coordinates[1],
           centroid.geometry.coordinates[0],
         ]}
-        icon={L.divIcon({ className: "custom-icon" })}
-      >
-        <Popup>
-          <div className="text-sm font-semibold">{item.title}</div>
-          <div className="text-xs">{item.description}</div>
-        </Popup>
-      </Marker>
+      />
     );
   });
 
