@@ -10,6 +10,9 @@ import { useContext } from "react";
 import L from "leaflet";
 import { Drawer } from "flowbite-react";
 
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
 const FitBounds = ({ bounds }) => {
   const { openDrawer } = useContext(DrawerContext);
   const map = useMap();
@@ -56,6 +59,15 @@ function Map({ center, bounds, filteredItems }) {
           centroid.geometry.coordinates[1],
           centroid.geometry.coordinates[0],
         ]}
+        icon={L.icon({
+          iconUrl: icon,
+          shadowUrl: iconShadow,
+          iconSize: [25, 41],
+          shadowSize: [41, 41],
+          iconAnchor: [12, 41],
+          shadowAnchor: [12, 41],
+          popupAnchor: [1, -34],
+        })}
       />
     );
   });
