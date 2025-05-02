@@ -18,10 +18,10 @@ export function DatasetDetails({ dataSetInfo, lang }) {
         onClose={closeDrawer}
         position="right"
         backdrop={false}
-        className="bg-primary-50/75 dark:bg-primary-900/75 h-screen w-sm"
+        className="bg-primary-50/75 dark:bg-primary-900/75 h-screen w-sm flex flex-col"
       >
-        <DrawerHeader titleIcon={() => <></>} />
-        <DrawerItems className="flex flex-col h-full">
+        <DrawerHeader titleIcon={() => <></>} className="flex-shrink-0 h-16" />
+        <DrawerItems className="flex-grow overflow-y-auto flex flex-col">
           <div id="top" className="flex-shrink-0">
             {dataSetInfo && dataSetInfo.organization ? (
               <Image
