@@ -1,7 +1,7 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "flowbite-react/plugin/tailwindcss";
 @source "../.flowbite-react/class-list.json";
-@import "./theme.css": root {
+@import './theme.css': root {
   --background: #ffffff;
   --foreground: #171717;
 }

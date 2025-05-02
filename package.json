@@ -13,7 +13,7 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-     "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write"
+    "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write"
   },
   "dependencies": {
     "@react-leaflet/core": "^3.0.0",
