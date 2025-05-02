@@ -50,7 +50,7 @@ export function Sidebar({
   const generateQueryString = (badges) => {
     return Object.entries(badges)
       .map(([filterType, value]) =>
-        filterType === "search" ? `${value}` : `${filterType}=${value}`,
+        filterType === "search" ? `${value}` : `${filterType}=${value}`
       )
       .join("%20AND%20");
   };
