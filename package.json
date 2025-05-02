@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "flowbite-react patch",
-    "export": "next build && next export"
+    "export": "next build && next export",
+    "prepare": "husky"
   },
   "dependencies": {
     "@react-leaflet/core": "^3.0.0",
@@ -28,6 +29,7 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.2.2",
+    "husky": "^9.1.7",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.0.14"
   }
