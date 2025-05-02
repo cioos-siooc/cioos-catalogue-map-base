@@ -9,7 +9,14 @@
     "lint": "next lint",
     "postinstall": "flowbite-react patch",
     "export": "next build && next export",
-    "prepare": "husky"
+    "prepare": "husky",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "dependencies": {
     "@react-leaflet/core": "^3.0.0",
@@ -29,8 +36,11 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.2.2",
+    "eslint-config-prettier": "^10.1.2",
     "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
     "postcss": "^8.5.3",
+    "prettier": "3.5.3",
     "tailwindcss": "^4.0.14"
   }
 }
