@@ -23,7 +23,6 @@ export default function Home() {
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
   const [badgeCount, setBadgeCount] = useState(0);
   const [inputValue, setInputValue] = useState("");
-  const [error, setError] = useState("");
 
   const catalogueUrl = config.catalogue_url;
   let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
@@ -46,33 +45,42 @@ export default function Home() {
     const fetchData = async () => {
       // Fetch data from an API
       try {
-
-        let url = `${urlCustomSearch}${config.base_query}`;
-        console.log("FETCH :: ", fetchURLFilter);
-        if (fetchURLFilter) {
-          url += `%20AND%20${fetchURLFilter}`
+        const response = await fetch(initFetchURL()); // Fetch data from the API
+        if (!response.ok) {
+          throw new Error("There was an error fetching the data from CKAN API");
         }
-        url += `&rows=1000`;
-        console.log("URL :: " + url);
-        const response = await fetch(url); // Example API
         const awaitRes = await response.json();
-        setFilteredItems(awaitRes.result.results);
-        setInputValue(""); // Clear input value after fetching data
-        if(fetchURLFilter){
-          setFilteredResultsCount(awaitRes.result.results.length);
-        }
-        else{
-          setTotalResultsCount(awaitRes.result.results.length);
-        }
-        if(badgeCount === 0){
-            setFilteredResultsCount(0);
-        }
+        initFetchResults(awaitRes);
       } catch (error) {
-        setError(error.message);
+        console.error(error.message);
       }
     };
     fetchData();
   }, [fetchURLFilter]);
+
+  function initFetchResults(awaitRes) {
+    
+    setFilteredItems(awaitRes.result.results);
+    setInputValue(""); // Clear input value after fetching data
+    if(fetchURLFilter){
+      setFilteredResultsCount(awaitRes.result.results.length);
+    }
+    else{
+      setTotalResultsCount(awaitRes.result.results.length);
+    }
+    if(badgeCount === 0){
+        setFilteredResultsCount(0);
+    }
+  }
+
+  function initFetchURL() {
+    let url = `${urlCustomSearch}${config.base_query}`;
+    if (fetchURLFilter) {
+      url += `%20AND%20${fetchURLFilter}`
+    }
+    return url += `&rows=1000`;
+  }
+
 
   const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
