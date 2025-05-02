@@ -38,7 +38,7 @@ export default function Citation( {dataSetInfo, lang }) {
   }, [dataSetInfo, lang]);
 
   return (
-    <div className="bg-white mt-5">
+    <>
       { citationHtml ? (
         // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
         <div>
@@ -60,6 +60,6 @@ export default function Citation( {dataSetInfo, lang }) {
         <p>Loading citation...</p>
         )
     }
-    </div>
+    </>
   );
 }
