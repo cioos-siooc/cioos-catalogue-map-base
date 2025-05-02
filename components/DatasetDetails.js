@@ -25,7 +25,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
         <DrawerItems>
           {dataSetInfo && dataSetInfo.organization ? (
             <Image
-              className="rounded-sm w-auto w-max-sm max-h-40 bg-white"
+              className="rounded-sm w-auto w-max-sm max-h-40 bg-white p-1"
               src={
                 dataSetInfo &&
                 dataSetInfo.organization.image_url_translated[lang]
