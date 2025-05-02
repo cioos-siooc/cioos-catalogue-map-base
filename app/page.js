@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useContext, useEffect} from "react";
+import { useState, useContext, useEffect } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import { DrawerContext } from "../app/context/DrawerContext";
@@ -8,14 +8,14 @@ import { DrawerContext } from "../app/context/DrawerContext";
 import dynamic from "next/dynamic";
 import config from "./config";
 
-
 export default function Home() {
   const [center] = useState([47.485, -62.48]); // Default center
   const [bounds, setBounds] = useState(null);
   const [lang, setLang] = useState(config.default_language);
+  const [loading, setLoading] = useState(true);
 
-  const[dataSetInfo, setDatasetInfo] = useState(null);
-  const {isDrawerOpen, closeDrawer} = useContext(DrawerContext);
+  const [dataSetInfo, setDatasetInfo] = useState(null);
+  const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
 
   const [filteredItems, setFilteredItems] = useState([]);
   const [fetchURLFilter, setFetchURLFilter] = useState("");
@@ -26,7 +26,6 @@ export default function Home() {
 
   const catalogueUrl = config.catalogue_url;
   let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
-
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
@@ -40,10 +39,10 @@ export default function Home() {
     localStorage.setItem("preferredLanguage", lang);
   }, [lang]);
 
-
   useEffect(() => {
     const fetchData = async () => {
       // Fetch data from an API
+      setLoading(true);
       try {
         const response = await fetch(initFetchURL()); // Fetch data from the API
         if (!response.ok) {
@@ -53,34 +52,33 @@ export default function Home() {
         initFetchResults(awaitRes);
       } catch (error) {
         console.error(error.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
   }, [fetchURLFilter]);
 
   function initFetchResults(awaitRes) {
-    
     setFilteredItems(awaitRes.result.results);
     setInputValue(""); // Clear input value after fetching data
-    if(fetchURLFilter){
+    if (fetchURLFilter) {
       setFilteredResultsCount(awaitRes.result.results.length);
-    }
-    else{
+    } else {
       setTotalResultsCount(awaitRes.result.results.length);
     }
-    if(badgeCount === 0){
-        setFilteredResultsCount(0);
+    if (badgeCount === 0) {
+      setFilteredResultsCount(0);
     }
   }
 
   function initFetchURL() {
     let url = `${urlCustomSearch}${config.base_query}`;
     if (fetchURLFilter) {
-      url += `%20AND%20${fetchURLFilter}`
+      url += `%20AND%20${fetchURLFilter}`;
     }
-    return url += `&rows=1000`;
+    return (url += `&rows=1000`);
   }
-
 
   const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
@@ -94,30 +92,33 @@ export default function Home() {
   };
 
   return (
-      <div className="h-screen flex flex-col">
-        <header className="md:hidden">
+    <div className="h-screen flex flex-col">
+      <header className="md:hidden">
         <TopBanner lang={lang} />
-        </header>
-        <div className="h-screen flex flex-1">
-          <aside className="hidden md:block w-sm h-screen overflow-auto">
-            <Sidebar
-              filteredItems={filteredItems}
-              onInfoClick={onInfoClick}
-              onItemClick={handleListItemClick}
-              lang={lang}
-              setLang={setLang}
-              setFetchURLFilter={setFetchURLFilter}
-              filteredResultsCount ={filteredResultsCount}
-              totalResultsCount ={totalResultsCount}
-              setBadgeCount={setBadgeCount}
-            />
-          </aside>
-          <main className="z-20 flex-1 h-full w-full">
-            <Map center={center} bounds={bounds}/>
-          </main>
+      </header>
+      <div className="h-screen flex flex-1">
+        <aside className="hidden md:block w-sm h-screen overflow-auto">
+          <Sidebar
+            filteredItems={filteredItems}
+            onInfoClick={onInfoClick}
+            onItemClick={handleListItemClick}
+            lang={lang}
+            setLang={setLang}
+            setFetchURLFilter={setFetchURLFilter}
+            filteredResultsCount={filteredResultsCount}
+            totalResultsCount={totalResultsCount}
+            setBadgeCount={setBadgeCount}
+            loading={loading}
+          />
+        </aside>
+        <main className="z-20 flex-1 h-full w-full">
+          <Map center={center} bounds={bounds} />
+        </main>
 
-          {isDrawerOpen && dataSetInfo && <DatasetDetails dataSetInfo={dataSetInfo} lang={lang}/>}
-        </div>
+        {isDrawerOpen && dataSetInfo && (
+          <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
+        )}
       </div>
+    </div>
   );
 }

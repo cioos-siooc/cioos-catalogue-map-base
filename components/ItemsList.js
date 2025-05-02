@@ -7,9 +7,10 @@ export default function ItemsList({
   onItemClick,
   onItemDoubleClick,
   lang,
+  loading,
 }) {
   const t = getLocale(lang);
-  if (itemsList.length === 0) {
+  if (loading) {
     return (
       <div className="flex flex-col justify-center items-center bg-gray-200 dark:bg-gray-700 w-full h-full text-gray-500 dark:text-gray-400 rounded-md">
         <p>{t.load_datasets} ...</p>

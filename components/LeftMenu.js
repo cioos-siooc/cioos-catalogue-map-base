@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import ItemsList from "@/components/ItemsList";
 import Image from "next/image";
@@ -10,14 +10,20 @@ import FilterSection from "./FilterSection";
 
 const basePath = process.env.BASE_PATH || "";
 
-export function Sidebar({ filteredItems, onInfoClick, onItemClick, lang, setLang,
-   setFetchURLFilter, filteredResultsCount, totalResultsCount, setBadgeCount}) {
-
+export function Sidebar({
+  filteredItems,
+  onInfoClick,
+  onItemClick,
+  lang,
+  setLang,
+  setFetchURLFilter,
+  filteredResultsCount,
+  totalResultsCount,
+  setBadgeCount,
+  loading,
+}) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [badges, setBadges] = useState([]);
-
-
-
 
   const t = getLocale(lang);
 
@@ -43,8 +49,8 @@ export function Sidebar({ filteredItems, onInfoClick, onItemClick, lang, setLang
 
   const generateQueryString = (badges) => {
     return Object.entries(badges)
-      .map(([filterType, value]) => 
-      filterType === "search" ? `${value}` : `${filterType}=${value}`
+      .map(([filterType, value]) =>
+        filterType === "search" ? `${value}` : `${filterType}=${value}`,
       )
       .join("%20AND%20");
   };
@@ -53,14 +59,9 @@ export function Sidebar({ filteredItems, onInfoClick, onItemClick, lang, setLang
   useEffect(() => {
     const queryString = generateQueryString(badges);
     console.log("Query String :: " + queryString);
-    setFetchURLFilter(
-      `${queryString}`
-    );
+    setFetchURLFilter(`${queryString}`);
     setBadgeCount(Object.keys(badges).length);
   }, [badges]); // Re-run whenever badges change
-
-
-
 
   return (
     <div id="sidebar">
@@ -119,7 +120,7 @@ export function Sidebar({ filteredItems, onInfoClick, onItemClick, lang, setLang
               </svg>
             </button>
           </div>
-          <FilterSection lang={lang} badges={badges} setBadges={setBadges}/>
+          <FilterSection lang={lang} badges={badges} setBadges={setBadges} />
 
           <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">
             {t.datasets}
@@ -130,6 +131,7 @@ export function Sidebar({ filteredItems, onInfoClick, onItemClick, lang, setLang
               onItemClick={onLeftMenuItemClick}
               onItemDoubleClick={onLeftMenuItemDoubleClick}
               lang={lang}
+              loading={loading}
             />
           </ul>
           <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
