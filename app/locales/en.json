@@ -10,5 +10,7 @@
   "time": "Time",
   "spatial": "Spatial",
   "license": "License",
-  "citation": "Citation"
+  "citation": "Citation",
+  "load_datasets": "Load datasets",
+  "no_datasets": "No datasets found"
 }
