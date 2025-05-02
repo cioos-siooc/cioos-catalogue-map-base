@@ -9,5 +9,6 @@
   "eov": "Essential Ocean Variables",
   "time": "Time",
   "spatial": "Spatial",
-  "license": "License"
+  "license": "License",
+  "citation": "Citation"
 }
