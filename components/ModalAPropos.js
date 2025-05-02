@@ -21,7 +21,11 @@ export default function ModalAPropos() {
       >
         À Propos
       </Button>
-      <Modal dismissible show={openModal} onClose={() => setOpenModal(false)} >
+      <Modal
+        dismissible
+        show={openModal}
+        onClose={() => setOpenModal(false)}
+      >
         <ModalHeader>À propos du catalogue cartographique</ModalHeader>
         <ModalBody>
           <p className="space-y-6 text-base leading-relaxed">
