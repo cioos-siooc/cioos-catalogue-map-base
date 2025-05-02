@@ -22,6 +22,13 @@ export default function ItemsList({
       </div>
     );
   }
+  if (!itemsList || itemsList.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center bg-gray-200 dark:bg-gray-700 w-full h-full text-gray-500 dark:text-gray-400 rounded-md">
+        <p>{t.no_datasets}</p>
+      </div>
+    );
+  }
   return (
     <div>
       <div className="grid grid-flow-row z-50">

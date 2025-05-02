@@ -11,5 +11,6 @@
   "spatial": "Spatial",
   "license": "Licence",
   "citation": "Citation",
-  "load_datasets": "Chargement des jeux de données"
+  "load_datasets": "Chargement des jeux de données",
+  "no_datasets": "Aucun jeu de données trouvé"
 }
