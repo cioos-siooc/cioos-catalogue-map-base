@@ -10,5 +10,6 @@
   "time": "Temps",
   "spatial": "Spatial",
   "license": "Licence",
-  "citation": "Citation"
+  "citation": "Citation",
+  "load_datasets": "Charger les jeux de données"
 }
