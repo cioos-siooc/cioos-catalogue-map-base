@@ -20,6 +20,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
         backdrop={false}
         className="bg-primary-50/75 dark:bg-primary-900/75 h-screen w-sm"
       >
+        <DrawerHeader titleIcon={() => <></>} />
         <DrawerItems className="flex flex-col h-full">
           <div id="top" className="flex-shrink-0">
             {dataSetInfo && dataSetInfo.organization ? (
