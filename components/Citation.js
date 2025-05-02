@@ -1,16 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from 'next/link';
-import Cite from "citation-js"; // Import Citation.js
-import { HiMiniLink } from "react-icons/hi2";
+import Cite from "citation-js";
+
 
 export default function Citation( {dataSetInfo, lang }) {
   // State to hold the formatted citation (HTML formatted)
   const [citationHtml, setCitationHtml] = useState("");
-  const [citationURL, setCitationURL] = useState("");
-
-  const citationLanguage = lang === "fr" ? "fr-FR" : "en-US";
+  const citationLanguage = lang === "fr" ? "fr-CA" : "en-CA";
 
   useEffect( () => {
     // Example bibliographic data in JSON format:
