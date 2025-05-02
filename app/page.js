@@ -77,7 +77,7 @@ export default function Home() {
     if (fetchURLFilter) {
       url += `%20AND%20${fetchURLFilter}`;
     }
-    return (url += `&rows=1000`);
+    return url + `&rows=1000`;
   }
 
   const Map = dynamic(() => import("@/components/Map"), { ssr: false });
