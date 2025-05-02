@@ -1,6 +1,7 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
+import "react-leaflet-markercluster/styles";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import { Marker, Popup } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
