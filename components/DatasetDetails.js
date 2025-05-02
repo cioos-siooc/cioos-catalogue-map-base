@@ -22,11 +22,11 @@ export function DatasetDetails({ dataSetInfo, lang}) {
                 <DrawerItems>
                     {dataSetInfo && dataSetInfo.organization ? (
                     <Image
-                        className="rounded-sm w-auto w-max-[200px] h-max-[50px] bg-white"
+                        className="rounded-sm w-auto w-max-sm max-h-20 bg-white"
                         src={dataSetInfo && dataSetInfo.organization.image_url_translated[lang]}
                         alt="Organization Logo"
                         width={0}
-                        height={50}
+                        height={20}
                     />
                     ) : (
                     <p>No image available</p>

@@ -41,21 +41,8 @@ export default function Citation( {dataSetInfo, lang }) {
     <>
       { citationHtml ? (
         // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
-        <div>
-            <div dangerouslySetInnerHTML={{ __html: citationHtml }}>
-            
+        <div dangerouslySetInnerHTML={{ __html: citationHtml }} />
 
-            </div>
-            <div className="mt-2">
-
-               <Link href={citationURL} legacyBehavior>
-                    <a style={{ color: 'blue', textDecoration: 'underline', fontSize: '12px' }}>
-                        
-                        <HiMiniLink />
-                    </a>
-                </Link>
-            </div>
-        </div>
         ) : (
         <p>Loading citation...</p>
         )
