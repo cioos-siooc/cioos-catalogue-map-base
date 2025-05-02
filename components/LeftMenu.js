@@ -11,11 +11,11 @@ import FilterSection from "./FilterSection";
 const basePath = process.env.BASE_PATH || "";
 
 export function Sidebar({ filteredItems, onInfoClick, onItemClick, lang, setLang,
-   setFetchURLFilter, filteredResultsCount, totalResultsCount }) {
+   setFetchURLFilter, filteredResultsCount, totalResultsCount, setBadgeCount}) {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [error, setError] = useState(null);
   const [badges, setBadges] = useState([]);
+
 
 
 
@@ -56,6 +56,7 @@ export function Sidebar({ filteredItems, onInfoClick, onItemClick, lang, setLang
     setFetchURLFilter(
       `${queryString}`
     );
+    setBadgeCount(Object.keys(badges).length);
   }, [badges]); // Re-run whenever badges change
 
 

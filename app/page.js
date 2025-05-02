@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useContext, useEffect, useRef } from "react";
+import { useState, useContext, useEffect} from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import { DrawerContext } from "../app/context/DrawerContext";
@@ -21,7 +21,9 @@ export default function Home() {
   const [fetchURLFilter, setFetchURLFilter] = useState("");
   const [totalResultsCount, setTotalResultsCount] = useState(0);
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
+  const [badgeCount, setBadgeCount] = useState(0);
   const [inputValue, setInputValue] = useState("");
+  const [error, setError] = useState("");
 
   const catalogueUrl = config.catalogue_url;
   let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
@@ -56,15 +58,18 @@ export default function Home() {
         const awaitRes = await response.json();
         setFilteredItems(awaitRes.result.results);
         setInputValue(""); // Clear input value after fetching data
-        if(fetchURLFilter) {
+        if(fetchURLFilter){
           setFilteredResultsCount(awaitRes.result.results.length);
-        }else{
+        }
+        else{
           setTotalResultsCount(awaitRes.result.results.length);
+        }
+        if(badgeCount === 0){
+            setFilteredResultsCount(0);
         }
       } catch (error) {
         setError(error.message);
       }
-      console.log("filtered count :: ", filteredItems.length);
     };
     fetchData();
   }, [fetchURLFilter]);
@@ -77,7 +82,6 @@ export default function Home() {
   };
 
   const onInfoClick = () => {
-    console.log("INFO CLICKED");
     setShowModal(true);
   };
 
@@ -97,6 +101,7 @@ export default function Home() {
               setFetchURLFilter={setFetchURLFilter}
               filteredResultsCount ={filteredResultsCount}
               totalResultsCount ={totalResultsCount}
+              setBadgeCount={setBadgeCount}
             />
           </aside>
           <main className="z-20 flex-1 h-full w-full">

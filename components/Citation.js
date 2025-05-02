@@ -51,7 +51,7 @@ export default function Citation( {dataSetInfo, lang }) {
             <div className="mt-2">
 
                <Link href={citationURL} legacyBehavior>
-                    <a style={{ color: 'blue', textDecoration: 'underline', fontSize: '12px' }}>
+                    <a target="_blank" style={{ color: 'blue', textDecoration: 'underline', fontSize: '12px' }}>
                         
                         <HiMiniLink />
                     </a>
