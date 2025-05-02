@@ -21,11 +21,10 @@ export default function ModalAPropos() {
       >
         À Propos
       </Button>
-      <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
+      <Modal dismissible show={openModal} onClose={() => setOpenModal(false)} >
         <ModalHeader>À propos du catalogue cartographique</ModalHeader>
         <ModalBody>
-          <div className="space-y-6">
-            <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+          <p className="space-y-6 text-base leading-relaxed">
               Le catalogue cartographique est un outil d’exploration de données
               qui permet d’afficher les entrées du Catalogue de données de
               l’OGSL sur une carte, avec la possibilité de filtrer les résultats
@@ -35,8 +34,7 @@ export default function ModalAPropos() {
               informations du jeu de données (titre, description, producteur de
               donnée et liens pour la page du Catalogue et les fichiers de
               données).
-            </p>
-          </div>
+          </p>
         </ModalBody>
         <ModalFooter></ModalFooter>
       </Modal>
