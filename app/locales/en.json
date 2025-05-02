@@ -8,5 +8,7 @@
   "projects": "Projects",
   "eov": "Essential Ocean Variables",
   "time": "Time",
-  "spatial": "Spatial"
+  "spatial": "Spatial",
+  "license": "License",
+  "citation": "Citation"
 }
