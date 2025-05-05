@@ -76,23 +76,15 @@ export default function Citation({ dataSetInfo, lang }) {
     <>
       {citationHtml ? (
         // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
-        <div>
+        <a
+          href={citationURL}
+          className="flex-shrink-0 relative text-xs p-1 border-gray-200 border-2 rounded-md mt-4"
+        >
           <SafeHTML content={citationHtml} />
-
-          <div className="mt-2">
-            <Link href={citationURL} legacyBehavior>
-              <a
-                style={{
-                  color: "blue",
-                  textDecoration: "underline",
-                  fontSize: "12px",
-                }}
-              >
-                <HiMiniLink />
-              </a>
-            </Link>
+          <div className="absolute -top-4 flex flex-row gap-1 text-xs items-center rounded-md">
+            {t.citation} <GoLinkExternal />
           </div>
-        </div>
+        </a>
       ) : (
         <p>Loading citation...</p>
       )}
