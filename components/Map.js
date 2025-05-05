@@ -2,7 +2,7 @@
 
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-markercluster/styles";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, Tooltip } from "react-leaflet";
 import { Marker, Popup } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import * as turf from "@turf/turf";
@@ -49,7 +49,7 @@ const ClearMap = ({ map }) => {
   return null;
 };
 
-function Map({ center, bounds, filteredItems, setDatasetInfo }) {
+function Map({ center, bounds, filteredItems, setDatasetInfo, lang }) {
   const { openDrawer } = useContext(DrawerContext);
   function showDatasetInfo(item) {
     setDatasetInfo(item);
@@ -75,7 +75,6 @@ function Map({ center, bounds, filteredItems, setDatasetInfo }) {
           shadowAnchor: [12, 41],
           popupAnchor: [1, -34],
         })}
-        tooltip={item.title}
         eventHandlers={{
           click: (e) => {
             console.log("Marker clicked:", item.id);
@@ -104,7 +103,18 @@ function Map({ center, bounds, filteredItems, setDatasetInfo }) {
             }
           },
         }}
-      ></Marker>
+      >
+        <Tooltip>
+          <div className="w-[200px]">
+            <h2 className="font-bold text-wrap">
+              {item.title_translated[lang]}
+            </h2>
+            <p className="text-xs">
+              {item.organization.title_translated[lang]}
+            </p>
+          </div>
+        </Tooltip>
+      </Marker>
     );
   });
 

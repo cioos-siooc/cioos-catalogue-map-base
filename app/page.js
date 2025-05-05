@@ -117,6 +117,7 @@ export default function Home() {
             bounds={bounds}
             filteredItems={filteredItems}
             setDatasetInfo={setDatasetInfo}
+            lang={lang}
           />
         </main>
 
