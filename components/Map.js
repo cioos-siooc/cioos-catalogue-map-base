@@ -29,7 +29,7 @@ const FitBounds = ({ bounds }) => {
       animate: true,
       padding: [50, 50],
       maxZoom: 10,
-      duration: 1,
+      duration: 0.3,
     });
   }
 
@@ -49,73 +49,74 @@ const ClearMap = ({ map }) => {
   return null;
 };
 
-function Map({ center, bounds, filteredItems, setDatasetInfo, lang }) {
-  const { openDrawer } = useContext(DrawerContext);
-  function showDatasetInfo(item) {
-    setDatasetInfo(item);
-    openDrawer();
+function getDatasetMarker(record, handleListItemClick, lang) {
+  var point = turf.centerOfMass(record.spatial);
+  // verify if point within the polygon
+  const isPointInPolygon = turf.booleanPointInPolygon(point, record.spatial);
+  if (!isPointInPolygon) {
+    point = turf.pointOnFeature(record.spatial);
   }
 
+  return (
+    <Marker
+      key={record.id}
+      position={[point.geometry.coordinates[1], point.geometry.coordinates[0]]}
+      icon={L.icon({
+        iconUrl: icon,
+        shadowUrl: iconShadow,
+        iconSize: [25, 41],
+        shadowSize: [41, 41],
+        iconAnchor: [12, 41],
+        shadowAnchor: [12, 41],
+        popupAnchor: [1, -34],
+      })}
+      eventHandlers={{
+        click: (e) => {
+          console.log("Marker clicked:", record.id);
+          handleListItemClick(record);
+        },
+        mouseover: (e) => {
+          const map = e.target._map; // Access the map instance
+          const polygon = L.geoJSON(record.spatial, {
+            style: {
+              color: "blue",
+              weight: 2,
+              fillColor: "lightblue",
+              fillOpacity: 0.5,
+            },
+          }).addTo(map);
+
+          // Store the polygon layer on the marker for later removal
+          e.target._hoverPolygon = polygon;
+        },
+        mouseout: (e) => {
+          // Remove the polygon layer when the mouse leaves the marker
+          const map = e.target._map;
+          if (e.target._hoverPolygon) {
+            map.removeLayer(e.target._hoverPolygon);
+            e.target._hoverPolygon = null;
+          }
+        },
+      }}
+    >
+      <Tooltip>
+        <div className="w-[200px]">
+          <h2 className="font-bold text-wrap">
+            {record.title_translated[lang]}
+          </h2>
+          <p className="text-xs">
+            {record.organization.title_translated[lang]}
+          </p>
+        </div>
+      </Tooltip>
+    </Marker>
+  );
+}
+
+function Map({ center, bounds, filteredItems, handleListItemClick, lang }) {
   // get the centroid of each filteredItem.spatial which is a geojson and add as a marker and add makers as a cluster on the map
   const markers = filteredItems.map((item) => {
-    const centroid = turf.centroid(item.spatial);
-    return (
-      <Marker
-        key={item.id}
-        position={[
-          centroid.geometry.coordinates[1],
-          centroid.geometry.coordinates[0],
-        ]}
-        icon={L.icon({
-          iconUrl: icon,
-          shadowUrl: iconShadow,
-          iconSize: [25, 41],
-          shadowSize: [41, 41],
-          iconAnchor: [12, 41],
-          shadowAnchor: [12, 41],
-          popupAnchor: [1, -34],
-        })}
-        eventHandlers={{
-          click: (e) => {
-            console.log("Marker clicked:", item.id);
-            showDatasetInfo(item);
-          },
-          mouseover: (e) => {
-            const map = e.target._map; // Access the map instance
-            const polygon = L.geoJSON(item.spatial, {
-              style: {
-                color: "blue",
-                weight: 2,
-                fillColor: "lightblue",
-                fillOpacity: 0.5,
-              },
-            }).addTo(map);
-
-            // Store the polygon layer on the marker for later removal
-            e.target._hoverPolygon = polygon;
-          },
-          mouseout: (e) => {
-            // Remove the polygon layer when the mouse leaves the marker
-            const map = e.target._map;
-            if (e.target._hoverPolygon) {
-              map.removeLayer(e.target._hoverPolygon);
-              e.target._hoverPolygon = null;
-            }
-          },
-        }}
-      >
-        <Tooltip>
-          <div className="w-[200px]">
-            <h2 className="font-bold text-wrap">
-              {item.title_translated[lang]}
-            </h2>
-            <p className="text-xs">
-              {item.organization.title_translated[lang]}
-            </p>
-          </div>
-        </Tooltip>
-      </Marker>
-    );
+    return getDatasetMarker(item, handleListItemClick, lang);
   });
 
   return (

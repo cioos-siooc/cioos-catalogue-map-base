@@ -116,7 +116,7 @@ export default function Home() {
             center={center}
             bounds={bounds}
             filteredItems={filteredItems}
-            setDatasetInfo={setDatasetInfo}
+            handleListItemClick={handleListItemClick}
             lang={lang}
           />
         </main>
