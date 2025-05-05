@@ -81,8 +81,30 @@ function Map({ center, bounds, filteredItems, setDatasetInfo }) {
             console.log("Marker clicked:", item.id);
             showDatasetInfo(item);
           },
+          mouseover: (e) => {
+            const map = e.target._map; // Access the map instance
+            const polygon = L.geoJSON(item.spatial, {
+              style: {
+                color: "blue",
+                weight: 2,
+                fillColor: "lightblue",
+                fillOpacity: 0.5,
+              },
+            }).addTo(map);
+
+            // Store the polygon layer on the marker for later removal
+            e.target._hoverPolygon = polygon;
+          },
+          mouseout: (e) => {
+            // Remove the polygon layer when the mouse leaves the marker
+            const map = e.target._map;
+            if (e.target._hoverPolygon) {
+              map.removeLayer(e.target._hoverPolygon);
+              e.target._hoverPolygon = null;
+            }
+          },
         }}
-      />
+      ></Marker>
     );
   });
 
