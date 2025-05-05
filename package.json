@@ -8,10 +8,16 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "flowbite-react patch",
-    "export": "next build && next export"
+    "export": "next build && next export",
+    "prepare": "husky",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write"
   },
   "dependencies": {
     "@react-leaflet/core": "^3.0.0",
+    "chroma-js": "^3.1.2",
     "citation-js": "^0.7.18",
     "dompurify": "^3.2.5",
     "flowbite-react": "^0.11.5",
@@ -26,9 +32,14 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.0.14",
     "autoprefixer": "^10.4.21",
-    "eslint": "^9",
+    "eslint": "^9.25.1",
     "eslint-config-next": "15.2.2",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.2.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
     "postcss": "^8.5.3",
+    "prettier": "^3.5.3",
     "tailwindcss": "^4.0.14"
   }
 }

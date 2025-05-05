@@ -1,54 +1,60 @@
-
 "use client";
 
 import { Drawer, DrawerHeader, DrawerItems } from "flowbite-react";
 import { DrawerContext } from "../app/context/DrawerContext";
-import Image from 'next/image';
+import Image from "next/image";
 import Citation from "@/components/Citation";
-import {useContext} from "react";
+import { useContext } from "react";
+import { getLocale } from "@/app/get-locale.js";
 
+export function DatasetDetails({ dataSetInfo, lang }) {
+  const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
+  const t = getLocale(lang);
 
-export function DatasetDetails({ dataSetInfo, lang}) {
+  return (
+    <>
+      <Drawer
+        open={isDrawerOpen}
+        onClose={closeDrawer}
+        position="right"
+        backdrop={false}
+        className="bg-primary-50/75 dark:bg-primary-900/75 h-screen w-sm flex flex-col"
+      >
+        <DrawerHeader titleIcon={() => <></>} className="flex-shrink-0" />
+        <DrawerItems className="flex-grow overflow-y-auto flex flex-col">
+          <div id="top" className="flex-shrink-0">
+            {dataSetInfo && dataSetInfo.organization ? (
+              <Image
+                className="rounded-sm w-auto max-h-40 bg-white p-1"
+                src={
+                  dataSetInfo &&
+                  dataSetInfo.organization.image_url_translated[lang]
+                }
+                alt="Organization Logo"
+                width={0}
+                height={40}
+              />
+            ) : (
+              <p>No image available</p>
+            )}
 
-  const {isDrawerOpen, closeDrawer} = useContext(DrawerContext);
-  console.log("DatasetDetails :: ", dataSetInfo);
+            <div className="flex flex-col gap-1 mt-4">
+              <h4 className="font-bold">
+                {dataSetInfo && dataSetInfo.title_translated[lang]}
+              </h4>
+              <hr className="border-gray-800 dark:border-gray-200" />
+              <p className="text-xs">
+                {t.license}: {dataSetInfo && dataSetInfo.license_title}
+              </p>
+            </div>
+          </div>
 
-    return (
-        <>
-        <Drawer open={isDrawerOpen} onClose={closeDrawer} position="right" backdrop={false}>
-            <DrawerHeader titleIcon={() => <></>}/>
-                <DrawerItems>
-
-                    {dataSetInfo && dataSetInfo.organization ? (
-                    <Image
-                        className="mb-3 h-30 w-30 rounded-lg"
-                        src={dataSetInfo && dataSetInfo.organization.image_url_translated[lang]}
-                        alt="Organization Logo"
-                        width={30}
-                        height={30}
-                    />
-                    ) : (
-                    <p>No image available</p>
-                    )}
-
-                    <div className="text-justify mt-5 mb-5 bg-gray-100 dark:bg-gray-900 ">
-                        <h4 className="bg-white text-sm font-bold mb-5">{dataSetInfo && dataSetInfo.title_translated[lang]}</h4>
-
-                        <p className="bg-white text-sm mb-5">
-                                {dataSetInfo && dataSetInfo.license_title}
-                        </p>
-
-                        <div className="text-justify mt-5 mb-5 bg-white text-sm">
-                            <h4 className="mb-5">
-                                {dataSetInfo && dataSetInfo.notes_translated[lang]}
-
-                            </h4>
-                        </div>
-                        <Citation dataSetInfo={dataSetInfo} lang={lang}/>
-                    </div>
-                </DrawerItems>
-        </Drawer>
-        </>
-    );
-    
+          <div className="relative flex-grow overflow-y-auto mt-4 mb-4 text-sm">
+            {dataSetInfo && dataSetInfo.notes_translated[lang]}
+          </div>
+          <Citation dataSetInfo={dataSetInfo} lang={lang} />
+        </DrawerItems>
+      </Drawer>
+    </>
+  );
 }

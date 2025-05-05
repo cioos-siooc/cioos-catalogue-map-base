@@ -1,19 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from 'next/link';
+import Link from "next/link";
 import Cite from "citation-js"; // Import Citation.js
 import { HiMiniLink } from "react-icons/hi2";
 import DOMPurify from 'dompurify';
+import { GoLinkExternal } from "react-icons/go";
+import { getLocale } from "@/app/get-locale";
 
-export default function Citation( {dataSetInfo, lang }) {
+export default function Citation({ dataSetInfo, lang }) {
   // State to hold the formatted citation (HTML formatted)
   const [citationHtml, setCitationHtml] = useState("");
   const [citationURL, setCitationURL] = useState("");
 
-  const citationLanguage = lang === "fr" ? "fr-FR" : "en-US";
+  const citationLanguage = lang === "fr" ? "fr-CA" : "en-CA";
+  const t = getLocale(lang);
 
-  useEffect( () => {
+  useEffect(() => {
     // Example bibliographic data in JSON format:
 
     try {
@@ -38,9 +41,9 @@ export default function Citation( {dataSetInfo, lang }) {
         }else {
             console.log("Citation data is not available");
         }
-      } catch (error) {
-        console.error("Error formatting citation:", error);
-      }
+    } catch (error) {
+      console.error("Error formatting citation:", error);
+    }
   }, [dataSetInfo, lang]);
 
 
@@ -59,8 +62,8 @@ export default function Citation( {dataSetInfo, lang }) {
 }
 
   return (
-    <div className="bg-white mt-5">
-      { citationHtml ? (
+    <>
+      {citationHtml ? (
         // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
         <div>
             <SafeHTML content={citationHtml} />
@@ -77,8 +80,7 @@ export default function Citation( {dataSetInfo, lang }) {
         </div>
         ) : (
         <p>Loading citation...</p>
-        )
-    }
-    </div>
+      )}
+    </>
   );
 }
