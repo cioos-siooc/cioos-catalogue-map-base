@@ -3,7 +3,7 @@
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-markercluster/styles";
 import { MapContainer, TileLayer, useMap, Tooltip } from "react-leaflet";
-import { Marker, Popup } from "react-leaflet";
+import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import * as turf from "@turf/turf";
 import { DrawerContext } from "../app/context/DrawerContext";
@@ -13,17 +13,21 @@ import { Drawer } from "flowbite-react";
 
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
+import { get } from "citation-js";
 
-const primaryColor = getComputedStyle(document.documentElement)
-  .getPropertyValue("--color-gray-500")
-  .trim();
+function getPrimaryColor() {
+  const primaryColor = getComputedStyle(document.documentElement)
+    .getPropertyValue("--color-gray-500")
+    .trim();
+  return primaryColor;
+}
 
 const FitBounds = ({ bounds }) => {
   const { openDrawer } = useContext(DrawerContext);
   const map = useMap();
   if (bounds) {
     ClearMap({ map });
-    var polygon = L.geoJSON(bounds, { color: primaryColor }).addTo(map);
+    var polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(map);
 
     polygon.on("click", () => {
       openDrawer();
@@ -83,9 +87,9 @@ function getDatasetMarker(record, handleListItemClick, lang) {
           const map = e.target._map; // Access the map instance
           const polygon = L.geoJSON(record.spatial, {
             style: {
-              color: primaryColor,
+              color: getPrimaryColor(),
               weight: 2,
-              fillColor: primaryColor,
+              fillColor: getPrimaryColor(),
               fillOpacity: 0.5,
             },
           }).addTo(map);
@@ -108,7 +112,7 @@ function getDatasetMarker(record, handleListItemClick, lang) {
           <h2 className="font-bold text-wrap">
             {record.title_translated[lang]}
           </h2>
-          <p className="text-xs">
+          <p className="text-xs text-wrap">
             {record.organization.title_translated[lang]}
           </p>
         </div>
