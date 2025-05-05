@@ -112,7 +112,12 @@ export default function Home() {
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
-          <Map center={center} bounds={bounds} filteredItems={filteredItems} />
+          <Map
+            center={center}
+            bounds={bounds}
+            filteredItems={filteredItems}
+            setDatasetInfo={setDatasetInfo}
+          />
         </main>
 
         {isDrawerOpen && dataSetInfo && (

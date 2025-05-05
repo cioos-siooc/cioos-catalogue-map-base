@@ -49,7 +49,13 @@ const ClearMap = ({ map }) => {
   return null;
 };
 
-function Map({ center, bounds, filteredItems }) {
+function Map({ center, bounds, filteredItems, setDatasetInfo }) {
+  const { openDrawer } = useContext(DrawerContext);
+  function showDatasetInfo(item) {
+    setDatasetInfo(item);
+    openDrawer();
+  }
+
   // get the centroid of each filteredItem.spatial which is a geojson and add as a marker and add makers as a cluster on the map
   const markers = filteredItems.map((item) => {
     const centroid = turf.centroid(item.spatial);
@@ -69,6 +75,13 @@ function Map({ center, bounds, filteredItems }) {
           shadowAnchor: [12, 41],
           popupAnchor: [1, -34],
         })}
+        tooltip={item.title}
+        eventHandlers={{
+          click: (e) => {
+            console.log("Marker clicked:", item.id);
+            showDatasetInfo(item);
+          },
+        }}
       />
     );
   });
