@@ -20,14 +20,11 @@ export default function Citation({ dataSetInfo, lang }) {
     try {
       // Create a new Cite instance with your bibliographic data
       if (dataSetInfo && dataSetInfo.citation) {
-        const cleanedString = dataSetInfo.citation[lang].replace(/\\/g, "");
-        let modifiedString = cleanedString.slice(1, -1);
-        console.log("Modified String before :: ", modifiedString);
-        modifiedString = decodeUnicode(modifiedString);
-        console.log("Modified String After :: ", modifiedString);
-        const json = JSON.parse(modifiedString);
-        setCitationURL(json.URL);
-        const cite = new Cite(modifiedString);
+        const parsed_citation = JSON.parse(
+          dataSetInfo.citation[lang].replace(/\\"/g, '"'),
+        )[0];
+        setCitationURL(parsed_citation.URL);
+        const cite = new Cite(parsed_citation);
         // Format as a bibliography entry in APA style and output in HTML
         const formatted = cite.format("bibliography", {
           format: "html",
@@ -62,12 +59,6 @@ export default function Citation({ dataSetInfo, lang }) {
       ALLOWED_ATTR: ["href", "target", "rel"],
     });
     return <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />;
-  }
-
-  function decodeUnicode(str) {
-    return str.replace(/u([\dA-Fa-f]{4})/g, (match, code) =>
-      String.fromCharCode(parseInt(code, 16)),
-    );
   }
 
   return (
