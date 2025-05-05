@@ -9,6 +9,7 @@ import * as turf from "@turf/turf";
 import { DrawerContext } from "../app/context/DrawerContext";
 import { useContext } from "react";
 import L from "leaflet";
+import config from "@/app/config";
 
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
@@ -119,7 +120,7 @@ function getDatasetMarker(record, handleListItemClick, lang) {
   );
 }
 
-function Map({ center, bounds, filteredItems, handleListItemClick, lang }) {
+function Map({ bounds, filteredItems, handleListItemClick, lang }) {
   // get the centroid of each filteredItem.spatial which is a geojson and add as a marker and add makers as a cluster on the map
   const markers = filteredItems.map((item) => {
     return getDatasetMarker(item, handleListItemClick, lang);
@@ -127,19 +128,17 @@ function Map({ center, bounds, filteredItems, handleListItemClick, lang }) {
 
   return (
     <div id="container" className="h-full w-full">
-      {center && (
-        <MapContainer
-          className="h-full w-full"
-          center={center}
-          zoom={6}
-          scrollWheelZoom={true}
-          boundsOptions={{ padding: [1, 1] }}
-        >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {bounds && <FitBounds bounds={bounds} />}
-          <MarkerClusterGroup>{markers}</MarkerClusterGroup>
-        </MapContainer>
-      )}
+      <MapContainer
+        className="h-full w-full"
+        center={config.map.center}
+        zoom={config.map.zoom}
+        scrollWheelZoom={true}
+        boundsOptions={{ padding: [1, 1] }}
+      >
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        {bounds && <FitBounds bounds={bounds} />}
+        <MarkerClusterGroup>{markers}</MarkerClusterGroup>
+      </MapContainer>
     </div>
   );
 }

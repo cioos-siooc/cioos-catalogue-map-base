@@ -9,7 +9,6 @@ import Map from "@/components/Map";
 import config from "./config";
 
 export default function Home() {
-  const [center] = useState([47.485, -62.48]); // Default center
   const [bounds, setBounds] = useState(null);
   const [lang, setLang] = useState(config.default_language);
   const [loading, setLoading] = useState(true);
@@ -113,7 +112,6 @@ export default function Home() {
         </aside>
         <main className="z-20 flex-1 h-full w-full">
           <Map
-            center={center}
             bounds={bounds}
             filteredItems={filteredItems}
             handleListItemClick={handleListItemClick}

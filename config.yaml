@@ -1,6 +1,10 @@
 ---
 catalogue_url: https://catalogue.ogsl.ca
-base_query: projects=*baseline*
+base_query: ""
+
+map:
+  center: [66.485, -62.48]
+  zoom: 5
 
 default_language: en
 title:
