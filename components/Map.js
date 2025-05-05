@@ -9,11 +9,9 @@ import * as turf from "@turf/turf";
 import { DrawerContext } from "../app/context/DrawerContext";
 import { useContext } from "react";
 import L from "leaflet";
-import { Drawer } from "flowbite-react";
 
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import { get } from "citation-js";
 
 function getPrimaryColor() {
   const primaryColor = getComputedStyle(document.documentElement)
