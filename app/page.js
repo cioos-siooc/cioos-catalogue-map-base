@@ -57,7 +57,7 @@ export default function Home() {
       }
     };
     fetchData();
-  }, [fetchURLFilter]);
+  }, [fetchURLFilter, initFetchURL, initFetchResults]);
 
   function initFetchResults(awaitRes) {
     setFilteredItems(awaitRes.result.results);
