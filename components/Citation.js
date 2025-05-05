@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import Cite from "citation-js"; // Import Citation.js
-import { HiMiniLink } from "react-icons/hi2";
 import DOMPurify from "dompurify";
 import { GoLinkExternal } from "react-icons/go";
 import { getLocale } from "@/app/get-locale";
