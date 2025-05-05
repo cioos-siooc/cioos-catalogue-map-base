@@ -50,7 +50,7 @@ export function Sidebar({
   const generateQueryString = (badges) => {
     return Object.entries(badges)
       .map(([filterType, value]) =>
-        filterType === "search" ? `${value}` : `${filterType}=${value}`
+        filterType === "search" ? `${value}` : `${filterType}=${value}`,
       )
       .join("%20AND%20");
   };
@@ -61,7 +61,7 @@ export function Sidebar({
     console.log("Query String :: " + queryString);
     setFetchURLFilter(`${queryString}`);
     setBadgeCount(Object.keys(badges).length);
-  }, [badges]); // Re-run whenever badges change
+  }, [badges, setBadgeCount, setFetchURLFilter]); // Re-run whenever badges change
 
   return (
     <div id="sidebar">

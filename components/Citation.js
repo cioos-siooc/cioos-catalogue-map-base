@@ -39,7 +39,7 @@ export default function Citation({ dataSetInfo, lang }) {
     } catch (error) {
       console.error("Error formatting citation:", error);
     }
-  }, [dataSetInfo, lang]);
+  }, [dataSetInfo, lang, citationLanguage]);
 
   return (
     <>
