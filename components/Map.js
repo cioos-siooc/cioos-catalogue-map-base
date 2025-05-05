@@ -14,12 +14,16 @@ import { Drawer } from "flowbite-react";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
+const primaryColor = getComputedStyle(document.documentElement)
+  .getPropertyValue("--color-gray-500")
+  .trim();
+
 const FitBounds = ({ bounds }) => {
   const { openDrawer } = useContext(DrawerContext);
   const map = useMap();
   if (bounds) {
     ClearMap({ map });
-    var polygon = L.geoJSON(bounds, { color: "red" }).addTo(map);
+    var polygon = L.geoJSON(bounds, { color: primaryColor }).addTo(map);
 
     polygon.on("click", () => {
       openDrawer();
@@ -79,9 +83,9 @@ function getDatasetMarker(record, handleListItemClick, lang) {
           const map = e.target._map; // Access the map instance
           const polygon = L.geoJSON(record.spatial, {
             style: {
-              color: "blue",
+              color: primaryColor,
               weight: 2,
-              fillColor: "lightblue",
+              fillColor: primaryColor,
               fillOpacity: 0.5,
             },
           }).addTo(map);
