@@ -7,6 +7,7 @@ import ModalAPropos from "@/components/ModalAPropos";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
+import Logo from "./Logo";
 
 const basePath = process.env.BASE_PATH || "";
 
@@ -141,6 +142,9 @@ export function Sidebar({
             />
           </div>
           <ModalAPropos />
+          <div>
+            <Logo lang={lang} />
+          </div>
         </div>
       </aside>
     </div>
