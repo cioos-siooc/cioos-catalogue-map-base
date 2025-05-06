@@ -40,12 +40,15 @@ export default function ItemsList({
             {itemsList.map(
               (item) => (
                 <li
-                  className="hover:text-blue-500 cursor-pointer bg-gray-100 dark:bg-gray-900 m-2 p-4 text-sm rounded-md"
+                  className="hover:text-blue-500 cursor-pointer bg-gray-100 dark:bg-gray-900 m-1 p-2 text-sm rounded-md"
                   onClick={() => onItemClick(item)}
                   onDoubleClick={() => onItemDoubleClick(item)}
                   key={item.id}
                 >
-                  {item.title_translated[lang]}
+                  <div>{item.title_translated[lang]}</div>
+                  <div className="text-xs">
+                    {item.organization.title_translated[lang]}
+                  </div>
                 </li>
               ), // Dynamically create <li> items
             )}
