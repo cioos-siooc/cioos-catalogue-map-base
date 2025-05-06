@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import Cite from "citation-js"; // Import Citation.js
+import DOMPurify from "dompurify";
 import { GoLinkExternal } from "react-icons/go";
 import { getLocale } from "@/app/get-locale";
 
@@ -20,11 +20,11 @@ export default function Citation({ dataSetInfo, lang }) {
     try {
       // Create a new Cite instance with your bibliographic data
       if (dataSetInfo && dataSetInfo.citation) {
-        const cleanedString = dataSetInfo.citation[lang].replace(/\\/g, "");
-        const modifiedString = cleanedString.slice(1, -1);
-        const json = JSON.parse(modifiedString);
-        setCitationURL(json.URL);
-        const cite = new Cite(modifiedString);
+        const parsed_citation = JSON.parse(
+          dataSetInfo.citation[lang].replace(/\\"/g, '"'),
+        )[0];
+        setCitationURL(parsed_citation.URL);
+        const cite = new Cite(parsed_citation);
         // Format as a bibliography entry in APA style and output in HTML
         const formatted = cite.format("bibliography", {
           format: "html",
@@ -41,6 +41,26 @@ export default function Citation({ dataSetInfo, lang }) {
     }
   }, [dataSetInfo, lang, citationLanguage]);
 
+  function SafeHTML({ content }) {
+    const sanitizedContent = DOMPurify.sanitize(content, {
+      USE_PROFILES: { html: true },
+      ALLOWED_TAGS: [
+        "p",
+        "b",
+        "i",
+        "em",
+        "strong",
+        "a",
+        "ul",
+        "ol",
+        "li",
+        "br",
+      ],
+      ALLOWED_ATTR: ["href", "target", "rel"],
+    });
+    return <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />;
+  }
+
   return (
     <>
       {citationHtml ? (
@@ -49,7 +69,7 @@ export default function Citation({ dataSetInfo, lang }) {
           href={citationURL}
           className="flex-shrink-0 relative text-xs p-1 border-gray-200 border-2 rounded-md mt-4"
         >
-          <div dangerouslySetInnerHTML={{ __html: citationHtml }}></div>
+          <SafeHTML content={citationHtml} />
           <div className="absolute -top-4 flex flex-row gap-1 text-xs items-center rounded-md">
             {t.citation} <GoLinkExternal />
           </div>
