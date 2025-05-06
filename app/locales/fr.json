@@ -16,5 +16,7 @@
   "start_date": "Date de début",
   "end_date": "Date de fin",
   "from": "De",
-  "to": "À"
+  "to": "À",
+  "today": "Aujourd'hui",
+  "clear": "Effacer"
 }

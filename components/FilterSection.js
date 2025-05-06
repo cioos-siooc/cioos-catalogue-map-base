@@ -98,10 +98,13 @@ function TimeFilter({ lang, setBadges }) {
       setOpenModal(false);
       return;
     }
+    console.log("Start Date:", startDate);
     setBadges((prevBadges) => ({
       ...prevBadges,
       start_date: startDate,
     }));
+
+    console.log("End Date:", endDate);
     setBadges((prevBadges) => ({
       ...prevBadges,
       end_date: endDate,
@@ -128,20 +131,32 @@ function TimeFilter({ lang, setBadges }) {
         <ModalHeader>
           {t.filter_by} {t.time}
         </ModalHeader>
-        <ModalBody className="overflow-visible">
-          <div className="w-full">
-            <div className="m-2">{t.from}</div>
+        <ModalBody className="overflow-visible flex flex-col gap-2">
+          <div className="flex flex-row items-center">
+            <div className="w-1/10 text-right pr-2">{t.from}</div>
             <Datepicker
               language={`${lang}-CA`}
-              className="w-1/3"
-              onChange={(date) => setStartDate(date)}
+              className="w-full"
+              onChange={(date) => setStartDate(date.value)}
+              selected={startDate}
+              maxDate={endDate}
+              labelTodayButton={t.today}
+              labelClearButton={t.clear}
+              placeholder="Minimum date"
             />
           </div>
-          <div className="w-full">
-            <div className="m-2">{t.to}</div>
+          <div className="flex flex-row items-center">
+            <div className="w-1/10 text-right pr-2">{t.to}</div>
             <Datepicker
+              className="w-full"
               language={`${lang}-CA`}
-              onChange={(date) => setEndDate(date)}
+              onChange={(date) => setEndDate(date.value)}
+              selected={endDate}
+              minDate={startDate} // Disable dates before the start date
+              maxDate={new Date()} // Disable future dates
+              labelTodayButton={t.today}
+              labelClearButton={t.clear}
+              placeholder="Maximum date"
             />
           </div>
         </ModalBody>
