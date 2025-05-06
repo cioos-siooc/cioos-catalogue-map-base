@@ -53,7 +53,7 @@ const ClearMap = ({ map }) => {
 
 function getDatasetMarker(record, handleListItemClick, lang) {
   const { openDrawer } = useContext(DrawerContext);
-  var point = turf.centerOfMass(record.spatial);
+  let point = turf.centerOfMass(record.spatial);
   // verify if point within the polygon
   const isPointInPolygon = turf.booleanPointInPolygon(point, record.spatial);
   if (!isPointInPolygon) {
