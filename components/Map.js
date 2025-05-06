@@ -22,15 +22,10 @@ function getPrimaryColor() {
 }
 
 const FitBounds = ({ bounds }) => {
-  const { openDrawer } = useContext(DrawerContext);
   const map = useMap();
   if (bounds) {
     ClearMap({ map });
     var polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(map);
-
-    polygon.on("click", () => {
-      openDrawer();
-    });
 
     map.flyToBounds(polygon.getBounds(), {
       animate: true,
@@ -57,6 +52,7 @@ const ClearMap = ({ map }) => {
 };
 
 function getDatasetMarker(record, handleListItemClick, lang) {
+  const { openDrawer } = useContext(DrawerContext);
   var point = turf.centerOfMass(record.spatial);
   // verify if point within the polygon
   const isPointInPolygon = turf.booleanPointInPolygon(point, record.spatial);
@@ -81,6 +77,7 @@ function getDatasetMarker(record, handleListItemClick, lang) {
         click: (e) => {
           console.log("Marker clicked:", record.id);
           handleListItemClick(record);
+          openDrawer();
         },
         mouseover: (e) => {
           const map = e.target._map; // Access the map instance

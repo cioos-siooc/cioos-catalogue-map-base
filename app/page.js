@@ -81,11 +81,11 @@ export default function Home() {
     return url + `&rows=1000`;
   }
 
-  // const Map = dynamic(() => import("@/components/Map"), { ssr: false });
-
+  const { openDrawer } = useContext(DrawerContext);
   const handleListItemClick = (selectedItem) => {
     setBounds(selectedItem.spatial);
     setDatasetInfo(selectedItem);
+    openDrawer();
   };
 
   const onInfoClick = () => {
