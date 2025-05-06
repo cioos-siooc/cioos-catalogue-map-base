@@ -12,5 +12,7 @@
   "license": "License",
   "citation": "Citation",
   "load_datasets": "Load datasets",
-  "no_datasets": "No datasets found"
+  "no_datasets": "No datasets found",
+  "start_date": "Start date",
+  "end_date": "End date"
 }

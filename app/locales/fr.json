@@ -12,5 +12,7 @@
   "license": "Licence",
   "citation": "Citation",
   "load_datasets": "Chargement des jeux de données",
-  "no_datasets": "Aucun jeu de données trouvé"
+  "no_datasets": "Aucun jeu de données trouvé",
+  "start_date": "Date de début",
+  "end_date": "Date de fin"
 }
