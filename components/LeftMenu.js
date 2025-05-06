@@ -58,7 +58,7 @@ export function Sidebar({
   // Trigger reharvest when badges change
   useEffect(() => {
     const queryString = generateQueryString(badges);
-    console.log("Query Stringgggggg :: " + queryString);
+    console.log("Query String :: " + queryString);
     setFetchURLFilter(`${queryString}`);
     setBadgeCount(Object.keys(badges).length);
   }, [badges, setBadgeCount, setFetchURLFilter]); // Re-run whenever badges change
