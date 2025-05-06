@@ -89,17 +89,22 @@ export function SearchFilter({ lang, setBadges }) {
 
 function TimeFilter({ lang, setBadges }) {
   const [openModal, setOpenModal] = useState(false);
-  const [query, setQuery] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const t = getLocale(lang);
 
   function onCloseModal() {
-    if (!query) {
+    if (!startDate && !endDate) {
       setOpenModal(false);
       return;
     }
     setBadges((prevBadges) => ({
       ...prevBadges,
-      time: query,
+      start_date: startDate,
+    }));
+    setBadges((prevBadges) => ({
+      ...prevBadges,
+      end_date: endDate,
     }));
     setOpenModal(false);
   }
@@ -123,25 +128,20 @@ function TimeFilter({ lang, setBadges }) {
         <ModalHeader>
           {t.filter_by} {t.time}
         </ModalHeader>
-        <ModalBody>
-          <div className="flex flex-row mb-2 text-sm text-gray-500 dark:text-gray-400">
-            {t.from}:
+        <ModalBody className="overflow-visible">
+          <div className="w-full">
+            <div className="m-2">{t.from}</div>
             <Datepicker
-              id="date-filter-start"
-              label={t.start_date}
-              placeholder="Select start date"
-              onChange={(date) => setQuery(date)}
-              className="rounded-lg border-0"
+              language={`${lang}-CA`}
+              className="w-1/3"
+              onChange={(date) => setStartDate(date)}
             />
           </div>
-          <div className="flex flex-row mb-2 text-sm text-gray-500 dark:text-gray-400">
-            {t.to}:
+          <div className="w-full">
+            <div className="m-2">{t.to}</div>
             <Datepicker
-              id="date-filter-end"
-              label={t.end_date}
-              placeholder="Select end date"
-              onChange={(date) => setQuery(date)}
-              className="rounded-lg border-0"
+              language={`${lang}-CA`}
+              onChange={(date) => setEndDate(date)}
             />
           </div>
         </ModalBody>
