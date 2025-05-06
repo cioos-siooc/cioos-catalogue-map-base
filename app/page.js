@@ -4,12 +4,11 @@ import { useState, useContext, useEffect } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import { DrawerContext } from "../app/context/DrawerContext";
-
+// import Map from "@/components/Map";
 import dynamic from "next/dynamic";
 import config from "./config";
 
 export default function Home() {
-  const [center] = useState([47.485, -62.48]); // Default center
   const [bounds, setBounds] = useState(null);
   const [lang, setLang] = useState(config.default_language);
   const [loading, setLoading] = useState(true);
@@ -23,6 +22,8 @@ export default function Home() {
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
   const [badgeCount, setBadgeCount] = useState(0);
   const [inputValue, setInputValue] = useState("");
+
+  const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
   const catalogueUrl = config.catalogue_url;
   let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
@@ -80,11 +81,11 @@ export default function Home() {
     return url + `&rows=1000`;
   }
 
-  const Map = dynamic(() => import("@/components/Map"), { ssr: false });
-
+  const { openDrawer } = useContext(DrawerContext);
   const handleListItemClick = (selectedItem) => {
     setBounds(selectedItem.spatial);
     setDatasetInfo(selectedItem);
+    openDrawer();
   };
 
   const onInfoClick = () => {
@@ -112,7 +113,12 @@ export default function Home() {
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
-          <Map center={center} bounds={bounds} />
+          <Map
+            bounds={bounds}
+            filteredItems={filteredItems}
+            handleListItemClick={handleListItemClick}
+            lang={lang}
+          />
         </main>
 
         {isDrawerOpen && dataSetInfo && (
