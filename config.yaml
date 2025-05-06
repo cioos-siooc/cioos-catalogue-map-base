@@ -25,3 +25,11 @@ logos:
   main_light: "/Images/OGSL_NoTag.png"
   main_dark: "/Images/OGSL_NoTag_White.png"
   favicon: "/images/favicon.ico"
+
+logo_default:
+  - "/images/cioos-national_EN.svg"
+
+logos_list:
+  - "/images/RQM_LogoCoul-2.png"
+  - "/images/RQM_LogoBlanc.png"
+
