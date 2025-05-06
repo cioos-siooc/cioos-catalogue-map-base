@@ -132,31 +132,30 @@ function TimeFilter({ lang, setBadges }) {
           {t.filter_by} {t.time}
         </ModalHeader>
         <ModalBody className="overflow-visible flex flex-col gap-2">
-          <div className="flex flex-row items-center">
-            <div className="w-1/10 text-right pr-2">{t.from}</div>
+          <div className="flex flex-row items-center gap-2">
             <Datepicker
               language={`${lang}-CA`}
-              className="w-full"
+              className="w-1/2"
               onChange={(date) => setStartDate(date.value)}
+              value={null}
               selected={startDate}
-              maxDate={endDate}
+              maxDate={endDate || new Date()}
               labelTodayButton={t.today}
               labelClearButton={t.clear}
-              placeholder="Minimum date"
+              placeholder={t.start_date}
             />
-          </div>
-          <div className="flex flex-row items-center">
-            <div className="w-1/10 text-right pr-2">{t.to}</div>
+            <div>{t.to}</div>
             <Datepicker
-              className="w-full"
+              className="w-1/2"
               language={`${lang}-CA`}
               onChange={(date) => setEndDate(date.value)}
+              value={null}
               selected={endDate}
               minDate={startDate} // Disable dates before the start date
               maxDate={new Date()} // Disable future dates
               labelTodayButton={t.today}
               labelClearButton={t.clear}
-              placeholder="Maximum date"
+              placeholder={t.end_date}
             />
           </div>
         </ModalBody>
