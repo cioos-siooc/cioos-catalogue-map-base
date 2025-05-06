@@ -51,8 +51,7 @@ const ClearMap = ({ map }) => {
   return null;
 };
 
-function getDatasetMarker(record, handleListItemClick, lang) {
-  const { openDrawer } = useContext(DrawerContext);
+function getDatasetMarker(record, handleListItemClick, lang, openDrawer) {
   let point = turf.centerOfMass(record.spatial);
   // verify if point within the polygon
   const isPointInPolygon = turf.booleanPointInPolygon(point, record.spatial);
@@ -118,9 +117,11 @@ function getDatasetMarker(record, handleListItemClick, lang) {
 }
 
 function Map({ bounds, filteredItems, handleListItemClick, lang }) {
+  const { openDrawer } = useContext(DrawerContext);
+
   // get the centroid of each filteredItem.spatial which is a geojson and add as a marker and add makers as a cluster on the map
   const markers = filteredItems.map((item) => {
-    return getDatasetMarker(item, handleListItemClick, lang);
+    return getDatasetMarker(item, handleListItemClick, lang, openDrawer);
   });
 
   return (
