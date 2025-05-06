@@ -89,8 +89,8 @@ export function SearchFilter({ lang, setBadges }) {
 
 function TimeFilter({ lang, setBadges }) {
   const [openModal, setOpenModal] = useState(false);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const t = getLocale(lang);
 
   function onCloseModal() {
@@ -138,7 +138,7 @@ function TimeFilter({ lang, setBadges }) {
               language={`${lang}-CA`}
               className="w-1/2"
               onChange={(date) => setStartDate(date.value)}
-              value={null}
+              value={startDate}
               selected={startDate}
               maxDate={endDate || new Date()}
               labelTodayButton={t.today}
@@ -150,7 +150,7 @@ function TimeFilter({ lang, setBadges }) {
               className="w-1/2"
               language={`${lang}-CA`}
               onChange={(date) => setEndDate(date.value)}
-              value={null}
+              value={endDate}
               selected={endDate}
               minDate={startDate} // Disable dates before the start date
               maxDate={new Date()} // Disable future dates
