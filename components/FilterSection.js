@@ -125,7 +125,7 @@ function TimeFilter({ lang, setBadges }) {
         </ModalHeader>
         <ModalBody>
           <div className="flex flex-row mb-2 text-sm text-gray-500 dark:text-gray-400">
-            From:
+            {t.from}:
             <Datepicker
               id="date-filter-start"
               label={t.start_date}
@@ -135,7 +135,7 @@ function TimeFilter({ lang, setBadges }) {
             />
           </div>
           <div className="flex flex-row mb-2 text-sm text-gray-500 dark:text-gray-400">
-            To:
+            {t.to}:
             <Datepicker
               id="date-filter-end"
               label={t.end_date}

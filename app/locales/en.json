@@ -14,5 +14,7 @@
   "load_datasets": "Load datasets",
   "no_datasets": "No datasets found",
   "start_date": "Start date",
-  "end_date": "End date"
+  "end_date": "End date",
+  "from": "From",
+  "to": "To",
 }
