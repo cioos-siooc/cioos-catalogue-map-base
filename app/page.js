@@ -4,8 +4,8 @@ import { useState, useContext, useEffect } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import { DrawerContext } from "../app/context/DrawerContext";
-import Map from "@/components/Map";
-
+// import Map from "@/components/Map";
+import dynamic from "next/dynamic";
 import config from "./config";
 
 export default function Home() {
@@ -22,6 +22,8 @@ export default function Home() {
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
   const [badgeCount, setBadgeCount] = useState(0);
   const [inputValue, setInputValue] = useState("");
+
+  const Map = dynamic(() => import("@/components/Map"), { ssr: false });
 
   const catalogueUrl = config.catalogue_url;
   let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
