@@ -13,6 +13,11 @@ export default function Home() {
   const [lang, setLang] = useState(config.default_language);
   const [loading, setLoading] = useState(true);
 
+  const handleDrawBox = (boxBounds) => {
+    // Convert Leaflet bounds to GeoJSON
+    console.log("Box bounds:", boxBounds);
+  };
+
   const [dataSetInfo, setDatasetInfo] = useState(null);
   const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
 
@@ -118,6 +123,7 @@ export default function Home() {
             filteredItems={filteredItems}
             handleListItemClick={handleListItemClick}
             lang={lang}
+            onDrawBox={handleDrawBox}
           />
         </main>
 

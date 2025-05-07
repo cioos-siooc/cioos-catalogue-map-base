@@ -2,13 +2,17 @@
 
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-markercluster/styles";
+import "leaflet-draw/dist/leaflet.draw.css";
+
 import { MapContainer, TileLayer, useMap, Tooltip } from "react-leaflet";
 import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import * as turf from "@turf/turf";
 import { DrawerContext } from "../app/context/DrawerContext";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import L from "leaflet";
+import "leaflet-draw";
+
 import config from "@/app/config";
 
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -21,22 +25,25 @@ function getPrimaryColor() {
   return primaryColor;
 }
 
-const FitBounds = ({ bounds }) => {
+function FitBounds({ bounds }) {
   const map = useMap();
-  if (bounds) {
-    ClearMap({ map });
-    var polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(map);
 
-    map.flyToBounds(polygon.getBounds(), {
-      animate: true,
-      padding: [50, 50],
-      maxZoom: 10,
-      duration: 0.3,
-    });
-  }
+  useEffect(() => {
+    if (bounds) {
+      ClearMap({ map });
+      var polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(map);
+
+      map.flyToBounds(polygon.getBounds(), {
+        animate: true,
+        padding: [50, 50],
+        maxZoom: 10,
+        duration: 0.3,
+      });
+    }
+  }, [bounds, map]);
 
   return null;
-};
+}
 
 const ClearMap = ({ map }) => {
   map.eachLayer((layer) => {
@@ -53,7 +60,6 @@ const ClearMap = ({ map }) => {
 
 function getDatasetMarker(record, handleListItemClick, lang, openDrawer) {
   let point = turf.centerOfMass(record.spatial);
-  // verify if point within the polygon
   const isPointInPolygon = turf.booleanPointInPolygon(point, record.spatial);
   if (!isPointInPolygon) {
     point = turf.pointOnFeature(record.spatial);
@@ -116,13 +122,44 @@ function getDatasetMarker(record, handleListItemClick, lang, openDrawer) {
   );
 }
 
-function Map({ bounds, filteredItems, handleListItemClick, lang }) {
+function AddDrawControl({ onDrawBox }) {
+  const map = useMap(); // Access the existing map instance
+
+  useEffect(() => {
+    // Add Leaflet Draw control
+    const drawControl = new L.Control.Draw({
+      draw: {
+        polyline: false,
+        polygon: false,
+        circle: false,
+        marker: false,
+        circlemarker: false,
+        rectangle: true, // Enable rectangle drawing
+      },
+    });
+    map.addControl(drawControl);
+
+    // Listen for the draw:created event
+    map.on("draw:created", (e) => {
+      const layer = e.layer;
+      const bounds = layer.getBounds(); // Get the bounds of the drawn rectangle
+      onDrawBox(bounds); // Pass the bounds to the parent component
+    });
+
+    return () => {
+      map.off("draw:created"); // Clean up event listener
+    };
+  }, [map, onDrawBox]);
+
+  return null;
+}
+
+function Map({ bounds, filteredItems, handleListItemClick, lang, onDrawBox }) {
   const { openDrawer } = useContext(DrawerContext);
 
-  // get the centroid of each filteredItem.spatial which is a geojson and add as a marker and add makers as a cluster on the map
-  const markers = filteredItems.map((item) => {
-    return getDatasetMarker(item, handleListItemClick, lang, openDrawer);
-  });
+  const markers = filteredItems.map((item) =>
+    getDatasetMarker(item, handleListItemClick, lang, openDrawer),
+  );
 
   return (
     <div id="container" className="h-full w-full">
@@ -136,6 +173,7 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {bounds && <FitBounds bounds={bounds} />}
         <MarkerClusterGroup>{markers}</MarkerClusterGroup>
+        <AddDrawControl onDrawBox={onDrawBox} />
       </MapContainer>
     </div>
   );
