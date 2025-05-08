@@ -22,36 +22,61 @@ function getPrimaryColor() {
   return primaryColor;
 }
 
-// Memoize the FitBounds component to prevent re-renders
-const FitBounds = memo(({ bounds }) => {
+// Enhanced FitBounds component to display selected polygon
+const FitBounds = memo(({ bounds, selectedDataset }) => {
   const map = useMap();
   const currentBoundsRef = useRef(null);
+  const polygonRef = useRef(null);
 
   useEffect(() => {
+    // Clear any existing polygons first
+    if (polygonRef.current) {
+      map.removeLayer(polygonRef.current);
+      polygonRef.current = null;
+    }
+
+    // Check if bounds have changed or if we have a selected dataset
     if (
-      bounds &&
-      JSON.stringify(bounds) !== JSON.stringify(currentBoundsRef.current)
+      (bounds &&
+        JSON.stringify(bounds) !== JSON.stringify(currentBoundsRef.current)) ||
+      selectedDataset
     ) {
-      // Only update if bounds have changed
+      // Update the current bounds
       currentBoundsRef.current = bounds;
 
       // Clear existing polygons
       map.eachLayer((layer) => {
-        if (layer instanceof L.Polygon) {
+        if (layer instanceof L.Polygon && layer !== polygonRef.current) {
           map.removeLayer(layer);
         }
       });
 
-      var polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(map);
+      // Use the selected dataset's spatial data or the bounds
+      const geoJsonData = selectedDataset?.spatial || bounds;
 
-      map.flyToBounds(polygon.getBounds(), {
-        animate: true,
-        padding: [50, 50],
-        maxZoom: 10,
-        duration: 0.3,
-      });
+      if (geoJsonData) {
+        // Create and style the polygon
+        polygonRef.current = L.geoJSON(geoJsonData, {
+          style: {
+            color: getPrimaryColor(),
+            weight: 3,
+            opacity: 0.8,
+            fillColor: getPrimaryColor(),
+            fillOpacity: 0.3,
+            dashArray: "5, 5",
+          },
+        }).addTo(map);
+
+        // Fly to the polygon bounds
+        map.flyToBounds(polygonRef.current.getBounds(), {
+          animate: true,
+          padding: [50, 50],
+          maxZoom: 10,
+          duration: 0.3,
+        });
+      }
     }
-  }, [bounds, map]);
+  }, [bounds, map, selectedDataset]);
 
   return null;
 });
@@ -173,6 +198,13 @@ const Map = memo(function Map({
   lang,
 }) {
   const { openDrawer } = useContext(DrawerContext);
+  const [selectedDataset, setSelectedDataset] = useState(null);
+
+  // Enhanced handleListItemClick to also set the selected dataset
+  const handleMapItemClick = (record) => {
+    setSelectedDataset(record); // Store the selected dataset
+    handleListItemClick(record); // Call the original handler
+  };
 
   return (
     <div id="container" className="h-full w-full">
@@ -186,10 +218,10 @@ const Map = memo(function Map({
         key={false}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        {bounds && <FitBounds bounds={bounds} />}
+        <FitBounds bounds={bounds} selectedDataset={selectedDataset} />
         <MarkerLayer
           filteredItems={filteredItems}
-          handleListItemClick={handleListItemClick}
+          handleListItemClick={handleMapItemClick}
           lang={lang}
           openDrawer={openDrawer}
         />
