@@ -30,7 +30,11 @@ logos:
   main_dark: "/Images/OGSL_NoTag_White.png"
   favicon: "/images/favicon.ico"
 
-logo_default:
+bottom_logo:
   en: "/Images/cioos-national_EN-01.png"
   fr: "/Images/cioos-national_FR-01.png"
+
+bottom_logo_dark:
+  en: "/Images/cioos-national_EN_W.svg"
+  fr: "/Images/cioos-national_FR_W.svg"
 

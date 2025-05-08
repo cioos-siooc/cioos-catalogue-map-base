@@ -142,9 +142,8 @@ export function Sidebar({
             />
           </div>
           <ModalAPropos lang={lang} />
-          <div>
-            <Logo lang={lang} />
-          </div>
+
+          <Logo lang={lang} />
         </div>
       </aside>
     </div>
