@@ -141,7 +141,7 @@ export function Sidebar({
               total={totalResultsCount}
             />
           </div>
-          <ModalAPropos />
+          <ModalAPropos lang={lang} />
           <div>
             <Logo lang={lang} />
           </div>
