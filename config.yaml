@@ -31,10 +31,10 @@ logos:
   favicon: "/images/favicon.ico"
 
 bottom_logo:
-  en: "/Images/cioos-national_EN-01.png"
-  fr: "/Images/cioos-national_FR-01.png"
-
-bottom_logo_dark:
-  en: "/Images/cioos-national_EN_W.svg"
-  fr: "/Images/cioos-national_FR_W.svg"
+  light:
+    en: "/Images/cioos-national_EN-01.png"
+    fr: "/Images/cioos-national_FR-01.png"
+  dark:
+    en: "/Images/cioos-national_EN_W.svg"
+    fr: "/Images/cioos-national_FR_W.svg"
 
