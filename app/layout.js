@@ -4,11 +4,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import config from "./config.js";
 import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import dynamic from "next/dynamic";
 import React from "react";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -21,8 +22,19 @@ const geistMono = Geist_Mono({
 
 const metadata = config.metadata.fr;
 
+// Import map with dynamic import (no ssr) and memoization
+const MapComponent = dynamic(() => import("@/components/Map"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full w-full flex items-center justify-center bg-gray-200">
+      <p className="text-gray-500">Loading map...</p>
+    </div>
+  ),
+});
+
 // Create a component that uses the drawer context
 function AppContent() {
+  // State management with stable references
   const [bounds, setBounds] = useState(null);
   const [lang, setLang] = useState(config.default_language);
   const [loading, setLoading] = useState(true);
@@ -35,10 +47,17 @@ function AppContent() {
   const [badgeCount, setBadgeCount] = useState(0);
   const [inputValue, setInputValue] = useState("");
 
-  const Map = dynamic(() => import("@/components/Map"), { ssr: false });
-
   const catalogueUrl = config.catalogue_url;
   let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
+
+  // Memoize the fetch URL to avoid recalculation
+  const fetchURL = useMemo(() => {
+    let url = `${urlCustomSearch}${config.base_query}`;
+    if (fetchURLFilter) {
+      url += `%20AND%20${fetchURLFilter}`;
+    }
+    return url + `&rows=1000`;
+  }, [urlCustomSearch, fetchURLFilter]);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
@@ -54,58 +73,53 @@ function AppContent() {
     }
   }, [lang]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(initFetchURL());
-        if (!response.ok) {
-          throw new Error("There was an error fetching the data from CKAN API");
-        }
-        const awaitRes = await response.json();
-        initFetchResults(awaitRes);
-      } catch (error) {
-        console.error(error.message);
-      } finally {
-        setLoading(false);
+  // Use callback for fetching data
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(fetchURL);
+      if (!response.ok) {
+        throw new Error("There was an error fetching the data from CKAN API");
       }
-    };
+      const awaitRes = await response.json();
+
+      setFilteredItems(awaitRes.result.results);
+      setInputValue("");
+      if (fetchURLFilter) {
+        setFilteredResultsCount(awaitRes.result.results.length);
+      } else {
+        setTotalResultsCount(awaitRes.result.results.length);
+      }
+      if (badgeCount === 0) {
+        setFilteredResultsCount(0);
+      }
+    } catch (error) {
+      console.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchURL, fetchURLFilter, badgeCount]);
+
+  useEffect(() => {
     fetchData();
-  }, [fetchURLFilter]);
-
-  function initFetchResults(awaitRes) {
-    setFilteredItems(awaitRes.result.results);
-    setInputValue("");
-    if (fetchURLFilter) {
-      setFilteredResultsCount(awaitRes.result.results.length);
-    } else {
-      setTotalResultsCount(awaitRes.result.results.length);
-    }
-    if (badgeCount === 0) {
-      setFilteredResultsCount(0);
-    }
-  }
-
-  function initFetchURL() {
-    let url = `${urlCustomSearch}${config.base_query}`;
-    if (fetchURLFilter) {
-      url += `%20AND%20${fetchURLFilter}`;
-    }
-    return url + `&rows=1000`;
-  }
+  }, [fetchData]);
 
   // Import the useDrawer hook to get drawer state and methods
   const { isDrawerOpen, openDrawer } = useDrawer();
 
-  const handleListItemClick = (selectedItem) => {
-    setBounds(selectedItem.spatial);
-    setDatasetInfo(selectedItem);
-    openDrawer();
-  };
+  // Memoize callbacks to prevent re-renders
+  const handleListItemClick = useCallback(
+    (selectedItem) => {
+      setBounds(selectedItem.spatial);
+      setDatasetInfo(selectedItem);
+      openDrawer();
+    },
+    [openDrawer],
+  );
 
-  const onInfoClick = () => {
+  const onInfoClick = useCallback(() => {
     setShowModal(true);
-  };
+  }, []);
 
   return (
     <div className="h-screen flex flex-col">
@@ -128,7 +142,7 @@ function AppContent() {
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
-          <Map
+          <MapComponent
             bounds={bounds}
             filteredItems={filteredItems}
             handleListItemClick={handleListItemClick}
