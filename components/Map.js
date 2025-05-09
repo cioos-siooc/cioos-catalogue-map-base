@@ -170,7 +170,7 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
         <LayersControl position="bottomleft">
           <BaseLayers basemaps={config.basemaps} lang={lang} />
           {bounds && <FitBounds bounds={bounds} />}
-          <Overlay checked name={t.datasets_markers}>
+          <Overlay checked name={t.dataset_markers}>
             <MarkerClusterGroup>
               {filteredItems.map((item) => (
                 <DatasetMarker

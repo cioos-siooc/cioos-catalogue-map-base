@@ -13,6 +13,6 @@
   "citation": "Citation",
   "load_datasets": "Chargement des jeux de données",
   "no_datasets": "Aucun jeu de données trouvé",
-  "datasets_markers": "Marqueurs de jeux de données",
+  "dataset_markers": "Marqueurs de jeu de données",
   "about": "À Propos"
 }
