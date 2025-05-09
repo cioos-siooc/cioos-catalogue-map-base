@@ -1,16 +1,23 @@
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import config from "@/app/config.js";
 
-const isDarkMode = () => {
-  if (typeof window !== "undefined") {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  }
-  return false; // Default to light mode if window is undefined
-};
-
 const Logo = ({ logos, lang, default_width }) => {
+  const [darkMode, setDarkMode] = useState(false); // Default to light mode
   const language = lang || config.default_language; // Default to config's default language
-  const darkMode = isDarkMode();
+
+  useEffect(() => {
+    // Detect dark mode on the client side
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setDarkMode(mediaQuery.matches);
+
+    const handleChange = (e) => setDarkMode(e.matches);
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
 
   // Find the matching logo based on language and mode
   const matchingLogo = logos.find(
@@ -30,7 +37,7 @@ const Logo = ({ logos, lang, default_width }) => {
           src={logoURL}
           alt={logoAlt}
           className="h-auto"
-          width={matchingLogo.width || default_width}
+          width={matchingLogo?.width || default_width}
           height={0}
         />
       )}
