@@ -18,9 +18,6 @@ import L from "leaflet";
 import config from "@/app/config";
 import { getLocale } from "@/app/get-locale";
 
-import icon from "leaflet/dist/images/marker-icon.png";
-import iconShadow from "leaflet/dist/images/marker-shadow.png";
-
 const { BaseLayer, Overlay } = LayersControl;
 
 // Utility functions
@@ -38,16 +35,6 @@ const clearMapLayers = (map) => {
     }
   });
 };
-
-const defaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  shadowSize: [41, 41],
-  iconAnchor: [12, 41],
-  shadowAnchor: [12, 41],
-  popupAnchor: [1, -34],
-});
 
 // Map components
 const FitBounds = ({ bounds }) => {
@@ -115,7 +102,6 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
     <Marker
       key={record.id}
       position={[point.geometry.coordinates[1], point.geometry.coordinates[0]]}
-      icon={defaultIcon}
       eventHandlers={{
         click: handleMarkerClick,
         mouseover: handleMouseOver,
