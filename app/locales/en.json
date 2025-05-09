@@ -13,5 +13,6 @@
   "citation": "Citation",
   "load_datasets": "Load datasets",
   "no_datasets": "No datasets found",
-  "datasets_markers": "Datasets markers"
+  "datasets_markers": "Datasets markers",
+  "hexagon_heatmap": "Hexagon heatmap"
 }
