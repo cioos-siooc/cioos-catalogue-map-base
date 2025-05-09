@@ -143,7 +143,7 @@ export function Sidebar({
           </div>
           <ModalAPropos lang={lang} />
 
-          <Logo lang={lang} />
+          <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
         </div>
       </aside>
     </div>

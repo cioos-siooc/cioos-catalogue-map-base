@@ -31,13 +31,23 @@ logos:
   favicon: "/images/favicon.ico"
 
 bottom_logo:
-  light:
-    en: "/Images/cioos-national_EN-01.png"
-    fr: "/Images/cioos-national_FR-01.png"
-  dark:
-    en: "/Images/cioos-national_EN_W.svg"
-    fr: "/Images/cioos-national_FR_W.svg"
-
+  - url: "/Images/cioos-national_EN-01.png"
+    lang: en
+    mode: light
+    alt: "CIOOS National"
+  - url: "/Images/cioos-national_FR-01.png"
+    lang: fr
+    mode: light
+    alt: "CIOOS National"
+  - url: "/Images/cioos-national_EN_W.svg"
+    lang: en
+    mode: dark
+    alt: "CIOOS National"
+  - url: "/Images/cioos-national_FR_W.svg"
+    lang: fr
+    mode: dark
+    alt: "CIOOS National"
+    
 basemaps:
   - name:
       fr: "Bathymétrie"
