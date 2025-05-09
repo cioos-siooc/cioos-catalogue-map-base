@@ -27,6 +27,19 @@ theme:
 
 favicon: "/images/favicon.ico"
 
+# Logo configuration
+# You can define:
+# - `url`: The file path or URL to the logo image.
+# - `mode`: Specifies the theme mode (e.g., "light" or "dark") in which the
+#           logo should be displayed.
+# - `alt`: The alternative text for the logo, used for accessibility and
+#          when the image cannot be displayed.
+# - `className`: A custom CSS class to replace the default class
+#                (default, "h-auto").
+# - `width`: The width of the logo in pixels or percentage.
+
+# main_logo: This logo is typically used as the main branding 
+#           element in the application.
 main_logo:
   - url: "/Images/OGSL_NoTag.png"
     mode: light
@@ -35,6 +48,8 @@ main_logo:
     mode: dark
     alt: "OGSL"
 
+# bottom_logo: Specifies the footer or secondary logo,
+#  often used for additional branding or partner logos.
 bottom_logo:
   - url: "/Images/cioos-national_EN-01.png"
     lang: en
@@ -52,7 +67,7 @@ bottom_logo:
     lang: fr
     mode: dark
     alt: "CIOOS National"
-    
+
 basemaps:
   - name:
       fr: "Bathymétrie"
