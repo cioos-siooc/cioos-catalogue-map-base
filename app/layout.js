@@ -7,6 +7,7 @@ import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
+import Logo from "@/components/Logo";
 import dynamic from "next/dynamic";
 import React from "react";
 
@@ -152,6 +153,9 @@ function AppContent() {
         {isDrawerOpen && dataSetInfo && (
           <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
+        <div className="absolute bottom-0 right-0 z-60 flex items-center justify-center pb-10 pr-4 md:hidden">
+          <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
+        </div>
       </div>
     </div>
   );
