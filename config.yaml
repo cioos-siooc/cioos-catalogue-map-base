@@ -29,3 +29,16 @@ logos:
   main_light: "/Images/OGSL_NoTag.png"
   main_dark: "/Images/OGSL_NoTag_White.png"
   favicon: "/images/favicon.ico"
+
+basemaps:
+  - name:
+      fr: "Bathymétrie"
+      en: "Bathymetry"
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
+    attribution: "Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri"
+    checked: true
+  - name:
+      fr: "Satellite"
+      en: "Satellite"
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+    attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"

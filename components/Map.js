@@ -2,7 +2,13 @@
 
 import "leaflet/dist/leaflet.css";
 import "react-leaflet-markercluster/styles";
-import { MapContainer, TileLayer, useMap, Tooltip } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  useMap,
+  Tooltip,
+  LayersControl,
+} from "react-leaflet";
 import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import * as turf from "@turf/turf";
@@ -10,9 +16,12 @@ import { DrawerContext } from "../app/context/DrawerContext";
 import { useContext } from "react";
 import L from "leaflet";
 import config from "@/app/config";
+import { getLocale } from "@/app/get-locale";
 
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
+const { BaseLayer, Overlay } = LayersControl;
 
 function getPrimaryColor() {
   const primaryColor = getComputedStyle(document.documentElement)
@@ -118,6 +127,7 @@ function getDatasetMarker(record, handleListItemClick, lang, openDrawer) {
 
 function Map({ bounds, filteredItems, handleListItemClick, lang }) {
   const { openDrawer } = useContext(DrawerContext);
+  const t = getLocale(lang);
 
   // get the centroid of each filteredItem.spatial which is a geojson and add as a marker and add makers as a cluster on the map
   const markers = filteredItems.map((item) => {
@@ -133,9 +143,21 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
         scrollWheelZoom={true}
         boundsOptions={{ padding: [1, 1] }}
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        {bounds && <FitBounds bounds={bounds} />}
-        <MarkerClusterGroup>{markers}</MarkerClusterGroup>
+        <LayersControl position="bottomleft">
+          {config.basemaps.map((layer) => (
+            <BaseLayer
+              key={layer.name}
+              checked={layer.checked || false}
+              name={layer.name[lang]}
+            >
+              <TileLayer url={layer.url} attribution={layer.attribution} />
+            </BaseLayer>
+          ))}
+          {bounds && <FitBounds bounds={bounds} />}
+          <Overlay checked name={t.datasets_markers}>
+            <MarkerClusterGroup>{markers}</MarkerClusterGroup>
+          </Overlay>
+        </LayersControl>
       </MapContainer>
     </div>
   );
