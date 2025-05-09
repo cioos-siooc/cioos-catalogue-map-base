@@ -9,23 +9,26 @@
     "lint": "next lint",
     "postinstall": "flowbite-react patch",
     "export": "next build && next export",
-    "prepare": "husky",
-    "precommit": "lint-staged"
+    "prepare": "husky && husky install"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write"
+    "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write",
+    "*.js": "eslint --cache --fix"
   },
   "dependencies": {
     "@react-leaflet/core": "^3.0.0",
+    "@turf/turf": "^7.2.0",
     "chroma-js": "^3.1.2",
     "citation-js": "^0.7.18",
+    "dompurify": "^3.2.5",
     "flowbite-react": "^0.11.5",
     "leaflet": "^1.9.4",
     "next": "^15.2.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
-    "react-leaflet": "^5.0.0"
+    "react-leaflet": "^5.0.0",
+    "react-leaflet-markercluster": "^5.0.0-rc.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -7,6 +7,7 @@ import ModalAPropos from "@/components/ModalAPropos";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
+import Logo from "./Logo";
 
 const basePath = process.env.BASE_PATH || "";
 
@@ -50,7 +51,7 @@ export function Sidebar({
   const generateQueryString = (badges) => {
     return Object.entries(badges)
       .map(([filterType, value]) =>
-        filterType === "search" ? `${value}` : `${filterType}=${value}`
+        filterType === "search" ? `${value}` : `${filterType}=${value}`,
       )
       .join("%20AND%20");
   };
@@ -61,7 +62,7 @@ export function Sidebar({
     console.log("Query String :: " + queryString);
     setFetchURLFilter(`${queryString}`);
     setBadgeCount(Object.keys(badges).length);
-  }, [badges]); // Re-run whenever badges change
+  }, [badges, setBadgeCount, setFetchURLFilter]); // Re-run whenever badges change
 
   return (
     <div id="sidebar">
@@ -140,7 +141,9 @@ export function Sidebar({
               total={totalResultsCount}
             />
           </div>
-          <ModalAPropos />
+          <ModalAPropos lang={lang} />
+
+          <Logo lang={lang} />
         </div>
       </aside>
     </div>
