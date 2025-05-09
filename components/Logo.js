@@ -36,7 +36,7 @@ const Logo = ({ logos, lang, default_width }) => {
         <Image
           src={logoURL}
           alt={logoAlt}
-          className="h-auto"
+          className={matchingLogo?.className || "h-auto"}
           width={matchingLogo?.width || default_width}
           height={0}
         />
