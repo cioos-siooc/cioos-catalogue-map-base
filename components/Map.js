@@ -131,7 +131,12 @@ const BaseLayers = ({ basemaps, lang }) => (
         checked={layer.checked || false}
         name={layer.name[lang]}
       >
-        <TileLayer url={layer.url} attribution={layer.attribution} />
+        <TileLayer
+          url={layer.url}
+          attribution={layer.attribution}
+          minZoom={layer.minZoom || 0}
+          maxZoom={layer.maxZoom || 10}
+        />
       </BaseLayer>
     ))}
   </>
