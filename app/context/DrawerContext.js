@@ -1,26 +1,27 @@
 // context/DrawerContext.js
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useState, useContext } from "react";
 
-export const DrawerContext = createContext();
+export const DrawerContext = createContext({
+  isDrawerOpen: false,
+  openDrawer: () => {},
+  closeDrawer: () => {},
+  toggleDrawer: () => {},
+});
 
-export const DrawerProvider = ({ children }) => {
+export function DrawerProvider({ children }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const openDrawer = () => setIsDrawerOpen(true);
   const closeDrawer = () => setIsDrawerOpen(false);
+  const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
+
+  const value = { isDrawerOpen, openDrawer, closeDrawer, toggleDrawer };
 
   return (
-    <DrawerContext.Provider value={{ isDrawerOpen, openDrawer, closeDrawer }}>
-      {children}
-    </DrawerContext.Provider>
+    <DrawerContext.Provider value={value}>{children}</DrawerContext.Provider>
   );
-};
+}
 
 export const useDrawer = () => useContext(DrawerContext);
-
-
-
-
-
