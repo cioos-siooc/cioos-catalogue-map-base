@@ -73,7 +73,7 @@ export function Sidebar({
       >
         <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
           <div className="flex items-center justify-between ps-2.5 mb-5">
-            <div>
+            <div id="title" className="flex flex-col align-left">
               <Logo logos={config.main_logo} lang={lang} default_width={120} />
               <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">
                 {config.title[lang]}

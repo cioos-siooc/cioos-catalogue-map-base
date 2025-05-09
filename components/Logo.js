@@ -31,7 +31,7 @@ const Logo = ({ logos, lang, default_width }) => {
   const logoAlt = matchingLogo ? matchingLogo.alt : "Default Logo";
 
   return (
-    <div className="flex flex-col items-center justify-center m-2">
+    <>
       {logoURL && (
         <Image
           src={logoURL}
@@ -41,7 +41,7 @@ const Logo = ({ logos, lang, default_width }) => {
           height={0}
         />
       )}
-    </div>
+    </>
   );
 };
 
