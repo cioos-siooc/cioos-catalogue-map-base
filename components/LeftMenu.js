@@ -129,8 +129,9 @@ export function Sidebar({
             />
           </div>
           <ModalAPropos lang={lang} />
-
-          <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
+          <div className="flex items-center justify-center mt-1">
+            <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
+          </div>
         </div>
       </aside>
     </div>
