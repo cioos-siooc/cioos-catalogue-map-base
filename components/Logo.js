@@ -9,22 +9,22 @@ const Logo = (lang) => {
 
   return (
     <div>
-      <div className="relative ml-15 w-32 h-32 md:w-16 md:h-16 lg:w-48 lg:h-16">
+      <div className="flex flex-col items-center justify-center m-2">
         {config.bottom_logo && (
           <>
             <Image
               src={`${basePath}${logoLightURL}`}
               className="h-auto dark:hidden"
-              alt="CIOOS Logo"
-              fill="true"
-              object-fit="contain"
+              alt="Base logo"
+              width={220}
+              height={0}
             />
             <Image
               src={`${basePath}${logoDarkURL}`}
               className="h-auto hidden dark:block"
-              alt="CIOOS Logo dark"
-              fill="true"
-              object-fit="contain"
+              alt="Base logo"
+              width={220}
+              height={30}
             />
           </>
         )}
