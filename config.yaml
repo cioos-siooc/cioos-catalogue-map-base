@@ -28,6 +28,8 @@ theme:
 favicon: "/images/favicon.ico"
 
 # Logo configuration
+# Logos Configuration
+# ==========================
 # You can define:
 # - `url`: The file path or URL to the logo image.
 # - `mode`: Specifies the theme mode (e.g., "light" or "dark") in which the
