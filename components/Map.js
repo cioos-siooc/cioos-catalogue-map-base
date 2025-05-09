@@ -49,22 +49,25 @@ const defaultIcon = L.icon({
   popupAnchor: [1, -34],
 });
 
-
 // Map components
 const FitBounds = ({ bounds }) => {
   const map = useMap();
 
-  if (bounds) {
-    clearMapLayers(map);
-    var polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(map);
+  useEffect(() => {
+    if (bounds) {
+      clearMapLayers(map);
+      const polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(
+        map,
+      );
 
-    map.flyToBounds(polygon.getBounds(), {
-      animate: true,
-      padding: [50, 50],
-      maxZoom: 10,
-      duration: 0.3,
-    });
-  }
+      map.flyToBounds(polygon.getBounds(), {
+        animate: true,
+        padding: [50, 50],
+        maxZoom: 10,
+        duration: 0.3,
+      });
+    }
+  }, [bounds, map]); // Run effect when bounds or map changes
 
   return null;
 };
@@ -184,6 +187,6 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
       </MapContainer>
     </div>
   );
-});
+}
 
 export default Map;
