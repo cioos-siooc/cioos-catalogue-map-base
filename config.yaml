@@ -25,10 +25,15 @@ theme:
   primary_color: "#3b82f6"
   accent_color: "#F6AF3B"
 
-logos:
-  main_light: "/Images/OGSL_NoTag.png"
-  main_dark: "/Images/OGSL_NoTag_White.png"
-  favicon: "/images/favicon.ico"
+favicon: "/images/favicon.ico"
+
+main_logo:
+  - url: "/Images/OGSL_NoTag.png"
+    mode: light
+    alt: "OGSL"
+  - url: "/Images/OGSL_NoTag_White.png"
+    mode: dark
+    alt: "OGSL"
 
 bottom_logo:
   - url: "/Images/cioos-national_EN-01.png"
