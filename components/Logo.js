@@ -24,8 +24,11 @@ const Logo = ({ logos, lang, default_width, force_mode }) => {
     }
   }, [force_mode]);
 
+  // Handle undefined logos
+  const availableLogos = logos || config.bottom_logo || [];
+
   // Find the matching logo based on language and mode
-  const matchingLogo = logos.find(
+  const matchingLogo = availableLogos.find(
     (logo) =>
       (logo.lang === language || !logo.lang) &&
       ((force_mode ? force_mode === "dark" : darkMode)
@@ -34,7 +37,7 @@ const Logo = ({ logos, lang, default_width, force_mode }) => {
   );
 
   // Fallback to the first logo if no match is found
-  const logoURL = matchingLogo ? matchingLogo.url : config.bottom_logo[0]?.url;
+  const logoURL = matchingLogo ? matchingLogo.url : availableLogos[0]?.url;
   const logoAlt = matchingLogo ? matchingLogo.alt : "Default Logo";
 
   return (
