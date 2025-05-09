@@ -29,3 +29,12 @@ logos:
   main_light: "/Images/OGSL_NoTag.png"
   main_dark: "/Images/OGSL_NoTag_White.png"
   favicon: "/images/favicon.ico"
+
+bottom_logo:
+  light:
+    en: "/Images/cioos-national_EN-01.png"
+    fr: "/Images/cioos-national_FR-01.png"
+  dark:
+    en: "/Images/cioos-national_EN_W.svg"
+    fr: "/Images/cioos-national_FR_W.svg"
+

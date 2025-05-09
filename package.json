@@ -9,11 +9,11 @@
     "lint": "next lint",
     "postinstall": "flowbite-react patch",
     "export": "next build && next export",
-    "prepare": "husky",
-    "precommit": "lint-staged"
+    "prepare": "husky && husky install"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write"
+    "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write",
+    "*.js": "eslint --cache --fix"
   },
   "dependencies": {
     "@react-leaflet/core": "^3.0.0",
