@@ -135,7 +135,7 @@ const BaseLayers = ({ basemaps, lang }) => (
           url={layer.url}
           attribution={layer.attribution}
           minZoom={layer.minZoom || 0}
-          maxZoom={layer.maxZoom || 20}
+          maxZoom={layer.maxZoom || 10}
         />
       </BaseLayer>
     ))}
