@@ -13,7 +13,7 @@ import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import * as turf from "@turf/turf";
 import { DrawerContext } from "../app/context/DrawerContext";
-import { useContext } from "react";
+import { useContext, useState, useEffect, useRef, memo } from "react";
 import L from "leaflet";
 import config from "@/app/config";
 import { getLocale } from "@/app/get-locale";
@@ -48,6 +48,7 @@ const defaultIcon = L.icon({
   shadowAnchor: [12, 41],
   popupAnchor: [1, -34],
 });
+
 
 // Map components
 const FitBounds = ({ bounds }) => {
@@ -160,6 +161,8 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
         zoom={config.map.zoom}
         scrollWheelZoom={true}
         boundsOptions={{ padding: [1, 1] }}
+        // Adding key={false} to prevent re-mounting the entire map
+        key={false}
       >
         <LayersControl position="bottomleft">
           <BaseLayers basemaps={config.basemaps} lang={lang} />
@@ -181,6 +184,6 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
       </MapContainer>
     </div>
   );
-}
+});
 
 export default Map;
