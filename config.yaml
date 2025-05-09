@@ -25,18 +25,50 @@ theme:
   primary_color: "#3b82f6"
   accent_color: "#F6AF3B"
 
-logos:
-  main_light: "/Images/OGSL_NoTag.png"
-  main_dark: "/Images/OGSL_NoTag_White.png"
-  favicon: "/images/favicon.ico"
+favicon: "/images/favicon.ico"
 
+# Logo configuration
+# Logos Configuration
+# ==========================
+# You can define:
+# - `url`: The file path or URL to the logo image.
+# - `mode`: Specifies the theme mode (e.g., "light" or "dark") in which the
+#           logo should be displayed.
+# - `alt`: The alternative text for the logo, used for accessibility and
+#          when the image cannot be displayed.
+# - `className`: A custom CSS class to replace the default class
+#                (default, "h-auto").
+# - `width`: The width of the logo in pixels or percentage.
+
+# main_logo: This logo is typically used as the main branding 
+#           element in the application.
+main_logo:
+  - url: "/Images/OGSL_NoTag.png"
+    mode: light
+    alt: "OGSL"
+  - url: "/Images/OGSL_NoTag_White.png"
+    mode: dark
+    alt: "OGSL"
+
+# bottom_logo: Specifies the footer or secondary logo,
+#  often used for additional branding or partner logos.
 bottom_logo:
-  light:
-    en: "/Images/cioos-national_EN-01.png"
-    fr: "/Images/cioos-national_FR-01.png"
-  dark:
-    en: "/Images/cioos-national_EN_W.svg"
-    fr: "/Images/cioos-national_FR_W.svg"
+  - url: "/Images/cioos-national_EN-01.png"
+    lang: en
+    mode: light
+    alt: "CIOOS National"
+  - url: "/Images/cioos-national_FR-01.png"
+    lang: fr
+    mode: light
+    alt: "CIOOS National"
+  - url: "/Images/cioos-national_EN_W.svg"
+    lang: en
+    mode: dark
+    alt: "CIOOS National"
+  - url: "/Images/cioos-national_FR_W.svg"
+    lang: fr
+    mode: dark
+    alt: "CIOOS National"
 
 basemaps:
   - name:
@@ -46,6 +78,7 @@ basemaps:
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
     attribution: "Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri"
     checked: true
+    maxZoom: 10
   - name:
       fr: "Satellite"
       en: "Satellite"

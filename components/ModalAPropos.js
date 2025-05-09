@@ -18,8 +18,8 @@ export default function ModalAPropos(lang) {
   return (
     <>
       <Button
-        color="dark"
-        className="p-2 m-2"
+        outline
+        className="p-2 m-2 uppercase"
         onClick={() => setOpenModal(true)}
       >
         {t.about}
