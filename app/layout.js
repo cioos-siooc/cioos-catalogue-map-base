@@ -154,7 +154,12 @@ function AppContent() {
           <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
         <div className="absolute bottom-0 right-0 z-60 flex items-center justify-center pb-10 pr-4 md:hidden">
-          <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
+          <Logo
+            logos={config.bottom_logo}
+            lang={lang}
+            default_width={220}
+            force_mode={"dark"}
+          />
         </div>
       </div>
     </div>
