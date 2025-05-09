@@ -166,7 +166,7 @@ function useDrawer() {
   return context;
 }
 
-export default function RootLayout({ children }) {
+function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
@@ -180,3 +180,5 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+export default RootLayout;
