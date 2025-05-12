@@ -1,7 +1,7 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @plugin "flowbite-react/plugin/tailwindcss";
 @source "../.flowbite-react/class-list.json";
-@import './theme.css';
+@import "./theme.css";
 
 :root {
   --background: #ffffff;
@@ -36,4 +36,30 @@ body {
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+/* Leaflet Marker Clusters CSS */
+.marker-cluster-small {
+  background-color: var(--color-gray-200) !important;
+  color: var(--color-black) !important;
+}
+.marker-cluster-small div {
+  background-color: var(--color-gray-100) !important;
+  color: var(--color-black) !important;
+}
+.marker-cluster-medium {
+  background-color: var(--color-gray-500) !important;
+  color: var(--color-accent-50) !important;
+}
+.marker-cluster-medium div {
+  background-color: var(--color-gray-400) !important;
+  color: var(--color-accent-50) !important;
+}
+.marker-cluster-large {
+  background-color: var(--color-accent-500) !important;
+  color: var(--color-black) !important;
+}
+.marker-cluster-large div {
+  background-color: var(--color-accent-400) !important;
+  color: var(--color-black) !important;
 }

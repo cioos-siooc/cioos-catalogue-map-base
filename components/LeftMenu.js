@@ -7,6 +7,7 @@ import ModalAPropos from "@/components/ModalAPropos";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
+import Logo from "./Logo";
 
 const basePath = process.env.BASE_PATH || "";
 
@@ -83,21 +84,8 @@ export function Sidebar({
       >
         <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
           <div className="flex items-center justify-between ps-2.5 mb-5">
-            <div>
-              <Image
-                src={`${basePath}${config.logos.main_light}`}
-                className="h-auto dark:hidden"
-                alt="OGSL Logo"
-                height={0}
-                width={120}
-              />
-              <Image
-                src={`${basePath}${config.logos.main_dark}`}
-                className="h-auto hidden dark:block"
-                alt="OGSL Logo"
-                height={0}
-                width={129}
-              />
+            <div id="title" className="flex flex-col align-left">
+              <Logo logos={config.main_logo} lang={lang} default_width={120} />
               <span className="mt-3 self-center text-xl font-semibold whitespace-nowra">
                 {config.title[lang]}
               </span>
@@ -151,7 +139,10 @@ export function Sidebar({
               total={totalResultsCount}
             />
           </div>
-          <ModalAPropos />
+          <ModalAPropos lang={lang} />
+          <div className="flex items-center justify-center mt-1">
+            <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
+          </div>
         </div>
       </aside>
     </div>
@@ -176,20 +167,7 @@ export const TopBanner = ({ lang }) => {
     >
       <div className="flex items-center ps-2.5">
         <a className="me-3">
-          <Image
-            src={`${basePath}${config.logos.main_light}`}
-            className="h-auto dark:hidden"
-            alt="OGSL Logo"
-            height={0}
-            width={120}
-          />
-          <Image
-            src={`${basePath}${config.logos.main_dark}`}
-            className="h-auto hidden dark:block"
-            alt="OGSL Logo"
-            height={0}
-            width={129}
-          />
+          <Logo logos={config.main_logo} lang={lang} default_width={120} />
           <span className="self-center text-xl font-semibold whitespace-nowrap">
             {config.title[lang]}
           </span>

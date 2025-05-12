@@ -42,6 +42,9 @@ export function DatasetDetails({ dataSetInfo, lang }) {
               <h4 className="font-bold">
                 {dataSetInfo && dataSetInfo.title_translated[lang]}
               </h4>
+              <p className="text-xs">
+                {dataSetInfo && dataSetInfo.organization.title_translated[lang]}
+              </p>
               <hr className="border-gray-800 dark:border-gray-200" />
               <p className="text-xs">
                 {t.license}: {dataSetInfo && dataSetInfo.license_title}

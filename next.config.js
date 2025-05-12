@@ -4,64 +4,51 @@ const fs = require("fs");
 const chroma = require("chroma-js");
 const path = require("path");
 
+// Load configuration from YAML
 const config = yaml.load(fs.readFileSync("./config.yaml", "utf8"));
 
-// Generate custom theme colors
-const steps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-function generateTailwindPalette(color, label) {
-  const palette = chroma.scale([config.theme.light, color, config.theme.dark]);
-  const cssVariables = steps
-    .map(
-      (step, i) => `--color-${label}-${step}: ${palette(step / 1000).hex()};`,
-    )
-    .join("\n");
+// Theme generation
+const generateTheme = () => {
+  const { primary_color, accent_color, light, dark } = config.theme;
+  const colorSteps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
-  return cssVariables;
-}
+  // Generate color palette for a specific color
+  const generatePalette = (color, label) => {
+    const palette = chroma.scale([light, color, dark]);
+    return colorSteps
+      .map((step) => `--color-${label}-${step}: ${palette(step / 1000).hex()};`)
+      .join("\n");
+  };
 
-function GenerateTheme() {
-  const primaryColor = config.theme.primary_color;
-  const accentColor = config.theme.accent_color;
-
+  // Generate CSS content with both palettes
   const cssContent = `@theme {
-        ${generateTailwindPalette(primaryColor, "gray")}
-        ${generateTailwindPalette(accentColor, "accent")}
-        }\n`;
+    ${generatePalette(primary_color, "gray")}
+    ${generatePalette(accent_color, "accent")}
+  }\n`;
 
+  // Write to file
   const outputPath = path.join(__dirname, "./app/theme.css");
-
   fs.writeFileSync(outputPath, cssContent);
+
   console.log(
-    "Color custom palette with primary=" +
-      primaryColor +
-      " and accent=" +
-      accentColor,
+    `Color palette generated: primary=${primary_color}, accent=${accent_color}`,
   );
-}
-GenerateTheme();
+};
 
-const github_repository = process.env.GITHUB_REPOSITORY;
-var basePath = "";
-var basePath = "";
-if (github_repository) {
-  basePath = `/${github_repository.split("/")[1]}`;
-  basePath = `/${github_repository.split("/")[1]}`;
-}
+// Generate theme colors
+generateTheme();
 
+// Determine base path from GitHub repository (if any)
+const githubRepository = process.env.GITHUB_REPOSITORY;
+const basePath = githubRepository ? `/${githubRepository.split("/")[1]}` : "";
+
+// Export Next.js configuration
 module.exports = withFlowbiteReact({
   output: "export", // Enables static export
   images: { unoptimized: true },
-  basePath: basePath,
-  env: {
-    CONFIG: JSON.stringify(config),
-    BASE_PATH: basePath,
-  },
-  output: "export", // Enables static export
-  images: { unoptimized: true },
-  basePath: basePath,
+  basePath,
   env: {
     CONFIG: JSON.stringify(config),
     BASE_PATH: basePath,
   },
 });
-

@@ -1,13 +1,5 @@
 "use client";
 
-import { useState, useContext, useEffect } from "react";
-import { Sidebar, TopBanner } from "@/components/LeftMenu";
-import { DatasetDetails } from "@/components/DatasetDetails";
-import { DrawerContext } from "../app/context/DrawerContext";
-// import Map from "@/components/Map";
-import dynamic from "next/dynamic";
-import config from "./config";
-
 export default function Home() {
   const [bounds, setBounds] = useState(null);
   const [lang, setLang] = useState(config.default_language);
@@ -127,4 +119,6 @@ export default function Home() {
       </div>
     </div>
   );
+  return <></>;
+
 }
