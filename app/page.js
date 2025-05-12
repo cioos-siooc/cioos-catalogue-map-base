@@ -76,7 +76,7 @@ export default function Home() {
   function initFetchURL() {
     let url = `${urlCustomSearch}${config.base_query}`;
     if (fetchURLFilter) {
-      url += `%20AND%20${fetchURLFilter}`;
+      url += `${fetchURLFilter}`;
     }
     return url + `&rows=1000`;
   }

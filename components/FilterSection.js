@@ -11,21 +11,23 @@ import {
 } from "flowbite-react";
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
+import { format } from "date-fns";
 
 function getBadge(filterType, value, lang, removeBadge) {
   if (!value) return null; // Return null if value is empty
   const t = getLocale(lang);
+  console.log("Filter Type ::", filterType);
   return (
     <div
       key={filterType}
       value={value}
-      className="flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full"
+      className="flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
     >
       <span>
         {t[filterType].toLowerCase()}: {value}
       </span>
       <button
-        className="ml-2 text-white hover:text-blue-700"
+        className="ml-2 text-white bg-blue-500 hover:bg-blue-700 rounded-full p-1 transition duration-200"
         onClick={() => removeBadge(filterType)}
       >
         &times;
@@ -89,8 +91,8 @@ export function SearchFilter({ lang, setBadges }) {
 
 function TimeFilter({ lang, setBadges }) {
   const [openModal, setOpenModal] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const t = getLocale(lang);
 
   function onCloseModal() {
@@ -101,16 +103,27 @@ function TimeFilter({ lang, setBadges }) {
     console.log("Start Date:", startDate);
     setBadges((prevBadges) => ({
       ...prevBadges,
-      start_date: startDate,
+      start_date: format(startDate, "yyyy-MM-dd'T'00:00:00'Z'"),
     }));
 
     console.log("End Date:", endDate);
     setBadges((prevBadges) => ({
       ...prevBadges,
-      end_date: endDate,
+      end_date: format(endDate, "yyyy-MM-dd'T'00:00:00'Z'"),
     }));
     setOpenModal(false);
   }
+
+  const handleStartDateChange = (date) => {
+    console.log("Selected Start date:", date);
+    setStartDate(date);
+  };
+
+  const handleEndDateChange = (date) => {
+    console.log("Selected End date:", date);
+    setEndDate(date);
+  };
+
   return (
     <>
       <Button
@@ -127,17 +140,18 @@ function TimeFilter({ lang, setBadges }) {
         size="lg"
         onClose={onCloseModal}
         popup
+        className="rounded-lg shadow-lg border border-gray-300"
       >
-        <ModalHeader>
+        <ModalHeader className="bg-gray-100 text-gray-800 font-semibold">
           {t.filter_by} {t.time}
         </ModalHeader>
-        <ModalBody className="overflow-visible flex flex-col gap-2">
+        <ModalBody className="overflow-visible flex flex-col gap-2 bg-white p-4 rounded-b-lg">
           <div className="flex flex-row items-center gap-2">
-            <div>{t.from}</div>
+            <div className="font-medium">{t.from}</div>
             <Datepicker
               language={`${lang}-CA`}
-              className="w-1/2"
-              onChange={(date) => setStartDate(date.value)}
+              className="w-1/2 border border-gray-300 rounded-md p-2"
+              onChange={handleStartDateChange}
               value={startDate}
               selected={startDate}
               maxDate={endDate || new Date()}
@@ -145,11 +159,11 @@ function TimeFilter({ lang, setBadges }) {
               labelClearButton={t.clear}
               placeholder={t.start_date}
             />
-            <div>{t.to}</div>
+            <div className="font-medium">{t.to}</div>
             <Datepicker
-              className="w-1/2"
+              className="w-1/2 border border-gray-300 rounded-md p-2"
               language={`${lang}-CA`}
-              onChange={(date) => setEndDate(date.value)}
+              onChange={handleEndDateChange}
               value={endDate}
               selected={endDate}
               minDate={startDate} // Disable dates before the start date

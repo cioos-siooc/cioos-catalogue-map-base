@@ -49,11 +49,22 @@ export function Sidebar({
 
   const generateQueryString = (badges) => {
     return Object.entries(badges)
-      .map(([filterType, value]) =>
-        filterType === "search" ? `${value}` : `${filterType}=${value}`,
-      )
+      .map(([filterType, value]) => buildFilterString(filterType, value))
       .join("%20AND%20");
   };
+
+  function buildFilterString(filterType, value) {
+    console.log("ValueType :: ", typeof value);
+    if (filterType === "search") {
+      return `${value}`;
+    } else if (filterType === "start_date") {
+      return `temporal-extent-begin:[${value} TO *]`;
+    } else if (filterType === "end_date") {
+      return `temporal-extent-end:[* TO ${value}]`;
+    } else {
+      return `${filterType}=${value}`;
+    }
+  }
 
   // Trigger reharvest when badges change
   useEffect(() => {
