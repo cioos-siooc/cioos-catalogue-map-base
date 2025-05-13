@@ -18,6 +18,7 @@ runs:
   steps:
     - name: Clone catalogue map repository
       run: cp -r "$GITHUB_ACTION_PATH"
+      shell: bash
 
     - name: Clone config repository
       uses: actions/checkout@v4
