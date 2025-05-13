@@ -54,7 +54,7 @@ function AppContent({ lang, setLang }) {
   const fetchURL = useMemo(() => {
     let url = `${urlCustomSearch}${config.base_query}`;
     if (fetchURLFilter) {
-      url += `%20AND%20${fetchURLFilter}`;
+      url += fetchURLFilter;
     }
     return url + `&rows=1000`;
   }, [urlCustomSearch, fetchURLFilter]);
