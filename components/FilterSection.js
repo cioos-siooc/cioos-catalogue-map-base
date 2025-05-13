@@ -11,9 +11,7 @@ import {
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
 
-
 function getBadge(filterType, value, lang, removeBadge) {
-
   if (!value) return null; // Return null if value is empty
   const t = getLocale(lang);
   return (
@@ -36,7 +34,6 @@ function getBadge(filterType, value, lang, removeBadge) {
 }
 
 export function SearchFilter({ lang, setBadges }) {
-
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -89,7 +86,7 @@ export function SearchFilter({ lang, setBadges }) {
   );
 }
 
-export function FilterItems({ filter_type, lang, setBadges}) {
+export function FilterItems({ filter_type, lang, setBadges, orgList }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
   const t = getLocale(lang);
@@ -154,9 +151,13 @@ export function FilterItems({ filter_type, lang, setBadges}) {
             onKeyDown={handleKeyDown}
           >
             <option value="">Select an option</option>
-            <option value="org-1">org-1</option>
-            <option value="org-2">org-2</option>
-            <option value="org-3">org-3</option>
+            {orgList && filter_type === "organization"
+              ? orgList.map((org) => (
+                  <option key={org} value={org}>
+                    {org}
+                  </option>
+                ))
+              : null}
           </Select>
         </ModalBody>
       </Modal>
@@ -164,7 +165,7 @@ export function FilterItems({ filter_type, lang, setBadges}) {
   );
 }
 
-export default function FilterSection({ lang, badges, setBadges}) {
+export default function FilterSection({ lang, badges, setBadges, orgList }) {
   const t = getLocale(lang);
 
   const removeBadge = (filterType) => {
@@ -184,23 +185,39 @@ export default function FilterSection({ lang, badges, setBadges}) {
           filter_type="organization"
           lang={lang}
           setBadges={setBadges}
+          orgList={orgList}
         />
-        <FilterItems filter_type="projects" lang={lang} setBadges={setBadges} />
-        <FilterItems filter_type="eov" lang={lang} setBadges={setBadges}/>
-        <FilterItems filter_type="time" lang={lang} setBadges={setBadges}/>
+        <FilterItems
+          filter_type="projects"
+          lang={lang}
+          setBadges={setBadges}
+          orgList={orgList}
+        />
+        <FilterItems
+          filter_type="eov"
+          lang={lang}
+          setBadges={setBadges}
+          orgList={orgList}
+        />
+        <FilterItems
+          filter_type="time"
+          lang={lang}
+          setBadges={setBadges}
+          orgList={orgList}
+        />
         <FilterItems
           filter_type="spatial"
           lang={lang}
           setBadges={setBadges}
+          orgList={orgList}
         />
       </div>
 
       {/* Render Badges */}
       <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
-        {console.log("badges length :: ", Object.entries(badges).length)}
-        {Object.entries(badges).map(([filterType, value]) => (
-          getBadge(filterType, value, lang, removeBadge)
-        ))}
+        {Object.entries(badges).map(([filterType, value]) =>
+          getBadge(filterType, value, lang, removeBadge),
+        )}
       </div>
     </>
   );

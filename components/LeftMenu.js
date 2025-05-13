@@ -22,6 +22,7 @@ export function Sidebar({
   totalResultsCount,
   setBadgeCount,
   loading,
+  organizationList,
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [badges, setBadges] = useState([]);
@@ -50,11 +51,24 @@ export function Sidebar({
 
   const generateQueryString = (badges) => {
     return Object.entries(badges)
-      .map(([filterType, value]) =>
-        filterType === "search" ? `${value}` : `${filterType}=${value}`,
-      )
+      .map(([filterType, value]) => buildFilterString(filterType, value))
       .join("%20AND%20");
   };
+
+  function buildFilterString(filterType, value) {
+    console.log("ValueType :: ", typeof value);
+    if (filterType === "search") {
+      return `${value}`;
+    } else if (filterType === "start_date") {
+      return `temporal-extent-begin:[${value} TO *]`;
+    } else if (filterType === "end_date") {
+      return `temporal-extent-end:[* TO ${value}]`;
+    } else if (filterType === "organization") {
+      return `responsible_organizations=${value}`;
+    } else {
+      return `${filterType}=${value}`;
+    }
+  }
 
   // Trigger reharvest when badges change
   useEffect(() => {
@@ -63,6 +77,8 @@ export function Sidebar({
     setFetchURLFilter(`${queryString}`);
     setBadgeCount(Object.keys(badges).length);
   }, [badges, setBadgeCount, setFetchURLFilter]); // Re-run whenever badges change
+
+  console.log("ORGGGGGGGG ::::::: ", organizationList);
 
   return (
     <div id="sidebar">
@@ -108,7 +124,13 @@ export function Sidebar({
               </svg>
             </button>
           </div>
-          <FilterSection lang={lang} badges={badges} setBadges={setBadges} />
+
+          <FilterSection
+            lang={lang}
+            badges={badges}
+            setBadges={setBadges}
+            orgList={organizationList}
+          />
 
           <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">
             {t.datasets}

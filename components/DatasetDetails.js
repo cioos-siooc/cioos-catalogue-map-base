@@ -10,7 +10,7 @@ import { getLocale } from "@/app/get-locale.js";
 export function DatasetDetails({ dataSetInfo, lang }) {
   const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
-
+  console.log("DataSET ::", dataSetInfo);
   return (
     <>
       <Drawer

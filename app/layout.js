@@ -42,6 +42,9 @@ function AppContent() {
   const [dataSetInfo, setDatasetInfo] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [filteredItems, setFilteredItems] = useState([]);
+  const [organizationList, setOrganizationList] = useState([]);
+  const [projectList, setProjectList] = useState([]);
+
   const [fetchURLFilter, setFetchURLFilter] = useState("");
   const [totalResultsCount, setTotalResultsCount] = useState(0);
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
@@ -55,7 +58,7 @@ function AppContent() {
   const fetchURL = useMemo(() => {
     let url = `${urlCustomSearch}${config.base_query}`;
     if (fetchURLFilter) {
-      url += `%20AND%20${fetchURLFilter}`;
+      url += fetchURLFilter;
     }
     return url + `&rows=1000`;
   }, [urlCustomSearch, fetchURLFilter]);
@@ -78,6 +81,7 @@ function AppContent() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      console.log("Fetching data from CKAN API... : ", fetchURL);
       const response = await fetch(fetchURL);
       if (!response.ok) {
         throw new Error("There was an error fetching the data from CKAN API");
@@ -85,6 +89,7 @@ function AppContent() {
       const awaitRes = await response.json();
 
       setFilteredItems(awaitRes.result.results);
+      fillOrganizationAndProjectLists(awaitRes.result.results);
       setInputValue("");
       if (fetchURLFilter) {
         setFilteredResultsCount(awaitRes.result.results.length);
@@ -104,6 +109,31 @@ function AppContent() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Function to fill organization and project lists
+  const fillOrganizationAndProjectLists = (items) => {
+    let orgList = new Set();
+    let projList = new Set();
+    items.forEach((item) => {
+      if (item.organization && item.organization.title_translated) {
+        if (orgList.has(item.organization.title_translated[lang])) {
+          return;
+        }
+        orgList.add(item.organization.title_translated[lang]);
+      }
+      if (item.project && item.project.title_translated) {
+        if (projList.has(item.project.title_translated[lang])) {
+          return;
+        }
+        projList.add(item.project.title_translated[lang]);
+      }
+    });
+
+    console.log(" ORG COUNT :: ", orgList.size);
+    console.log(" PROJ COUNT :: ", projList.size);
+    setOrganizationList(Array.from(orgList));
+    setProjectList(Array.from(projList));
+  };
 
   // Import the useDrawer hook to get drawer state and methods
   const { isDrawerOpen, openDrawer } = useDrawer();
@@ -140,6 +170,7 @@ function AppContent() {
             totalResultsCount={totalResultsCount}
             setBadgeCount={setBadgeCount}
             loading={loading}
+            organizationList={organizationList}
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
