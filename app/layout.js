@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import config from "./config.js";
 import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, use } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
@@ -34,10 +34,9 @@ const MapComponent = dynamic(() => import("@/components/Map"), {
 });
 
 // Create a component that uses the drawer context
-function AppContent() {
+function AppContent({ lang, setLang }) {
   // State management with stable references
   const [bounds, setBounds] = useState(null);
-  const [lang, setLang] = useState(config.default_language);
   const [loading, setLoading] = useState(true);
   const [dataSetInfo, setDatasetInfo] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -176,18 +175,19 @@ function useDrawer() {
 }
 
 function RootLayout({ children }) {
+  const [lang, setLang] = useState(config.default_language);
+
   return (
-    <html lang="en">
+    <html lang={lang}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <DrawerProvider>
-          <AppContent />
+          <AppContent lang={lang} setLang={setLang} />
           {children}
         </DrawerProvider>
       </body>
     </html>
   );
 }
-
 export default RootLayout;
