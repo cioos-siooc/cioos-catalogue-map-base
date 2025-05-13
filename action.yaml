@@ -13,7 +13,7 @@ runs:
       with:
         token: ${{ inputs.token }}
         repository: "ogsl-slgo/ogsl-nextjs-catalogue-map-template
-        ref: "main
+        ref: main
 
     - name: Show available files
       run: ls -la
