@@ -4,7 +4,7 @@ inputs:
   token:
     description: 'GitHub token to access the repository'
     required: true
-
+    
 runs:
   using: "composite"
   steps:
@@ -14,10 +14,6 @@ runs:
         token: ${{ inputs.token }}
         repository: ogsl-slgo/ogsl-nextjs-map-template
         ref: main
-
-    - name: Show available files
-      run: ls -la
-      shell: bash
 
     - name: Clone config repository
       uses: actions/checkout@v4
@@ -30,10 +26,6 @@ runs:
       run: |
         rm -rf config/.git
         cp -r config/* .
-
-    - name: Show available files
-      run: ls -la
-      shell: bash
       
     - name: Set up Node.js
       uses: actions/setup-node@v4
