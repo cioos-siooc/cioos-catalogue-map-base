@@ -2,6 +2,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import config from "@/app/config.js";
 
+const basePath = process.env.BASE_PATH || "";
+
 /**
  * A React component that renders a logo based on the provided language, mode, and available logos.
  * It supports automatic detection of dark mode or a forced mode, and selects the appropriate logo accordingly.
@@ -66,7 +68,11 @@ const Logo = ({ logos, lang, default_width, force_mode }) => {
   );
 
   // Fallback to the first logo if no match is found
-  const logoURL = matchingLogo ? matchingLogo.url : availableLogos[0]?.url;
+  const logoURL = matchingLogo
+    ? matchingLogo.url.startsWith("/")
+      ? `${basePath}${matchingLogo.url}` // Prepend basePath if the URL starts with "/"
+      : matchingLogo.url
+    : availableLogos[0]?.url;
   const logoAlt = matchingLogo ? matchingLogo.alt : "Default Logo";
 
   return (
