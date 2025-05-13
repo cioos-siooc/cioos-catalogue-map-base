@@ -17,17 +17,20 @@ runs:
   using: "composite"
   steps:
     - name: Clone catalogue map repository
-      uses: actions/checkout@v4
-      with:
-        repository: "OGSL-SLGO/ogsl-nextjs-map-template"
-        ref: ${{ GITHUB_SHA }}
-        token: ${{ inputs.token }}
+      run: cp -r "$GITHUB_ACTION_PATH"
 
     - name: Clone config repository
       uses: actions/checkout@v4
       with:
         token: ${{ inputs.token }}
+        path: ../config
     
+    - name: Copy config
+      run: |
+        rm -rf ../.git
+        cp -r ../config/. .
+
+      shell: bash
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
@@ -45,16 +48,15 @@ runs:
       run: npm run build
       shell: bash
     
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
+
     - name: Upload artifact
-      if: ${{ inputs.source_branch == github.ref_name }}
       uses: actions/upload-pages-artifact@v3
       with:
-        path: ./out
+        path: "out"
 
     - name: Deploy to GitHub Pages
-      if: ${{ inputs.source_branch == github.ref_name }}
       id: deployment
       uses: actions/deploy-pages@v4
-      with:
-        token: ${{ inputs.token }}
-        branch: ${{ inputs.target_branch }}
+
