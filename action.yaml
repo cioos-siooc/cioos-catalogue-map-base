@@ -19,6 +19,10 @@ runs:
     - name: Clone catalogue map repository
       run: cp -r "$GITHUB_ACTION_PATH" .
       shell: bash
+      
+    - name: Show available files
+      run: ls -la
+      shell: bash
 
     - name: Clone config repository
       uses: actions/checkout@v4
