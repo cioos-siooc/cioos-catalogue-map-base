@@ -4,22 +4,16 @@ inputs:
   token:
     description: 'GitHub token to access the repository'
     required: true
-  source_branch:
-    description: 'Branch to deploy the catalogue map'
-    required: true
-    default: 'main'
-  target_branch:
-    description: 'Branch to deploy the catalogue map'
-    required: true
-    default: 'gh-pages'
 
 runs:
   using: "composite"
   steps:
     - name: Clone catalogue map repository
-      run: cp -r "$GITHUB_ACTION_PATH" .
-      shell: bash
-      
+      with: actions/checkout@v4
+        token: ${{ inputs.token }}
+        repository: "ogsl-slgo/ogsl-nextjs-catalogue-map-template
+        ref: "main
+
     - name: Show available files
       run: ls -la
       shell: bash
