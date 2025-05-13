@@ -1,14 +1,9 @@
 name: 'Build Catalogue Map'
 description: 'Generate a catalogue map'
 inputs:
-  version:  # id of input
-    description: 'Tag version to be used for the catalogue map'
-    required: true
-    default: 'latest'
   token:
     description: 'GitHub token to access the repository'
     required: true
-    default: ${{ secrets.GITHUB_TOKEN }}
   source_branch:
     description: 'Branch to deploy the catalogue map'
     required: true
