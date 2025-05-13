@@ -30,7 +30,7 @@ runs:
       shell: bash
       run: |
         rm -rf config/.git
-        cp -r config/ .
+        cp -r config/* .
 
     - name: Show available files
       run: ls -la
