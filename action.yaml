@@ -19,7 +19,7 @@ runs:
     - name: Clone catalogue map repository
       uses: actions/checkout@v4
       with:
-        repository: "github.com/OGSL-SLGO/ogsl-nextjs-map-template"
+        repository: "OGSL-SLGO/ogsl-nextjs-map-template"
         ref: ${{ GITHUB_SHA }}
         token: ${{ inputs.token }}
 
