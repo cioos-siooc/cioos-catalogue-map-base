@@ -12,7 +12,7 @@ runs:
       uses: actions/checkout@v4
       with:
         token: ${{ inputs.token }}
-        repository: ogsl-slgo/ogsl-nextjs-catalogue-map-template
+        repository: ogsl-slgo/ogsl-nextjs-map-template
         ref: main
 
     - name: Show available files
