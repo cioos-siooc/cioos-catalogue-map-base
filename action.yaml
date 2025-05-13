@@ -9,7 +9,8 @@ runs:
   using: "composite"
   steps:
     - name: Clone catalogue map repository
-      with: actions/checkout@v4
+      uses: actions/checkout@v4
+      with:
         token: ${{ inputs.token }}
         repository: "ogsl-slgo/ogsl-nextjs-catalogue-map-template
         ref: "main
