@@ -27,6 +27,7 @@ runs:
         path: ../config
     
     - name: Copy config
+      shell: bash
       run: |
         rm -rf ../config/.git
         cp -r ../config/. .
