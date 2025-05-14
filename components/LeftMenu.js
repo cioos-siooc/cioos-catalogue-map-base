@@ -24,6 +24,7 @@ export function Sidebar({
   loading,
   organizationList,
   projectList,
+  eovList,
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [badges, setBadges] = useState([]);
@@ -132,6 +133,7 @@ export function Sidebar({
             setBadges={setBadges}
             orgList={organizationList}
             projList={projectList}
+            eovList={eovList}
           />
 
           <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">

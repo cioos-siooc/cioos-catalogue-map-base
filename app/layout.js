@@ -44,7 +44,7 @@ function AppContent() {
   const [filteredItems, setFilteredItems] = useState([]);
   const [organizationList, setOrganizationList] = useState([]);
   const [projectList, setProjectList] = useState([]);
-
+  const [eovList, setEovList] = useState([]);
   const [fetchURLFilter, setFetchURLFilter] = useState("");
   const [totalResultsCount, setTotalResultsCount] = useState(0);
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
@@ -123,6 +123,17 @@ function AppContent() {
     }
   };
 
+  // Function to process projects and add them to the project list
+  const processEovs = (item, eovList) => {
+    if (item.projects && Array.isArray(item.eov)) {
+      const isAlreadyPresent = item.eov.every((eov) => eovList.has(eov));
+      if (isAlreadyPresent) {
+        return;
+      }
+      item.eov.forEach((eov) => eovList.add(eov));
+    }
+  };
+
   // Function to process organization and add it to the organization list
   const processOrganization = (item, orgList, lang) => {
     if (item.organization && item.organization.title_translated) {
@@ -137,13 +148,17 @@ function AppContent() {
   const fillOrganizationAndProjectLists = (items) => {
     let orgList = new Set();
     let projList = new Set();
+    let eovList = new Set();
     items.forEach((item) => {
       processOrganization(item, orgList, lang);
       processProjects(item, projList);
+      processEovs(item, eovList);
     });
 
     setOrganizationList(Array.from(orgList));
     setProjectList(Array.from(projList));
+    setEovList(Array.from(eovList));
+    console.log("EOVs List: ", eovList);
   };
 
   // Import the useDrawer hook to get drawer state and methods
@@ -183,6 +198,7 @@ function AppContent() {
             loading={loading}
             organizationList={organizationList}
             projectList={projectList}
+            eovList={eovList}
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">

@@ -86,7 +86,7 @@ export function SearchFilter({ lang, setBadges }) {
   );
 }
 
-export function OptionItems(filter_type, orgList, projList) {
+export function OptionItems(filter_type, orgList, projList, eovList) {
   if (filter_type === "organization") {
     return orgList.map((org) => (
       <option key={org} value={org}>
@@ -99,6 +99,12 @@ export function OptionItems(filter_type, orgList, projList) {
         {proj}
       </option>
     ));
+  } else if (filter_type === "eov") {
+    return eovList.map((eov) => (
+      <option key={eov} value={eov}>
+        {eov}
+      </option>
+    ));
   }
   return null;
 }
@@ -109,6 +115,7 @@ export function FilterItems({
   setBadges,
   orgList,
   projList,
+  eovList,
 }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
@@ -174,7 +181,7 @@ export function FilterItems({
             onKeyDown={handleKeyDown}
           >
             <option value="">Select an option</option>
-            {OptionItems(filter_type, orgList, projList)}
+            {OptionItems(filter_type, orgList, projList, eovList)}
           </Select>
         </ModalBody>
       </Modal>
@@ -188,6 +195,7 @@ export default function FilterSection({
   setBadges,
   orgList,
   projList,
+  eovList,
 }) {
   const t = getLocale(lang);
 
@@ -210,6 +218,7 @@ export default function FilterSection({
           setBadges={setBadges}
           orgList={orgList}
           projList={projList}
+          eovList={eovList}
         />
         <FilterItems
           filter_type="projects"
@@ -217,6 +226,7 @@ export default function FilterSection({
           setBadges={setBadges}
           orgList={orgList}
           projList={projList}
+          eovList={eovList}
         />
         <FilterItems
           filter_type="eov"
@@ -224,6 +234,7 @@ export default function FilterSection({
           setBadges={setBadges}
           orgList={orgList}
           projList={projList}
+          eovList={eovList}
         />
         <FilterItems
           filter_type="time"
@@ -231,6 +242,7 @@ export default function FilterSection({
           setBadges={setBadges}
           orgList={orgList}
           projList={projList}
+          eovList={eovList}
         />
         <FilterItems
           filter_type="spatial"
@@ -238,6 +250,7 @@ export default function FilterSection({
           setBadges={setBadges}
           orgList={orgList}
           projList={projList}
+          eovList={eovList}
         />
       </div>
 
