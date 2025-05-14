@@ -23,6 +23,7 @@ export function Sidebar({
   setBadgeCount,
   loading,
   organizationList,
+  projectList,
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [badges, setBadges] = useState([]);
@@ -65,6 +66,8 @@ export function Sidebar({
       return `temporal-extent-end:[* TO ${value}]`;
     } else if (filterType === "organization") {
       return `responsible_organizations=${value}`;
+    } else if (filterType === "projects") {
+      return `projects=${value}`;
     } else {
       return `${filterType}=${value}`;
     }
@@ -77,8 +80,6 @@ export function Sidebar({
     setFetchURLFilter(`${queryString}`);
     setBadgeCount(Object.keys(badges).length);
   }, [badges, setBadgeCount, setFetchURLFilter]); // Re-run whenever badges change
-
-  console.log("ORGGGGGGGG ::::::: ", organizationList);
 
   return (
     <div id="sidebar">
@@ -130,6 +131,7 @@ export function Sidebar({
             badges={badges}
             setBadges={setBadges}
             orgList={organizationList}
+            projList={projectList}
           />
 
           <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">

@@ -110,27 +110,38 @@ function AppContent() {
     fetchData();
   }, [fetchData]);
 
+  // Function to process projects and add them to the project list
+  const processProjects = (item, projList) => {
+    if (item.projects && Array.isArray(item.projects)) {
+      const isAlreadyPresent = item.projects.every((project) =>
+        projList.has(project),
+      );
+      if (isAlreadyPresent) {
+        return;
+      }
+      item.projects.forEach((project) => projList.add(project));
+    }
+  };
+
+  // Function to process organization and add it to the organization list
+  const processOrganization = (item, orgList, lang) => {
+    if (item.organization && item.organization.title_translated) {
+      if (orgList.has(item.organization.title_translated[lang])) {
+        return;
+      }
+      orgList.add(item.organization.title_translated[lang]);
+    }
+  };
+
   // Function to fill organization and project lists
   const fillOrganizationAndProjectLists = (items) => {
     let orgList = new Set();
     let projList = new Set();
     items.forEach((item) => {
-      if (item.organization && item.organization.title_translated) {
-        if (orgList.has(item.organization.title_translated[lang])) {
-          return;
-        }
-        orgList.add(item.organization.title_translated[lang]);
-      }
-      if (item.project && item.project.title_translated) {
-        if (projList.has(item.project.title_translated[lang])) {
-          return;
-        }
-        projList.add(item.project.title_translated[lang]);
-      }
+      processOrganization(item, orgList, lang);
+      processProjects(item, projList);
     });
 
-    console.log(" ORG COUNT :: ", orgList.size);
-    console.log(" PROJ COUNT :: ", projList.size);
     setOrganizationList(Array.from(orgList));
     setProjectList(Array.from(projList));
   };
@@ -171,6 +182,7 @@ function AppContent() {
             setBadgeCount={setBadgeCount}
             loading={loading}
             organizationList={organizationList}
+            projectList={projectList}
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">

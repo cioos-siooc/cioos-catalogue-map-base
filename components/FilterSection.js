@@ -86,7 +86,30 @@ export function SearchFilter({ lang, setBadges }) {
   );
 }
 
-export function FilterItems({ filter_type, lang, setBadges, orgList }) {
+export function OptionItems(filter_type, orgList, projList) {
+  if (filter_type === "organization") {
+    return orgList.map((org) => (
+      <option key={org} value={org}>
+        {org}
+      </option>
+    ));
+  } else if (filter_type === "projects") {
+    return projList.map((proj) => (
+      <option key={proj} value={proj}>
+        {proj}
+      </option>
+    ));
+  }
+  return null;
+}
+
+export function FilterItems({
+  filter_type,
+  lang,
+  setBadges,
+  orgList,
+  projList,
+}) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
   const t = getLocale(lang);
@@ -151,13 +174,7 @@ export function FilterItems({ filter_type, lang, setBadges, orgList }) {
             onKeyDown={handleKeyDown}
           >
             <option value="">Select an option</option>
-            {orgList && filter_type === "organization"
-              ? orgList.map((org) => (
-                  <option key={org} value={org}>
-                    {org}
-                  </option>
-                ))
-              : null}
+            {OptionItems(filter_type, orgList, projList)}
           </Select>
         </ModalBody>
       </Modal>
@@ -165,7 +182,13 @@ export function FilterItems({ filter_type, lang, setBadges, orgList }) {
   );
 }
 
-export default function FilterSection({ lang, badges, setBadges, orgList }) {
+export default function FilterSection({
+  lang,
+  badges,
+  setBadges,
+  orgList,
+  projList,
+}) {
   const t = getLocale(lang);
 
   const removeBadge = (filterType) => {
@@ -186,30 +209,35 @@ export default function FilterSection({ lang, badges, setBadges, orgList }) {
           lang={lang}
           setBadges={setBadges}
           orgList={orgList}
+          projList={projList}
         />
         <FilterItems
           filter_type="projects"
           lang={lang}
           setBadges={setBadges}
           orgList={orgList}
+          projList={projList}
         />
         <FilterItems
           filter_type="eov"
           lang={lang}
           setBadges={setBadges}
           orgList={orgList}
+          projList={projList}
         />
         <FilterItems
           filter_type="time"
           lang={lang}
           setBadges={setBadges}
           orgList={orgList}
+          projList={projList}
         />
         <FilterItems
           filter_type="spatial"
           lang={lang}
           setBadges={setBadges}
           orgList={orgList}
+          projList={projList}
         />
       </div>
 
