@@ -16,7 +16,6 @@ import { format } from "date-fns";
 function getBadge(filterType, value, lang, removeBadge) {
   if (!value) return null; // Return null if value is empty
   const t = getLocale(lang);
-  console.log("Filter Type ::", filterType);
   return (
     <div
       key={filterType}
@@ -71,7 +70,7 @@ export function SearchFilter({ lang, setBadges }) {
       <Modal
         dismissible
         show={openModal}
-        size="lg"
+        size="xl"
         onClose={onCloseModal}
         popup
       >
@@ -89,7 +88,7 @@ export function SearchFilter({ lang, setBadges }) {
   );
 }
 
-function TimeFilter({ lang, setBadges }) {
+function TimeFilter({ lang, setBadges, setSelectedOption }) {
   const [openModal, setOpenModal] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -100,27 +99,25 @@ function TimeFilter({ lang, setBadges }) {
       setOpenModal(false);
       return;
     }
-    console.log("Start Date:", startDate);
+
     setBadges((prevBadges) => ({
       ...prevBadges,
       start_date: format(startDate, "yyyy-MM-dd'T'00:00:00'Z'"),
     }));
 
-    console.log("End Date:", endDate);
     setBadges((prevBadges) => ({
       ...prevBadges,
       end_date: format(endDate, "yyyy-MM-dd'T'00:00:00'Z'"),
     }));
+
     setOpenModal(false);
   }
 
   const handleStartDateChange = (date) => {
-    console.log("Selected Start date:", date);
     setStartDate(date);
   };
 
   const handleEndDateChange = (date) => {
-    console.log("Selected End date:", date);
     setEndDate(date);
   };
 
@@ -137,7 +134,7 @@ function TimeFilter({ lang, setBadges }) {
       <Modal
         dismissible
         show={openModal}
-        size="lg"
+        size="2xl"
         onClose={onCloseModal}
         popup
         className="rounded-lg shadow-lg border border-gray-300"
@@ -147,10 +144,24 @@ function TimeFilter({ lang, setBadges }) {
         </ModalHeader>
         <ModalBody className="overflow-visible flex flex-col gap-2 bg-white p-4 rounded-b-lg">
           <div className="flex flex-row items-center gap-2">
+            {/* New select component before the first datepicker */}
+            <Select
+              className="border border-gray-300 rounded-md p-2 mr-2 w-[calc(50%+20px)] min-w-[180px]"
+              id="date-filter-type"
+              onChange={(e) => setSelectedOption(e.target.value)}
+            >
+              <option value="">Select an option</option>
+              <option value="temporal-extent-begin">
+                temporal-extent-begin
+              </option>
+              <option value="temporal-extent-end">temporal-extent-end</option>
+              <option value="metadata_created">metadata_created</option>
+              <option value="metadata_updated">metadata_updated</option>
+            </Select>
             <div className="font-medium">{t.from}</div>
             <Datepicker
+              className="border border-gray-300 rounded-md p-2 w-[calc(50%+20px)] min-w-[180px]"
               language={`${lang}-CA`}
-              className="w-1/2 border border-gray-300 rounded-md p-2"
               onChange={handleStartDateChange}
               value={startDate}
               selected={startDate}
@@ -161,7 +172,7 @@ function TimeFilter({ lang, setBadges }) {
             />
             <div className="font-medium">{t.to}</div>
             <Datepicker
-              className="w-1/2 border border-gray-300 rounded-md p-2"
+              className="border border-gray-300 rounded-md p-2 w-[calc(50%+20px)] min-w-[180px]"
               language={`${lang}-CA`}
               onChange={handleEndDateChange}
               value={endDate}
@@ -254,7 +265,12 @@ function FilterItems({ filter_type, lang, setBadges }) {
   );
 }
 
-export default function FilterSection({ lang, badges, setBadges }) {
+export default function FilterSection({
+  lang,
+  badges,
+  setBadges,
+  setSelectedOption,
+}) {
   const t = getLocale(lang);
 
   const removeBadge = (filterType) => {
@@ -277,13 +293,16 @@ export default function FilterSection({ lang, badges, setBadges }) {
         />
         <FilterItems filter_type="projects" lang={lang} setBadges={setBadges} />
         <FilterItems filter_type="eov" lang={lang} setBadges={setBadges} />
-        <TimeFilter lang={lang} setBadges={setBadges} />
+        <TimeFilter
+          lang={lang}
+          setBadges={setBadges}
+          setSelectedOption={setSelectedOption}
+        />
         <FilterItems filter_type="spatial" lang={lang} setBadges={setBadges} />
       </div>
 
       {/* Render Badges */}
       <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
-        {console.log("badges length :: ", Object.entries(badges).length)}
         {Object.entries(badges).map(([filterType, value]) =>
           getBadge(filterType, value, lang, removeBadge),
         )}
