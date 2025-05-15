@@ -8,6 +8,7 @@ import {
   useMap,
   Tooltip,
   LayersControl,
+  Polygon,
 } from "react-leaflet";
 import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -34,6 +35,27 @@ const clearMapLayers = (map) => {
       map.removeLayer(layer);
     }
   });
+};
+
+// Utility function to create an "inverted" polygon
+const createInvertedPolygon = (bounds) => {
+  const worldBounds = [
+    [-90, -3600],
+    [-90, 3600],
+    [90, 3600],
+    [90, -3600],
+    [-90, -3600],
+  ];
+
+  const innerBounds = [
+    [bounds[0][0], bounds[0][1]],
+    [bounds[0][0], bounds[1][1]],
+    [bounds[1][0], bounds[1][1]],
+    [bounds[1][0], bounds[0][1]],
+    [bounds[0][0], bounds[0][1]],
+  ];
+
+  return [worldBounds, innerBounds];
 };
 
 // Map components
@@ -147,6 +169,12 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
   const { openDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
 
+  const rectangleBounds = [
+    [10, -120],
+    [50, 130],
+  ]; // Example rectangle bounds
+  const invertedPolygon = createInvertedPolygon(rectangleBounds);
+
   return (
     <div id="container" className="h-full w-full">
       <MapContainer
@@ -155,7 +183,6 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
         zoom={config.map.zoom}
         scrollWheelZoom={true}
         boundsOptions={{ padding: [1, 1] }}
-        // Adding key={false} to prevent re-mounting the entire map
         key={false}
       >
         <LayersControl position="bottomleft">
@@ -173,6 +200,17 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
                 />
               ))}
             </MarkerClusterGroup>
+          </Overlay>
+          <Overlay checked name={t.spatial_filter}>
+            <Polygon
+              positions={invertedPolygon}
+              pathOptions={{
+                color: "black",
+                weight: 0,
+                fillColor: "rgba(0, 0, 0, 0.6)",
+                fillOpacity: 0.6,
+              }}
+            />
           </Overlay>
         </LayersControl>
       </MapContainer>

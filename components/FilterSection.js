@@ -11,9 +11,7 @@ import {
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
 
-
 function getBadge(filterType, value, lang, removeBadge) {
-
   if (!value) return null; // Return null if value is empty
   const t = getLocale(lang);
   return (
@@ -36,7 +34,6 @@ function getBadge(filterType, value, lang, removeBadge) {
 }
 
 export function SearchFilter({ lang, setBadges }) {
-
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -89,7 +86,7 @@ export function SearchFilter({ lang, setBadges }) {
   );
 }
 
-export function FilterItems({ filter_type, lang, setBadges}) {
+export function FilterItems({ filter_type, lang, setBadges }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
   const t = getLocale(lang);
@@ -164,7 +161,99 @@ export function FilterItems({ filter_type, lang, setBadges}) {
   );
 }
 
-export default function FilterSection({ lang, badges, setBadges}) {
+// Generate a UI for a bounding box ui filter to define the north, south, east, and west coordinates limits
+
+function BoundingBoxFilter({ lang, setBadges }) {
+  const [openModal, setOpenModal] = useState(false);
+  const [north, setNorth] = useState(90);
+  const [south, setSouth] = useState(-90);
+  const [east, setEast] = useState(180);
+  const [west, setWest] = useState(-180);
+
+  const t = getLocale(lang);
+
+  function onCloseModal() {
+    if (!north || !south || !east || !west) {
+      setOpenModal(false);
+      return;
+    }
+    setBadges((prevBadges) => ({
+      ...prevBadges,
+      bounding_box: `[${north}, ${south}, ${east}, ${west}]`,
+    }));
+    setOpenModal(false);
+  }
+
+  return (
+    <>
+      <Button
+        color="alternative"
+        pill
+        size="xs"
+        onClick={() => setOpenModal(true)}
+      >
+        {t.spatial}
+      </Button>
+      <Modal
+        dismissible
+        show={openModal}
+        size="lg"
+        onClose={onCloseModal}
+        popup
+      >
+        <ModalHeader>
+          {t.filter_by} {t.spatial.toLowerCase()}
+        </ModalHeader>
+        <ModalBody>
+          {/* Add input fields for north, south, east, and west */}
+          <div className="flex flex-col gap-2 items-center justify-center">
+            <div className="text-sm">
+              <div> {t.north}</div>
+              <input
+                type="number"
+                className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
+                placeholder={t.north}
+                value={north}
+                onChange={(e) => setNorth(e.target.value)}
+              />
+            </div>
+            <div className="text-sm flex flex-row space-between gap-1">
+              <div> {t.west}</div>
+              <input
+                type="number"
+                className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
+                placeholder={t.south}
+                value={south}
+                onChange={(e) => setSouth(e.target.value)}
+              />
+              <input
+                type="number"
+                className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
+                placeholder={t.east}
+                value={east}
+                onChange={(e) => setEast(e.target.value)}
+              />
+              <div> {t.east}</div>
+            </div>
+
+            <div className="text-sm">
+              <input
+                type="number"
+                className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
+                placeholder={t.west}
+                value={west}
+                onChange={(e) => setWest(e.target.value)}
+              />
+              <div> {t.south}</div>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
+    </>
+  );
+}
+
+export default function FilterSection({ lang, badges, setBadges }) {
   const t = getLocale(lang);
 
   const removeBadge = (filterType) => {
@@ -186,21 +275,17 @@ export default function FilterSection({ lang, badges, setBadges}) {
           setBadges={setBadges}
         />
         <FilterItems filter_type="projects" lang={lang} setBadges={setBadges} />
-        <FilterItems filter_type="eov" lang={lang} setBadges={setBadges}/>
-        <FilterItems filter_type="time" lang={lang} setBadges={setBadges}/>
-        <FilterItems
-          filter_type="spatial"
-          lang={lang}
-          setBadges={setBadges}
-        />
+        <FilterItems filter_type="eov" lang={lang} setBadges={setBadges} />
+        <FilterItems filter_type="time" lang={lang} setBadges={setBadges} />
+        <BoundingBoxFilter lang={lang} setBadges={setBadges} />
       </div>
 
       {/* Render Badges */}
       <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
         {console.log("badges length :: ", Object.entries(badges).length)}
-        {Object.entries(badges).map(([filterType, value]) => (
-          getBadge(filterType, value, lang, removeBadge)
-        ))}
+        {Object.entries(badges).map(([filterType, value]) =>
+          getBadge(filterType, value, lang, removeBadge),
+        )}
       </div>
     </>
   );

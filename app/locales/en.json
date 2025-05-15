@@ -14,5 +14,11 @@
   "load_datasets": "Load datasets",
   "no_datasets": "No datasets found",
   "dataset_markers": "Dataset markers",
-  "about": "About"
+  "about": "About",
+  "spatial_filter": "Spatial filters",
+  "bounding_box": "Bounding box",
+  "north": "North",
+  "south": "South",
+  "east": "East",
+  "west": "West"
 }

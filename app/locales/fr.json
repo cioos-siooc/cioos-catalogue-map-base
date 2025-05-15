@@ -14,5 +14,11 @@
   "load_datasets": "Chargement des jeux de données",
   "no_datasets": "Aucun jeu de données trouvé",
   "dataset_markers": "Marqueurs de jeu de données",
-  "about": "À Propos"
+  "about": "À Propos",
+  "spatial_filter": "Filtre spatial",
+  "bounding_box": "Boîte de délimitation",
+  "north": "Nord",
+  "south": "Sud",
+  "east": "Est",
+  "west": "Ouest"
 }
