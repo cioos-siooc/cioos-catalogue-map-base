@@ -166,14 +166,23 @@ const BaseLayers = ({ basemaps, lang }) => (
 
 // Main Map component
 function Map({ bounds, filteredItems, handleListItemClick, lang }) {
-  const { openDrawer } = useContext(DrawerContext);
+  const { openDrawer, boundingBox } = useContext(DrawerContext);
   const t = getLocale(lang);
 
-  const rectangleBounds = [
-    [10, -120],
-    [50, 130],
-  ]; // Example rectangle bounds
-  const invertedPolygon = createInvertedPolygon(rectangleBounds);
+  // Convert boundingBox ([ [south, west], [north, east] ]) into polygon positions
+  const polygonPositions = boundingBox
+    ? [
+        [boundingBox[0][0], boundingBox[0][1]], // Bottom-left
+        [boundingBox[0][0], boundingBox[1][1]], // Bottom-right
+        [boundingBox[1][0], boundingBox[1][1]], // Top-right
+        [boundingBox[1][0], boundingBox[0][1]], // Top-left
+        [boundingBox[0][0], boundingBox[0][1]], // Closing point
+      ]
+    : [];
+
+  const invertedPolygon = boundingBox
+    ? createInvertedPolygon(boundingBox)
+    : null;
 
   return (
     <div id="container" className="h-full w-full">
@@ -202,15 +211,16 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
             </MarkerClusterGroup>
           </Overlay>
           <Overlay checked name={t.spatial_filter}>
-            <Polygon
-              positions={invertedPolygon}
-              pathOptions={{
-                color: "black",
-                weight: 0,
-                fillColor: "rgba(0, 0, 0, 0.6)",
-                fillOpacity: 0.6,
-              }}
-            />
+            {boundingBox && (
+              <Polygon
+                positions={invertedPolygon}
+                pathOptions={{
+                  color: null,
+                  fill: "black",
+                  fillOpacity: 0.2,
+                }}
+              />
+            )}
           </Overlay>
         </LayersControl>
       </MapContainer>

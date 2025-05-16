@@ -8,8 +8,9 @@ import {
   FloatingLabel,
   Select,
 } from "flowbite-react";
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import { getLocale } from "@/app/get-locale";
+import { DrawerContext } from "@/app/context/DrawerContext";
 
 function getBadge(filterType, value, lang, removeBadge) {
   if (!value) return null; // Return null if value is empty
@@ -164,13 +165,23 @@ export function FilterItems({ filter_type, lang, setBadges }) {
 // Generate a UI for a bounding box ui filter to define the north, south, east, and west coordinates limits
 
 function BoundingBoxFilter({ lang, setBadges }) {
+  const { boundingBox, setBoundingBox } = useContext(DrawerContext);
   const [openModal, setOpenModal] = useState(false);
-  const [north, setNorth] = useState(90);
-  const [south, setSouth] = useState(-90);
-  const [east, setEast] = useState(180);
-  const [west, setWest] = useState(-180);
+  // Initialize state with current boundingBox values
+  const [north, setNorth] = useState(boundingBox ? boundingBox[1][0] : 90);
+  const [south, setSouth] = useState(boundingBox ? boundingBox[0][0] : -90);
+  const [east, setEast] = useState(boundingBox ? boundingBox[1][1] : 180);
+  const [west, setWest] = useState(boundingBox ? boundingBox[0][1] : -180);
 
   const t = getLocale(lang);
+
+  // Sync the context boundingBox whenever inputs change
+  useEffect(() => {
+    setBoundingBox([
+      [south, west],
+      [north, east],
+    ]);
+  }, [north, south, east, west, setBoundingBox]);
 
   function onCloseModal() {
     if (!north || !south || !east || !west) {
@@ -205,46 +216,44 @@ function BoundingBoxFilter({ lang, setBadges }) {
           {t.filter_by} {t.spatial.toLowerCase()}
         </ModalHeader>
         <ModalBody>
-          {/* Add input fields for north, south, east, and west */}
           <div className="flex flex-col gap-2 items-center justify-center">
             <div className="text-sm">
-              <div className="text-center"> {t.north}</div>
+              <div className="text-center">{t.north}</div>
               <input
                 type="number"
                 className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
                 placeholder={t.north}
                 value={north}
-                onChange={(e) => setNorth(e.target.value)}
+                onChange={(e) => setNorth(parseFloat(e.target.value))}
               />
             </div>
-            <div className="text-sm flex flex-row space-between gap-2">
-              <div> {t.west}</div>
+            <div className="text-sm flex flex-row gap-2">
+              <div>{t.west}</div>
               <input
                 type="number"
                 className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
                 placeholder={t.west}
                 value={west}
-                onChange={(e) => setWest(e.target.value)}
+                onChange={(e) => setWest(parseFloat(e.target.value))}
               />
               <input
                 type="number"
                 className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
                 placeholder={t.east}
                 value={east}
-                onChange={(e) => setEast(e.target.value)}
+                onChange={(e) => setEast(parseFloat(e.target.value))}
               />
-              <div> {t.east}</div>
+              <div>{t.east}</div>
             </div>
-
             <div className="text-sm">
               <input
                 type="number"
                 className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
                 placeholder={t.south}
                 value={south}
-                onChange={(e) => setSouth(e.target.value)}
+                onChange={(e) => setSouth(parseFloat(e.target.value))}
               />
-              <div className="text-center"> {t.south}</div>
+              <div className="text-center">{t.south}</div>
             </div>
           </div>
         </ModalBody>
