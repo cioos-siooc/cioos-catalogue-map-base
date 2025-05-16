@@ -11,7 +11,6 @@ import {
 } from "flowbite-react";
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
-import { format } from "date-fns";
 
 function getBadge(filterType, value, lang, removeBadge) {
   if (!value) return null; // Return null if value is empty
@@ -23,7 +22,9 @@ function getBadge(filterType, value, lang, removeBadge) {
       className="flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
     >
       <span>
-        {t[filterType].toLowerCase()}: {value}
+        {filterType === "filter_date"
+          ? `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value)}`
+          : `${t[filterType].toLowerCase()}: ${value}`}
       </span>
       <button
         className="ml-2 text-white bg-blue-500 hover:bg-blue-700 rounded-full p-1 transition duration-200"
@@ -33,6 +34,18 @@ function getBadge(filterType, value, lang, removeBadge) {
       </button>
     </div>
   );
+}
+
+// Helper function to format a date range string by removing the time
+function formatDateRangeWithoutTime(value) {
+  // Expects value like '2025-05-16T00:00:00Z%20TO%202025-05-17T00:00:00Z'
+  if (!value) return "";
+  const match = value.match(/(\d{4}-\d{2}-\d{2})T.*TO.*(\d{4}-\d{2}-\d{2})T/);
+  if (match) {
+    return `${match[1]} to ${match[2]}`;
+  }
+  // Fallback: remove time if present, and replace %20TO%20 with ' to '
+  return value.replace(/T.*?Z/g, "").replace(/%20TO%20/i, " to ");
 }
 
 export function SearchFilter({ lang, setBadges }) {
@@ -102,12 +115,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
 
     setBadges((prevBadges) => ({
       ...prevBadges,
-      start_date: startDate.toISOString().split(".")[0] + "Z",
-    }));
-
-    setBadges((prevBadges) => ({
-      ...prevBadges,
-      end_date: endDate.toISOString().split(".")[0] + "Z",
+      filter_date: `${startDate.toISOString().split(".")[0]}Z%20TO%20${endDate.toISOString().split(".")[0]}Z`,
     }));
 
     setOpenModal(false);
@@ -290,6 +298,10 @@ export default function FilterSection({
     setBadges((prevBadges) => {
       const updatedBadges = { ...prevBadges };
       delete updatedBadges[filterType];
+      // Reset selected option if the filter type is "filter_date"
+      if (filterType === "filter_date") {
+        setSelectedOption("");
+      }
       return updatedBadges;
     });
   };

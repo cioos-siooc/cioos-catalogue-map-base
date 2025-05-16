@@ -51,15 +51,14 @@ export function Sidebar({
 
   const generateQueryString = (badges) => {
     let queryString = "";
-    console.log("Query first :: ", queryString.length);
+    console.log("Query first badges :: ", Object.keys(badges).length);
     queryString += Object.entries(badges)
       .map(([filterType, value]) => buildFilterString(filterType, value))
       .join("");
     console.log("Query second :: ", queryString);
-    if (queryString.length > 0) {
-      queryString.join("%20AND%20");
+    if (Object.keys(badges).length > 1) {
+      queryString += "%20AND%20";
     }
-    console.log("Query third :: ", queryString);
 
     // check if there is a Date filter
     if (selectedDateFilterOption) {
@@ -77,7 +76,7 @@ export function Sidebar({
   function buildFilterString(filterType, value) {
     if (!value) return;
     // Check if the filterType is a date filter, because we need to format it differently
-    if (filterType !== "end_date" && filterType !== "start_date") {
+    if (filterType !== "filter_date") {
       if (filterType === "search") {
         return `${value}`;
       } else {
@@ -91,7 +90,7 @@ export function Sidebar({
 
   // Builds a string for date filters using filterTypes: filter_date_type, start_date, end_date
   function buildDateFiltersString(badges, selectedOption) {
-    const dateFilterStr = `${selectedOption}:[${badges["start_date"]}%20TO%20${badges["end_date"]}]`;
+    const dateFilterStr = `${selectedOption}:[${badges["filter_date"]}]`;
 
     return dateFilterStr;
   }
