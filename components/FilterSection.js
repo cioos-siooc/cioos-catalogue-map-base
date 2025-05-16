@@ -208,7 +208,7 @@ function BoundingBoxFilter({ lang, setBadges }) {
           {/* Add input fields for north, south, east, and west */}
           <div className="flex flex-col gap-2 items-center justify-center">
             <div className="text-sm">
-              <div> {t.north}</div>
+              <div className="text-center"> {t.north}</div>
               <input
                 type="number"
                 className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
@@ -217,14 +217,14 @@ function BoundingBoxFilter({ lang, setBadges }) {
                 onChange={(e) => setNorth(e.target.value)}
               />
             </div>
-            <div className="text-sm flex flex-row space-between gap-1">
+            <div className="text-sm flex flex-row space-between gap-2">
               <div> {t.west}</div>
               <input
                 type="number"
                 className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
-                placeholder={t.south}
-                value={south}
-                onChange={(e) => setSouth(e.target.value)}
+                placeholder={t.west}
+                value={west}
+                onChange={(e) => setWest(e.target.value)}
               />
               <input
                 type="number"
@@ -240,11 +240,11 @@ function BoundingBoxFilter({ lang, setBadges }) {
               <input
                 type="number"
                 className="rounded-lg border-0 p-2 focus:ring-2 bg-gray-50 text-center"
-                placeholder={t.west}
-                value={west}
-                onChange={(e) => setWest(e.target.value)}
+                placeholder={t.south}
+                value={south}
+                onChange={(e) => setSouth(e.target.value)}
               />
-              <div> {t.south}</div>
+              <div className="text-center"> {t.south}</div>
             </div>
           </div>
         </ModalBody>
