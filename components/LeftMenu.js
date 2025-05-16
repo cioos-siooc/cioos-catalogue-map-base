@@ -91,7 +91,7 @@ export function Sidebar({
 
   // Builds a string for date filters using filterTypes: filter_date_type, start_date, end_date
   function buildDateFiltersString(badges, selectedOption) {
-    const dateFilterStr = `${selectedOption}=[${badges["start_date"]} TO ${badges["start_date"]}]`;
+    const dateFilterStr = `${selectedOption}:[${badges["start_date"]}%20TO%20${badges["end_date"]}]`;
 
     return dateFilterStr;
   }

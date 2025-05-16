@@ -102,12 +102,12 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
 
     setBadges((prevBadges) => ({
       ...prevBadges,
-      start_date: format(startDate, "yyyy-MM-dd'T'00:00:00'Z'"),
+      start_date: startDate.toISOString().split(".")[0] + "Z",
     }));
 
     setBadges((prevBadges) => ({
       ...prevBadges,
-      end_date: format(endDate, "yyyy-MM-dd'T'00:00:00'Z'"),
+      end_date: endDate.toISOString().split(".")[0] + "Z",
     }));
 
     setOpenModal(false);
@@ -134,7 +134,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
       <Modal
         dismissible
         show={openModal}
-        size="2xl"
+        size="3xl"
         onClose={onCloseModal}
         popup
         className="rounded-lg shadow-lg border border-gray-300"
@@ -143,46 +143,59 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
           {t.filter_by} {t.time}
         </ModalHeader>
         <ModalBody className="overflow-visible flex flex-col gap-2 bg-white p-4 rounded-b-lg">
-          <div className="flex flex-row items-center gap-2">
-            {/* New select component before the first datepicker */}
-            <Select
-              className="border border-gray-300 rounded-md p-2 mr-2 w-[calc(50%+20px)] min-w-[180px]"
-              id="date-filter-type"
-              onChange={(e) => setSelectedOption(e.target.value)}
-            >
-              <option value="">Select an option</option>
-              <option value="temporal-extent-begin">
-                temporal-extent-begin
-              </option>
-              <option value="temporal-extent-end">temporal-extent-end</option>
-              <option value="metadata_created">metadata_created</option>
-              <option value="metadata_updated">metadata_updated</option>
-            </Select>
-            <div className="font-medium">{t.from}</div>
-            <Datepicker
-              className="border border-gray-300 rounded-md p-2 w-[calc(50%+20px)] min-w-[180px]"
-              language={`${lang}-CA`}
-              onChange={handleStartDateChange}
-              value={startDate}
-              selected={startDate}
-              maxDate={endDate || new Date()}
-              labelTodayButton={t.today}
-              labelClearButton={t.clear}
-              placeholder={t.start_date}
-            />
-            <div className="font-medium">{t.to}</div>
-            <Datepicker
-              className="border border-gray-300 rounded-md p-2 w-[calc(50%+20px)] min-w-[180px]"
-              language={`${lang}-CA`}
-              onChange={handleEndDateChange}
-              value={endDate}
-              selected={endDate}
-              minDate={startDate} // Disable dates before the start date
-              maxDate={new Date()} // Disable future dates
-              labelTodayButton={t.today}
-              labelClearButton={t.clear}
-              placeholder={t.end_date}
-            />
+          <div className="flex flex-row items-center gap-4">
+            {/* Select component */}
+
+            {/* Datepickers with labels above */}
+            <div className="flex flex-col w-full">
+              <div className="flex flex-row w-full justify-between mb-1">
+                <span className="font-medium w-1/5 text-center">
+                  {t.timefield}
+                </span>
+                <span className="font-medium w-2/5 text-center">{t.from}</span>
+                <span className="font-medium w-2/5 text-center">{t.to}</span>
+              </div>
+              <div className="flex flex-row w-full gap-2">
+                <Select
+                  className="border border-gray-300 rounded-md p-2 w-[220px] min-w-[180px]"
+                  id="date-filter-type"
+                  onChange={(e) => setSelectedOption(e.target.value)}
+                >
+                  <option value="">Select an option</option>
+                  <option value="temporal-extent-begin">
+                    temporal-extent-begin
+                  </option>
+                  <option value="temporal-extent-end">
+                    temporal-extent-end
+                  </option>
+                  <option value="metadata_created">metadata_created</option>
+                  <option value="metadata_updated">metadata_updated</option>
+                </Select>
+                <Datepicker
+                  className="border border-gray-300 rounded-md p-2 w-[calc(50%+20px)] min-w-[180px]"
+                  language={`${lang}-CA`}
+                  onChange={handleStartDateChange}
+                  value={startDate}
+                  selected={startDate}
+                  maxDate={endDate || new Date()}
+                  labelTodayButton={t.today}
+                  labelClearButton={t.clear}
+                  placeholder={t.start_date}
+                />
+                <Datepicker
+                  className="border border-gray-300 rounded-md p-2 w-[calc(50%+20px)] min-w-[180px]"
+                  language={`${lang}-CA`}
+                  onChange={handleEndDateChange}
+                  value={endDate}
+                  selected={endDate}
+                  minDate={startDate} // Disable dates before the start date
+                  maxDate={new Date()} // Disable future dates
+                  labelTodayButton={t.today}
+                  labelClearButton={t.clear}
+                  placeholder={t.end_date}
+                />
+              </div>
+            </div>
           </div>
         </ModalBody>
       </Modal>

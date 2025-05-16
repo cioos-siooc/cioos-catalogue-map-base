@@ -15,6 +15,7 @@
   "no_datasets": "Aucun jeu de données trouvé",
   "start_date": "Date de début",
   "end_date": "Date de fin",
+  "timefield": "Champ concerné",
   "from": "De",
   "to": "À",
   "today": "Aujourd'hui",
