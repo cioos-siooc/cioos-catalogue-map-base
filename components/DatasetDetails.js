@@ -6,10 +6,18 @@ import Image from "next/image";
 import Citation from "@/components/Citation";
 import { useContext } from "react";
 import { getLocale } from "@/app/get-locale.js";
+import config from "@/app/config.js";
 
 export function DatasetDetails({ dataSetInfo, lang }) {
   const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
+
+  function add_base_url(url) {
+    if (url && !url.startsWith("http")) {
+      return config.catalogue_url + url;
+    }
+    return url;
+  }
 
   return (
     <>
@@ -26,10 +34,9 @@ export function DatasetDetails({ dataSetInfo, lang }) {
             {dataSetInfo && dataSetInfo.organization ? (
               <Image
                 className="rounded-sm w-auto max-h-40 bg-white p-1"
-                src={
-                  dataSetInfo &&
-                  dataSetInfo.organization.image_url_translated[lang]
-                }
+                src={add_base_url(
+                  dataSetInfo?.organization?.image_url_translated[lang],
+                )}
                 alt="Organization Logo"
                 width={0}
                 height={40}
