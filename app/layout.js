@@ -56,7 +56,10 @@ function AppContent({ lang, setLang }) {
     if (fetchURLFilter) {
       url += `%20AND%20${fetchURLFilter}`;
     }
-    return url + `&rows=1000`;
+    return (
+      url +
+      `&rows=1000&fl=title_translated,organization.title_translated,spatial`
+    );
   }, [urlCustomSearch, fetchURLFilter]);
 
   useEffect(() => {
@@ -73,36 +76,16 @@ function AppContent({ lang, setLang }) {
     }
   }, [lang]);
 
-  // Use callback for fetching data
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(fetchURL);
-      if (!response.ok) {
-        throw new Error("There was an error fetching the data from CKAN API");
-      }
-      const awaitRes = await response.json();
-
-      setFilteredItems(awaitRes.result.results);
-      setInputValue("");
-      if (fetchURLFilter) {
-        setFilteredResultsCount(awaitRes.result.results.length);
-      } else {
-        setTotalResultsCount(awaitRes.result.results.length);
-      }
-      if (badgeCount === 0) {
-        setFilteredResultsCount(0);
-      }
-    } catch (error) {
-      console.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchURL, fetchURLFilter, badgeCount]);
-
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetch("/packages.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setFilteredItems(data);
+        setTotalResultsCount(data.length);
+      })
+      .then(() => setLoading(false))
+      .catch((error) => console.error("Error loading packages:", error));
+  }, []);
 
   // Import the useDrawer hook to get drawer state and methods
   const { isDrawerOpen, openDrawer } = useDrawer();
