@@ -169,20 +169,9 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
   const { openDrawer, boundingBox } = useContext(DrawerContext);
   const t = getLocale(lang);
 
-  // Convert boundingBox ([ [south, west], [north, east] ]) into polygon positions
   const polygonPositions = boundingBox
-    ? [
-        [boundingBox[0][0], boundingBox[0][1]], // Bottom-left
-        [boundingBox[0][0], boundingBox[1][1]], // Bottom-right
-        [boundingBox[1][0], boundingBox[1][1]], // Top-right
-        [boundingBox[1][0], boundingBox[0][1]], // Top-left
-        [boundingBox[0][0], boundingBox[0][1]], // Closing point
-      ]
-    : [];
-
-  const invertedPolygon = boundingBox
     ? createInvertedPolygon(boundingBox)
-    : null;
+    : [];
 
   return (
     <div id="container" className="h-full w-full">
@@ -213,7 +202,7 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
           <Overlay checked name={t.spatial_filter}>
             {boundingBox && (
               <Polygon
-                positions={invertedPolygon}
+                positions={polygonPositions}
                 pathOptions={{
                   color: null,
                   fill: "black",
