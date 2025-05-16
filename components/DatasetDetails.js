@@ -47,20 +47,20 @@ export function DatasetDetails({ dataSetInfo, lang }) {
 
             <div className="flex flex-col gap-1 mt-4">
               <h4 className="font-bold">
-                {dataSetInfo && dataSetInfo.title_translated[lang]}
+                {dataSetInfo?.title_translated[lang]}
               </h4>
               <p className="text-xs">
-                {dataSetInfo && dataSetInfo.organization.title_translated[lang]}
+                {dataSetInfo?.organization.title_translated[lang]}
               </p>
               <hr className="border-gray-800 dark:border-gray-200" />
               <p className="text-xs">
-                {t.license}: {dataSetInfo && dataSetInfo.license_title}
+                {t.license}: {dataSetInfo?.license_title}
               </p>
             </div>
           </div>
 
           <div className="relative flex-grow overflow-y-auto mt-4 mb-4 text-sm">
-            {dataSetInfo && dataSetInfo.notes_translated[lang]}
+            {dataSetInfo?.notes_translated[lang]}
           </div>
           <Citation dataSetInfo={dataSetInfo} lang={lang} />
         </DrawerItems>
