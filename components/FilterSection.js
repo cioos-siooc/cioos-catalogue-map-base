@@ -155,56 +155,54 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
 
             {/* Datepickers with labels above */}
             <div className="flex flex-col w-full">
-              <div className="flex flex-row w-full justify-between mb-1">
-                <span className="font-medium pl-2 w-1/4 text-center">
-                  {t.timefield}
-                </span>
-                <span className="font-medium pl-5 w-2/5 text-center">
-                  {t.from}
-                </span>
-                <span className="font-medium pl-5 w-2/5 text-center">
-                  {t.to}
-                </span>
-              </div>
               <div className="flex flex-row w-full gap-2">
-                <Select
-                  className="p-2 w-[220px] min-w-[180px]"
-                  id="date-filter-type"
-                  onChange={(e) => setSelectedOption(e.target.value)}
-                >
-                  <option value="">Select an option</option>
-                  <option value="temporal-extent-begin">
-                    temporal-extent-begin
-                  </option>
-                  <option value="temporal-extent-end">
-                    temporal-extent-end
-                  </option>
-                  <option value="metadata_created">metadata_created</option>
-                  <option value="metadata_updated">metadata_updated</option>
-                </Select>
-                <Datepicker
-                  className="p-2 w-[calc(50%+20px)] min-w-[180px]"
-                  language={`${lang}-CA`}
-                  onChange={handleStartDateChange}
-                  value={startDate}
-                  selected={startDate}
-                  maxDate={endDate || new Date()}
-                  labelTodayButton={t.today}
-                  labelClearButton={t.clear}
-                  placeholder={t.start_date}
-                />
-                <Datepicker
-                  className="p-2 w-[calc(50%+20px)] min-w-[180px]"
-                  language={`${lang}-CA`}
-                  onChange={handleEndDateChange}
-                  value={endDate}
-                  selected={endDate}
-                  minDate={startDate} // Disable dates before the start date
-                  maxDate={new Date()} // Disable future dates
-                  labelTodayButton={t.today}
-                  labelClearButton={t.clear}
-                  placeholder={t.end_date}
-                />
+                <div>
+                  <span>{t.timefield}</span>
+                  <Select
+                    className="p-2 w-[220px] min-w-[180px]"
+                    id="date-filter-type"
+                    onChange={(e) => setSelectedOption(e.target.value)}
+                  >
+                    <option value="">Select an option</option>
+                    <option value="temporal-extent-begin">
+                      temporal-extent-begin
+                    </option>
+                    <option value="temporal-extent-end">
+                      temporal-extent-end
+                    </option>
+                    <option value="metadata_created">metadata_created</option>
+                    <option value="metadata_updated">metadata_updated</option>
+                  </Select>
+                </div>
+                <div>
+                  <span>{t.from}</span>
+                  <Datepicker
+                    className="p-2 w-[calc(50%+20px)] min-w-[180px]"
+                    language={`${lang}-CA`}
+                    onChange={handleStartDateChange}
+                    value={startDate}
+                    selected={startDate}
+                    maxDate={endDate || new Date()}
+                    labelTodayButton={t.today}
+                    labelClearButton={t.clear}
+                    placeholder={t.start_date}
+                  />
+                </div>
+                <div>
+                  <span>{t.to}</span>
+                  <Datepicker
+                    className="p-2 w-[calc(50%+20px)] min-w-[180px]"
+                    language={`${lang}-CA`}
+                    onChange={handleEndDateChange}
+                    value={endDate}
+                    selected={endDate}
+                    minDate={startDate} // Disable dates before the start date
+                    maxDate={new Date()} // Disable future dates
+                    labelTodayButton={t.today}
+                    labelClearButton={t.clear}
+                    placeholder={t.end_date}
+                  />
+                </div>
               </div>
             </div>
           </div>
