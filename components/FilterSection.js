@@ -160,8 +160,12 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                 <span className="font-medium w-1/5 text-center">
                   {t.timefield}
                 </span>
-                <span className="font-medium w-2/5 text-center">{t.from}</span>
-                <span className="font-medium w-2/5 text-center">{t.to}</span>
+                <span className="font-medium pl-15 w-2/5 text-center">
+                  {t.from}
+                </span>
+                <span className="font-medium pl-5 w-2/5 text-center">
+                  {t.to}
+                </span>
               </div>
               <div className="flex flex-row w-full gap-2">
                 <Select
