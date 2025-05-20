@@ -25,6 +25,7 @@ export function Sidebar({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [badges, setBadges] = useState([]);
+  const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
 
   const t = getLocale(lang);
 
@@ -49,12 +50,51 @@ export function Sidebar({
   };
 
   const generateQueryString = (badges) => {
-    return Object.entries(badges)
-      .map(([filterType, value]) =>
-        filterType === "search" ? `${value}` : `${filterType}=${value}`,
-      )
-      .join("%20AND%20");
+    let queryString = "";
+    console.log("Query first badges :: ", Object.keys(badges).length);
+    queryString += Object.entries(badges)
+      .map(([filterType, value]) => buildFilterString(filterType, value))
+      .join("");
+    console.log("Query second :: ", queryString);
+    if (Object.keys(badges).length > 1) {
+      queryString += "%20AND%20";
+    }
+
+    // check if there is a Date filter
+    if (selectedDateFilterOption) {
+      let dateFilters = buildDateFiltersString(
+        badges,
+        selectedDateFilterOption,
+      );
+      console.log("Date Filters :: ", dateFilters);
+      queryString += dateFilters;
+    }
+    console.log("Query Final Filters :: ", queryString);
+    return queryString;
   };
+
+  //TODO rethink this function will be complicated with many searches terms involved
+  function buildFilterString(filterType, value) {
+    if (!value) return;
+    // Check if the filterType is a date filter, because we need to format it differently
+    if (filterType !== "filter_date") {
+      if (filterType === "search") {
+        return `${value}`;
+      } else {
+        return `${filterType}=${value}`;
+      }
+    } else {
+      // If it's a date filter, we need to format it differently
+      return "";
+    }
+  }
+
+  // Builds a string for date filters using filterTypes: filter_date_type, start_date, end_date
+  function buildDateFiltersString(badges, selectedOption) {
+    const dateFilterStr = `${selectedOption}:[${badges["filter_date"]}]`;
+
+    return dateFilterStr;
+  }
 
   // Trigger reharvest when badges change
   useEffect(() => {
@@ -108,7 +148,12 @@ export function Sidebar({
               </svg>
             </button>
           </div>
-          <FilterSection lang={lang} badges={badges} setBadges={setBadges} />
+          <FilterSection
+            lang={lang}
+            badges={badges}
+            setBadges={setBadges}
+            setSelectedOption={setSelectedDateFilterOption}
+          />
 
           <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">
             {t.datasets}

@@ -5,12 +5,6 @@ const ProgressBar = ({ count, total }) => {
       <span className="pb-1 text-sm font-medium">
         {count} / {total} ( {progress} % )
       </span>
-      <div className="w-full bg-gray-200 rounded-full">
-        <div
-          className="bg-gray-600  p-1 leading-none rounded-l-lg"
-          style={{ width: `${progress}%` }}
-        ></div>
-      </div>
     </div>
   );
 };

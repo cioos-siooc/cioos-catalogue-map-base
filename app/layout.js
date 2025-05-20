@@ -54,7 +54,7 @@ function AppContent({ lang, setLang }) {
   const fetchURL = useMemo(() => {
     let url = `${urlCustomSearch}${config.base_query}`;
     if (fetchURLFilter) {
-      url += `%20AND%20${fetchURLFilter}`;
+      url += fetchURLFilter;
     }
     return url + `&rows=1000`;
   }, [urlCustomSearch, fetchURLFilter]);
@@ -77,6 +77,7 @@ function AppContent({ lang, setLang }) {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      console.log("Fetching data from CKAN API...", fetchURL);
       const response = await fetch(fetchURL);
       if (!response.ok) {
         throw new Error("There was an error fetching the data from CKAN API");
