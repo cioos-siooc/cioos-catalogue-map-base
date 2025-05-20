@@ -112,7 +112,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
       setOpenModal(false);
       return;
     }
-
+    // TODO: add first drowdown value inside the badge
     setBadges((prevBadges) => ({
       ...prevBadges,
       filter_date: `${startDate.toISOString().split(".")[0]}Z%20TO%20${endDate.toISOString().split(".")[0]}Z`,
@@ -145,12 +145,11 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
         size="3xl"
         onClose={onCloseModal}
         popup
-        className="rounded-lg shadow-lg border border-gray-300"
       >
-        <ModalHeader className="bg-gray-100 text-gray-800 font-semibold">
+        <ModalHeader>
           {t.filter_by} {t.time}
         </ModalHeader>
-        <ModalBody className="overflow-visible flex flex-col gap-2 bg-white p-4 rounded-b-lg">
+        <ModalBody className="overflow-visible flex flex-col gap-2 p-4">
           <div className="flex flex-row items-center gap-4">
             {/* Select component */}
 
@@ -169,7 +168,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
               </div>
               <div className="flex flex-row w-full gap-2">
                 <Select
-                  className="border border-gray-300 rounded-md p-2 w-[220px] min-w-[180px]"
+                  className="p-2 w-[220px] min-w-[180px]"
                   id="date-filter-type"
                   onChange={(e) => setSelectedOption(e.target.value)}
                 >
@@ -184,7 +183,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                   <option value="metadata_updated">metadata_updated</option>
                 </Select>
                 <Datepicker
-                  className="border border-gray-300 rounded-md p-2 w-[calc(50%+20px)] min-w-[180px]"
+                  className="p-2 w-[calc(50%+20px)] min-w-[180px]"
                   language={`${lang}-CA`}
                   onChange={handleStartDateChange}
                   value={startDate}
@@ -195,7 +194,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                   placeholder={t.start_date}
                 />
                 <Datepicker
-                  className="border border-gray-300 rounded-md p-2 w-[calc(50%+20px)] min-w-[180px]"
+                  className="p-2 w-[calc(50%+20px)] min-w-[180px]"
                   language={`${lang}-CA`}
                   onChange={handleEndDateChange}
                   value={endDate}

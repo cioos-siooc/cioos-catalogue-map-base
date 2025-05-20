@@ -73,6 +73,7 @@ export function Sidebar({
     return queryString;
   };
 
+  //TODO rethink this function will be complicated with many searches terms involved
   function buildFilterString(filterType, value) {
     if (!value) return;
     // Check if the filterType is a date filter, because we need to format it differently
