@@ -36,7 +36,6 @@ function getBadge(filterType, value, lang, removeBadge) {
   );
 }
 
-
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value) {
   // Expects value like '2025-05-16T00:00:00Z%20TO%202025-05-17T00:00:00Z'
@@ -102,7 +101,6 @@ export function SearchFilter({ lang, setBadges }) {
   );
 }
 
-
 export function OptionItems(filter_type, orgList, projList, eovList) {
   if (filter_type === "organization") {
     return orgList.map((org) => (
@@ -125,8 +123,6 @@ export function OptionItems(filter_type, orgList, projList, eovList) {
   }
   return null;
 }
-
-
 
 function TimeFilter({ lang, setBadges, setSelectedOption }) {
   const [openModal, setOpenModal] = useState(false);
@@ -372,29 +368,18 @@ export default function FilterSection({
           eovList={eovList}
         />
         <FilterItems
-          filter_type="time"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
-        <FilterItems
           filter_type="spatial"
           lang={lang}
           setBadges={setBadges}
           orgList={orgList}
           projList={projList}
           eovList={eovList}
-         />
-        <FilterItems filter_type="projects" lang={lang} setBadges={setBadges} />
-        <FilterItems filter_type="eov" lang={lang} setBadges={setBadges} />
+        />
         <TimeFilter
           lang={lang}
           setBadges={setBadges}
           setSelectedOption={setSelectedOption}
-         />
-        <FilterItems filter_type="spatial" lang={lang} setBadges={setBadges} />
+        />
       </div>
 
       {/* Render Badges */}
