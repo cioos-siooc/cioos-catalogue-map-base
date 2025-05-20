@@ -157,10 +157,10 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
             {/* Datepickers with labels above */}
             <div className="flex flex-col w-full">
               <div className="flex flex-row w-full justify-between mb-1">
-                <span className="font-medium w-1/5 text-center">
+                <span className="font-medium pl-2 w-1/4 text-center">
                   {t.timefield}
                 </span>
-                <span className="font-medium pl-15 w-2/5 text-center">
+                <span className="font-medium pl-5 w-2/5 text-center">
                   {t.from}
                 </span>
                 <span className="font-medium pl-5 w-2/5 text-center">
