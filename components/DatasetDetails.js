@@ -6,11 +6,19 @@ import Image from "next/image";
 import Citation from "@/components/Citation";
 import { useContext } from "react";
 import { getLocale } from "@/app/get-locale.js";
+import config from "@/app/config.js";
 
 export function DatasetDetails({ dataSetInfo, lang }) {
   const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
-  console.log("DataSET ::", dataSetInfo);
+
+  function add_base_url(url) {
+    if (url && !url.startsWith("http")) {
+      return config.catalogue_url + url;
+    }
+    return url;
+  }
+
   return (
     <>
       <Drawer
@@ -26,10 +34,9 @@ export function DatasetDetails({ dataSetInfo, lang }) {
             {dataSetInfo && dataSetInfo.organization ? (
               <Image
                 className="rounded-sm w-auto max-h-40 bg-white p-1"
-                src={
-                  dataSetInfo &&
-                  dataSetInfo.organization.image_url_translated[lang]
-                }
+                src={add_base_url(
+                  dataSetInfo?.organization?.image_url_translated[lang],
+                )}
                 alt="Organization Logo"
                 width={0}
                 height={40}
@@ -40,20 +47,20 @@ export function DatasetDetails({ dataSetInfo, lang }) {
 
             <div className="flex flex-col gap-1 mt-4">
               <h4 className="font-bold">
-                {dataSetInfo && dataSetInfo.title_translated[lang]}
+                {dataSetInfo?.title_translated[lang]}
               </h4>
               <p className="text-xs">
-                {dataSetInfo && dataSetInfo.organization.title_translated[lang]}
+                {dataSetInfo?.organization.title_translated[lang]}
               </p>
               <hr className="border-gray-800 dark:border-gray-200" />
               <p className="text-xs">
-                {t.license}: {dataSetInfo && dataSetInfo.license_title}
+                {t.license}: {dataSetInfo?.license_title}
               </p>
             </div>
           </div>
 
           <div className="relative flex-grow overflow-y-auto mt-4 mb-4 text-sm">
-            {dataSetInfo && dataSetInfo.notes_translated[lang]}
+            {dataSetInfo?.notes_translated[lang]}
           </div>
           <Citation dataSetInfo={dataSetInfo} lang={lang} />
         </DrawerItems>
