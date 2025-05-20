@@ -13,6 +13,14 @@
   "citation": "Citation",
   "load_datasets": "Load datasets",
   "no_datasets": "No datasets found",
+  "start_date": "Start date",
+  "end_date": "End date",
+  "filter_date": "Date filter",
+  "timefield": "Field concerned",
+  "from": "From",
+  "to": "To",
+  "today": "Today",
+  "clear": "Clear",
   "dataset_markers": "Dataset markers",
   "about": "About"
 }

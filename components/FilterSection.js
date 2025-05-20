@@ -7,6 +7,7 @@ import {
   ModalHeader,
   FloatingLabel,
   Select,
+  Datepicker,
 } from "flowbite-react";
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
@@ -18,19 +19,34 @@ function getBadge(filterType, value, lang, removeBadge) {
     <div
       key={filterType}
       value={value}
-      className="flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full"
+      className="flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
     >
       <span>
-        {t[filterType].toLowerCase()}: {value}
+        {filterType === "filter_date"
+          ? `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value)}`
+          : `${t[filterType].toLowerCase()}: ${value}`}
       </span>
       <button
-        className="ml-2 text-white hover:text-blue-700"
+        className="ml-2 text-white bg-blue-500 hover:bg-blue-700 rounded-full p-1 transition duration-200"
         onClick={() => removeBadge(filterType)}
       >
         &times;
       </button>
     </div>
   );
+}
+
+
+// Helper function to format a date range string by removing the time
+function formatDateRangeWithoutTime(value) {
+  // Expects value like '2025-05-16T00:00:00Z%20TO%202025-05-17T00:00:00Z'
+  if (!value) return "";
+  const match = value.match(/(\d{4}-\d{2}-\d{2})T.*TO.*(\d{4}-\d{2}-\d{2})T/);
+  if (match) {
+    return `${match[1]} to ${match[2]}`;
+  }
+  // Fallback: remove time if present, and replace %20TO%20 with ' to '
+  return value.replace(/T.*?Z/g, "").replace(/%20TO%20/i, " to ");
 }
 
 export function SearchFilter({ lang, setBadges }) {
@@ -68,7 +84,7 @@ export function SearchFilter({ lang, setBadges }) {
       <Modal
         dismissible
         show={openModal}
-        size="lg"
+        size="xl"
         onClose={onCloseModal}
         popup
       >
@@ -85,6 +101,7 @@ export function SearchFilter({ lang, setBadges }) {
     </>
   );
 }
+
 
 export function OptionItems(filter_type, orgList, projList, eovList) {
   if (filter_type === "organization") {
@@ -107,6 +124,119 @@ export function OptionItems(filter_type, orgList, projList, eovList) {
     ));
   }
   return null;
+}
+
+
+
+function TimeFilter({ lang, setBadges, setSelectedOption }) {
+  const [openModal, setOpenModal] = useState(false);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const t = getLocale(lang);
+
+  function onCloseModal() {
+    if (!startDate && !endDate) {
+      setOpenModal(false);
+      return;
+    }
+    // TODO: add first drowdown value inside the badge
+    setBadges((prevBadges) => ({
+      ...prevBadges,
+      filter_date: `${startDate.toISOString().split(".")[0]}Z%20TO%20${endDate.toISOString().split(".")[0]}Z`,
+    }));
+
+    setOpenModal(false);
+  }
+
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+  };
+
+  const handleEndDateChange = (date) => {
+    setEndDate(date);
+  };
+
+  return (
+    <>
+      <Button
+        color="alternative"
+        pill
+        size="xs"
+        onClick={() => setOpenModal(true)}
+      >
+        {t.time}
+      </Button>
+      <Modal
+        dismissible
+        show={openModal}
+        size="3xl"
+        onClose={onCloseModal}
+        popup
+      >
+        <ModalHeader>
+          {t.filter_by} {t.time}
+        </ModalHeader>
+        <ModalBody className="overflow-visible flex flex-col gap-2 p-4">
+          <div className="flex flex-row items-center gap-4">
+            {/* Select component */}
+
+            {/* Datepickers with labels above */}
+            <div className="flex flex-col w-full">
+              <div className="flex flex-row w-full gap-2">
+                <div>
+                  <span>{t.timefield}</span>
+                  <Select
+                    className="p-2 w-[220px] min-w-[180px]"
+                    id="date-filter-type"
+                    onChange={(e) => setSelectedOption(e.target.value)}
+                  >
+                    <option value="">Select an option</option>
+                    <option value="temporal-extent-begin">
+                      temporal-extent-begin
+                    </option>
+                    <option value="temporal-extent-end">
+                      temporal-extent-end
+                    </option>
+                    <option value="metadata_created">metadata_created</option>
+                    <option value="metadata_updated">metadata_updated</option>
+                  </Select>
+                </div>
+                <div>
+                  <span>{t.from}</span>
+                  <Datepicker
+                    className="p-2 w-[calc(50%+20px)] min-w-[180px]"
+                    language={`${lang}-CA`}
+                    onChange={handleStartDateChange}
+                    value={startDate}
+                    selected={startDate}
+                    maxDate={endDate || new Date()}
+                    labelTodayButton={t.today}
+                    labelClearButton={t.clear}
+                    placeholder={t.start_date}
+                  />
+                </div>
+                <div>
+                  <span>{t.to}</span>
+                  <Datepicker
+                    className="p-2 w-[calc(50%+20px)] min-w-[180px]"
+                    language={`${lang}-CA`}
+                    onChange={handleEndDateChange}
+                    value={endDate}
+                    selected={endDate}
+                    minDate={startDate} // Disable dates before the start date
+                    maxDate={new Date()} // Disable future dates
+                    labelTodayButton={t.today}
+                    labelClearButton={t.clear}
+                    placeholder={t.end_date}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </ModalBody>
+      </Modal>
+    </>
+  );
 }
 
 export function FilterItems({
@@ -196,6 +326,7 @@ export default function FilterSection({
   orgList,
   projList,
   eovList,
+  setSelectedOption,
 }) {
   const t = getLocale(lang);
 
@@ -203,6 +334,10 @@ export default function FilterSection({
     setBadges((prevBadges) => {
       const updatedBadges = { ...prevBadges };
       delete updatedBadges[filterType];
+      // Reset selected option if the filter type is "filter_date"
+      if (filterType === "filter_date") {
+        setSelectedOption("");
+      }
       return updatedBadges;
     });
   };
@@ -251,7 +386,15 @@ export default function FilterSection({
           orgList={orgList}
           projList={projList}
           eovList={eovList}
-        />
+         />
+        <FilterItems filter_type="projects" lang={lang} setBadges={setBadges} />
+        <FilterItems filter_type="eov" lang={lang} setBadges={setBadges} />
+        <TimeFilter
+          lang={lang}
+          setBadges={setBadges}
+          setSelectedOption={setSelectedOption}
+         />
+        <FilterItems filter_type="spatial" lang={lang} setBadges={setBadges} />
       </div>
 
       {/* Render Badges */}

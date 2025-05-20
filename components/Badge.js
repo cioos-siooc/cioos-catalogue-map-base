@@ -7,7 +7,7 @@ export default function Badge({ index, label, onRemoveClick }) {
       className="inline-flex items-center px-2 py-1 me-2 text-sm font-medium text-blue-800 
             bg-blue-100 rounded-sm dark:bg-blue-900 dark:text-blue-300"
     >
-      {label}
+      {`${label}---${index}`}
       <button
         onClick={() => onRemoveClick(index)}
         type="button"
