@@ -27,7 +27,7 @@ function getBadge(filterType, value, lang, removeBadge) {
           : `${t[filterType].toLowerCase()}: ${value}`}
       </span>
       <button
-        className="ml-2 text-white bg-blue-500 hover:bg-blue-700 rounded-full p-1 transition duration-200"
+        className="ml-2 hover:bg-blue-700 hover:text-white rounded-full p-1 transition duration-200"
         onClick={() => removeBadge(filterType)}
       >
         &times;
