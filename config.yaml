@@ -57,18 +57,22 @@ bottom_logo:
     lang: en
     mode: light
     alt: "CIOOS National"
+    className: "max-h-[75px] h-auto"
   - url: "/Images/cioos-national_FR-01.png"
     lang: fr
     mode: light
     alt: "CIOOS National"
+    className: "max-h-[75px] h-auto"
   - url: "/Images/cioos-national_EN_W.svg"
     lang: en
     mode: dark
     alt: "CIOOS National"
+    className: "max-h-[75px] h-auto"
   - url: "/Images/cioos-national_FR_W.svg"
     lang: fr
     mode: dark
     alt: "CIOOS National"
+    className: "max-h-[75px] h-auto"
 
 basemaps:
   - name:
