@@ -96,7 +96,7 @@ function AppContent({ lang, setLang }) {
         setTotalResultsCount(awaitRes.result.results.length);
       }
       if (badgeCount === 0) {
-        setFilteredResultsCount(0);
+        setFilteredResultsCount(awaitRes.result.results.length);
       }
     } catch (error) {
       console.error(error.message);
