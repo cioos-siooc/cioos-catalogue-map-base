@@ -41,6 +41,9 @@ function AppContent({ lang, setLang }) {
   const [dataSetInfo, setDatasetInfo] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [filteredItems, setFilteredItems] = useState([]);
+  const [organizationList, setOrganizationList] = useState([]);
+  const [projectList, setProjectList] = useState([]);
+  const [eovList, setEovList] = useState([]);
   const [fetchURLFilter, setFetchURLFilter] = useState("");
   const [totalResultsCount, setTotalResultsCount] = useState(0);
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
@@ -54,7 +57,7 @@ function AppContent({ lang, setLang }) {
   const fetchURL = useMemo(() => {
     let url = `${urlCustomSearch}${config.base_query}`;
     if (fetchURLFilter) {
-      url += `%20AND%20${fetchURLFilter}`;
+      url += fetchURLFilter;
     }
     return (
       url +
@@ -76,16 +79,36 @@ function AppContent({ lang, setLang }) {
     }
   }, [lang]);
 
+  // Use callback for fetching data
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(fetchURL);
+      if (!response.ok) {
+        throw new Error("There was an error fetching the data from CKAN API");
+      }
+      const awaitRes = await response.json();
+
+      setFilteredItems(awaitRes.result.results);
+      setInputValue("");
+      if (fetchURLFilter) {
+        setFilteredResultsCount(awaitRes.result.results.length);
+      } else {
+        setTotalResultsCount(awaitRes.result.results.length);
+      }
+      if (badgeCount === 0) {
+        setFilteredResultsCount(0);
+      }
+    } catch (error) {
+      console.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchURL, fetchURLFilter, badgeCount]);
+
   useEffect(() => {
-    fetch("/packages.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setFilteredItems(data);
-        setTotalResultsCount(data.length);
-      })
-      .then(() => setLoading(false))
-      .catch((error) => console.error("Error loading packages:", error));
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   // Import the useDrawer hook to get drawer state and methods
   const { isDrawerOpen, openDrawer } = useDrawer();
@@ -122,6 +145,9 @@ function AppContent({ lang, setLang }) {
             totalResultsCount={totalResultsCount}
             setBadgeCount={setBadgeCount}
             loading={loading}
+            organizationList={organizationList}
+            projectList={projectList}
+            eovList={eovList}
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
