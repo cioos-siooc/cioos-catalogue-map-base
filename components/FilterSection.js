@@ -367,14 +367,6 @@ export default function FilterSection({
           projList={projList}
           eovList={eovList}
         />
-        <FilterItems
-          filter_type="spatial"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
         <TimeFilter
           lang={lang}
           setBadges={setBadges}
