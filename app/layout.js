@@ -83,6 +83,7 @@ function AppContent({ lang, setLang }) {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      console.log("Fetching data from CKAN API...", fetchURL);
       const response = await fetch(fetchURL);
       if (!response.ok) {
         throw new Error("There was an error fetching the data from CKAN API");
@@ -90,6 +91,7 @@ function AppContent({ lang, setLang }) {
       const awaitRes = await response.json();
 
       setFilteredItems(awaitRes.result.results);
+      fillOrganizationAndProjectLists(awaitRes.result.results);
       setInputValue("");
       if (fetchURLFilter) {
         setFilteredResultsCount(awaitRes.result.results.length);
@@ -97,7 +99,7 @@ function AppContent({ lang, setLang }) {
         setTotalResultsCount(awaitRes.result.results.length);
       }
       if (badgeCount === 0) {
-        setFilteredResultsCount(0);
+        setFilteredResultsCount(awaitRes.result.results.length);
       }
     } catch (error) {
       console.error(error.message);
