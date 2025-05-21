@@ -112,6 +112,57 @@ function AppContent({ lang, setLang }) {
     fetchData();
   }, [fetchData]);
 
+  // Function to process projects and add them to the project list
+  const processProjects = (item, projList) => {
+    if (item.projects && Array.isArray(item.projects)) {
+      const isAlreadyPresent = item.projects.every((project) =>
+        projList.has(project),
+      );
+      if (isAlreadyPresent) {
+        return;
+      }
+      item.projects.forEach((project) => projList.add(project));
+    }
+  };
+
+  // Function to process projects and add them to the project list
+  const processEovs = (item, eovList) => {
+    if (item.projects && Array.isArray(item.eov)) {
+      const isAlreadyPresent = item.eov.every((eov) => eovList.has(eov));
+      if (isAlreadyPresent) {
+        return;
+      }
+      item.eov.forEach((eov) => eovList.add(eov));
+    }
+  };
+
+  // Function to process organization and add it to the organization list
+  const processOrganization = (item, orgList, lang) => {
+    if (item.organization && item.organization.title_translated) {
+      if (orgList.has(item.organization.title_translated[lang])) {
+        return;
+      }
+      orgList.add(item.organization.title_translated[lang]);
+    }
+  };
+
+  // Function to fill organization and project lists
+  const fillOrganizationAndProjectLists = (items) => {
+    let orgList = new Set();
+    let projList = new Set();
+    let eovList = new Set();
+    items.forEach((item) => {
+      processOrganization(item, orgList, lang);
+      processProjects(item, projList);
+      processEovs(item, eovList);
+    });
+
+    setOrganizationList(Array.from(orgList));
+    setProjectList(Array.from(projList));
+    setEovList(Array.from(eovList));
+    console.log("EOVs List: ", eovList);
+  };
+
   // Import the useDrawer hook to get drawer state and methods
   const { isDrawerOpen, openDrawer } = useDrawer();
 
