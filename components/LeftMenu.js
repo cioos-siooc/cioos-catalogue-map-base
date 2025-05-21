@@ -52,29 +52,7 @@ export function Sidebar({
     window.open(`${catalogueUrl}/dataset/${selectedItem.name}`);
   };
 
-    function buildFilterString(filterType, value) {
-    console.log("ValueType :: ", typeof value);
-    if (filterType === "search") {
-      return `${value}`;
-    } else if (filterType === "start_date") {
-      return `temporal-extent-begin:[${value} TO *]`;
-    } else if (filterType === "end_date") {
-      return `temporal-extent-end:[* TO ${value}]`;
-    } else if (filterType === "organization") {
-      return `responsible_organizations=${value}`;
-    } else if (filterType === "projects") {
-      return `projects=${value}`;
-    } else {
-      return `${filterType}=${value}`;
-    }
-  }
-  
   const generateQueryString = (badges) => {
-//     return Object.entries(badges)
-//       .map(([filterType, value]) => buildFilterString(filterType, value))
-//       .join("%20AND%20");
-//   };
-
     let queryString = "";
     console.log("Query first badges :: ", Object.keys(badges).length);
     queryString += Object.entries(badges)
@@ -105,6 +83,10 @@ export function Sidebar({
     if (filterType !== "filter_date") {
       if (filterType === "search") {
         return `${value}`;
+      } else if (filterType === "organization") {
+        return `responsible_organizations=${value}`;
+      } else if (filterType === "projects") {
+        return `projects=${value}`;
       } else {
         return `${filterType}=${value}`;
       }
@@ -120,7 +102,6 @@ export function Sidebar({
 
     return dateFilterStr;
   }
-
 
   // Trigger reharvest when badges change
   useEffect(() => {
