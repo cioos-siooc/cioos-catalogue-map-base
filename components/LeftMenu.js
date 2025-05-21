@@ -22,6 +22,9 @@ export function Sidebar({
   totalResultsCount,
   setBadgeCount,
   loading,
+  organizationList,
+  projectList,
+  eovList,
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [badges, setBadges] = useState([]);
@@ -80,6 +83,10 @@ export function Sidebar({
     if (filterType !== "filter_date") {
       if (filterType === "search") {
         return `${value}`;
+      } else if (filterType === "organization") {
+        return `responsible_organizations=${value}`;
+      } else if (filterType === "projects") {
+        return `projects=${value}`;
       } else {
         return `${filterType}=${value}`;
       }
@@ -148,10 +155,14 @@ export function Sidebar({
               </svg>
             </button>
           </div>
+
           <FilterSection
             lang={lang}
             badges={badges}
             setBadges={setBadges}
+            orgList={organizationList}
+            projList={projectList}
+            eovList={eovList}
             setSelectedOption={setSelectedDateFilterOption}
           />
 

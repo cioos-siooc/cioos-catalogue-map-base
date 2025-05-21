@@ -27,7 +27,7 @@ function getBadge(filterType, value, lang, removeBadge) {
           : `${t[filterType].toLowerCase()}: ${value}`}
       </span>
       <button
-        className="ml-2 text-white bg-blue-500 hover:bg-blue-700 rounded-full p-1 transition duration-200"
+        className="ml-2 hover:bg-blue-700 hover:text-white rounded-full p-1 transition duration-200"
         onClick={() => removeBadge(filterType)}
       >
         &times;
@@ -99,6 +99,29 @@ export function SearchFilter({ lang, setBadges }) {
       </Modal>
     </>
   );
+}
+
+export function OptionItems(filter_type, orgList, projList, eovList) {
+  if (filter_type === "organization") {
+    return orgList.map((org) => (
+      <option key={org} value={org}>
+        {org}
+      </option>
+    ));
+  } else if (filter_type === "projects") {
+    return projList.map((proj) => (
+      <option key={proj} value={proj}>
+        {proj}
+      </option>
+    ));
+  } else if (filter_type === "eov") {
+    return eovList.map((eov) => (
+      <option key={eov} value={eov}>
+        {eov}
+      </option>
+    ));
+  }
+  return null;
 }
 
 function TimeFilter({ lang, setBadges, setSelectedOption }) {
@@ -212,7 +235,14 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
   );
 }
 
-function FilterItems({ filter_type, lang, setBadges }) {
+export function FilterItems({
+  filter_type,
+  lang,
+  setBadges,
+  orgList,
+  projList,
+  eovList,
+}) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
   const t = getLocale(lang);
@@ -277,9 +307,7 @@ function FilterItems({ filter_type, lang, setBadges }) {
             onKeyDown={handleKeyDown}
           >
             <option value="">Select an option</option>
-            <option value="org-1">org-1</option>
-            <option value="org-2">org-2</option>
-            <option value="org-3">org-3</option>
+            {OptionItems(filter_type, orgList, projList, eovList)}
           </Select>
         </ModalBody>
       </Modal>
@@ -291,6 +319,9 @@ export default function FilterSection({
   lang,
   badges,
   setBadges,
+  orgList,
+  projList,
+  eovList,
   setSelectedOption,
 }) {
   const t = getLocale(lang);
@@ -316,15 +347,39 @@ export default function FilterSection({
           filter_type="organization"
           lang={lang}
           setBadges={setBadges}
+          orgList={orgList}
+          projList={projList}
+          eovList={eovList}
         />
-        <FilterItems filter_type="projects" lang={lang} setBadges={setBadges} />
-        <FilterItems filter_type="eov" lang={lang} setBadges={setBadges} />
+        <FilterItems
+          filter_type="projects"
+          lang={lang}
+          setBadges={setBadges}
+          orgList={orgList}
+          projList={projList}
+          eovList={eovList}
+        />
+        <FilterItems
+          filter_type="eov"
+          lang={lang}
+          setBadges={setBadges}
+          orgList={orgList}
+          projList={projList}
+          eovList={eovList}
+        />
+        <FilterItems
+          filter_type="spatial"
+          lang={lang}
+          setBadges={setBadges}
+          orgList={orgList}
+          projList={projList}
+          eovList={eovList}
+        />
         <TimeFilter
           lang={lang}
           setBadges={setBadges}
           setSelectedOption={setSelectedOption}
         />
-        <FilterItems filter_type="spatial" lang={lang} setBadges={setBadges} />
       </div>
 
       {/* Render Badges */}

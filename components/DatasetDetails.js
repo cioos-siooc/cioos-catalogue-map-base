@@ -7,6 +7,25 @@ import Citation from "@/components/Citation";
 import { useContext } from "react";
 import { getLocale } from "@/app/get-locale.js";
 import config from "@/app/config.js";
+import DOMPurify from "dompurify";
+
+/**
+ * Converts Markdown to HTML (basic implementation).
+ * @param {string} markdown - The Markdown input text.
+ * @returns {string} The converted HTML string.
+ */
+function markdownToHtml(markdown) {
+  if (!markdown) return "";
+  return markdown
+    .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+    .replace(/^## (.*$)/gim, "<h2>$1</h2>")
+    .replace(/^# (.*$)/gim, "<h1>$1</h1>")
+    .replace(/^\> (.*$)/gim, "<blockquote>$1</blockquote>")
+    .replace(/\*\*(.*)\*\*/gim, "<b>$1</b>")
+    .replace(/\*(.*)\*/gim, "<i>$1</i>")
+    .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
+    .replace(/\n$/gim, "<br>");
+}
 
 export function DatasetDetails({ dataSetInfo, lang }) {
   const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
@@ -18,6 +37,11 @@ export function DatasetDetails({ dataSetInfo, lang }) {
     }
     return url;
   }
+
+  // Convert and sanitize Markdown content
+  const sanitizedHtml = DOMPurify.sanitize(
+    markdownToHtml(dataSetInfo?.notes_translated[lang]),
+  );
 
   return (
     <>
@@ -59,9 +83,10 @@ export function DatasetDetails({ dataSetInfo, lang }) {
             </div>
           </div>
 
-          <div className="relative flex-grow overflow-y-auto mt-4 mb-4 text-sm">
-            {dataSetInfo?.notes_translated[lang]}
-          </div>
+          <div
+            className="relative flex-grow overflow-y-auto mt-4 mb-4 text-sm prose"
+            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          ></div>
           <Citation dataSetInfo={dataSetInfo} lang={lang} />
         </DrawerItems>
       </Drawer>
