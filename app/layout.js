@@ -59,10 +59,7 @@ function AppContent({ lang, setLang }) {
     if (fetchURLFilter) {
       url += fetchURLFilter;
     }
-    return (
-      url +
-      `&rows=1000&fl=title_translated,organization.title_translated,spatial`
-    );
+    return url + `&rows=1000`;
   }, [urlCustomSearch, fetchURLFilter]);
 
   useEffect(() => {
