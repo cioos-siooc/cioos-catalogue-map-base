@@ -82,10 +82,10 @@ function AppContent({ lang, setLang }) {
     fetch("/packages.json")
       .then((res) => res.json())
       .then((data) => {
-        setFilteredItems(data);
-        fillOrganizationAndProjectLists(data);
-        setFilteredResultsCount(data.length);
         setTotalResultsCount(data.length);
+        fillOrganizationAndProjectLists(data);
+        setFilteredItems(data);
+        setFilteredResultsCount(data.length);
       })
       .then(() => setLoading(false))
       .catch((error) => console.error("Error loading packages:", error));
