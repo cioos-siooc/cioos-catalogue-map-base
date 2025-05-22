@@ -19,7 +19,7 @@ function getBadge(filterType, value, lang, removeBadge) {
     <div
       key={filterType}
       value={value}
-      className="flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
+      className="flex items-center bg-blue-100 text-black hover:text-black text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
     >
       <span>
         {filterType === "filter_date"
@@ -27,7 +27,7 @@ function getBadge(filterType, value, lang, removeBadge) {
           : `${t[filterType].toLowerCase()}: ${value}`}
       </span>
       <button
-        className="ml-2 hover:bg-blue-700 hover:text-white rounded-full p-1 transition duration-200"
+        className="ml-2 hover:text-white rounded-full p-1 transition duration-200 text-black dark:text-white"
         onClick={() => removeBadge(filterType)}
       >
         &times;
@@ -86,6 +86,7 @@ export function SearchFilter({ lang, setBadges }) {
         size="xl"
         onClose={onCloseModal}
         popup
+        className="rounded-lg border-0 text-lg text-black [&>label]:text-black dark:text-white"
       >
         <FloatingLabel
           id="query-input"
@@ -94,7 +95,7 @@ export function SearchFilter({ lang, setBadges }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="rounded-lg border-0"
+          className="rounded-lg border-0 text-lg text-black [&>label]:text-black dark:text-white"
         />
       </Modal>
     </>

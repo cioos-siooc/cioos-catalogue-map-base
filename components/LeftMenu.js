@@ -135,7 +135,10 @@ export function Sidebar({
             </button>
             <button
               onClick={toggleSidebar}
-              className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+              className="flex items-center p-2 text-sm text-gray-500 
+              rounded-lg md:hidden hover:bg-gray-100 focus:outline-none 
+              focus:ring-2 focus:ring-gray-200 dark:text-white dark:hover:bg-gray-700
+               dark:focus:ring-gray-600"
               aria-controls="logo-sidebar"
               data-drawer-toggle="logo-sidebar"
             >
@@ -178,7 +181,7 @@ export function Sidebar({
               loading={loading}
             />
           </ul>
-          <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
+          <div className="pt-3 text-sm font-medium text-black dark:text-white">
             <ProgressBar
               count={filteredResultsCount}
               total={totalResultsCount}

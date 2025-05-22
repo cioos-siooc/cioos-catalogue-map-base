@@ -63,3 +63,42 @@ body {
   background-color: var(--color-accent-400) !important;
   color: var(--color-black) !important;
 }
+
+/* Custom Button text color: black by default, white in dark mode */
+.Button,
+.btn,
+button {
+  color: #000 !important;
+  background-color: #e5e7eb !important; /* Tailwind gray-200 */
+  border-color: #1c64f2 !important; /* Tailwind blue-600 */
+}
+.Button:hover,
+.btn:hover,
+button:hover {
+  background-color: #1e429f !important;
+  color: #fff !important;
+}
+.Button:focus,
+.btn:focus,
+button:focus {
+  background-color: #1e429f !important;
+  color: #fff !important;
+}
+@media (prefers-color-scheme: dark) {
+  .Button,
+  .btn,
+  button {
+    color: #fff !important;
+    background-color: #374151 !important; /* Tailwind gray-700 */
+  }
+  .Button:hover,
+  .btn:hover,
+  button:hover {
+    background-color: #1e429f !important;
+  }
+  .Button:focus,
+  .btn:focus,
+  button:focus {
+    background-color: #1e429f !important;
+  }
+}
