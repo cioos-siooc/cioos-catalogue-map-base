@@ -40,14 +40,14 @@ export default function ItemsList({
             {itemsList.map(
               (item) => (
                 <li
-                  className="hover:text-blue-500 cursor-pointer bg-gray-100 dark:bg-gray-900 m-2 p-2 text-sm rounded-md"
+                  className="hover:bg-gray-500 hover:text-white cursor-pointer bg-gray-100 dark:bg-gray-900 m-2 p-2 text-sm rounded-md"
                   onClick={() => onItemClick(item)}
                   onDoubleClick={() => onItemDoubleClick(item)}
                   key={item.id}
                 >
                   {item.title_translated[lang]}
                   <br />
-                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                  <span className="text-xs opacity-80">
                     {item.organization.title_translated[lang]}
                   </span>
                 </li>

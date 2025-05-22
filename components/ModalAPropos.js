@@ -12,7 +12,6 @@ import { getLocale } from "@/app/get-locale.js";
 
 export default function ModalAPropos(lang) {
   const [openModal, setOpenModal] = useState(true);
-  console.log("ModalAPropos lang: ", lang["lang"]);
   const t = getLocale(lang["lang"]);
 
   return (
