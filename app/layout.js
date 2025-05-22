@@ -129,6 +129,17 @@ function AppContent({ lang, setLang }) {
     }
   };
 
+  function fetchDataSetInfo(id) {
+    fetch(`${catalogueUrl}/api/3/action/package_show?id=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setDatasetInfo(data.result);
+      })
+      .catch((error) => {
+        console.error("Error loading dataset info:", error);
+      });
+  }
+
   // Function to fill organization and project lists
   const fillOrganizationAndProjectLists = (items) => {
     let orgList = new Set();
@@ -153,7 +164,7 @@ function AppContent({ lang, setLang }) {
   const handleListItemClick = useCallback(
     (selectedItem) => {
       setBounds(selectedItem.spatial);
-      setDatasetInfo(selectedItem);
+      fetchDataSetInfo(selectedItem.id);
       openDrawer();
     },
     [openDrawer],
