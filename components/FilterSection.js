@@ -90,7 +90,7 @@ export function SearchFilter({ lang, setBadges }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="rounded-lg border-0 text-lg text-black [&>label]:text-black dark:text-white"
+          className="rounded-lg border-0 text-lg  peer-focus:text-black peer-focus:dark:text-white text-black dark:text-white"
         />
       </Modal>
     </>

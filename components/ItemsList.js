@@ -12,11 +12,11 @@ export default function ItemsList({
   const t = getLocale(lang);
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center bg-primary-200 dark:bg-primary-700 w-full h-full text-primary-500 dark:text-primary-400 rounded-md">
+      <div className="flex flex-col justify-center items-center bg-primary-200 dark:bg-primary-700 w-full h-full text-gray-500 dark:text-gray-400 rounded-md">
         <p>{t.load_datasets} ...</p>
         <br />
         <ImSpinner2
-          className="animate-spin inline-block w-4 h-4 text-primary-500 dark:text-primary-400"
+          className="animate-spin inline-block w-4 h-4 text-gray-500 dark:text-gray-400"
           aria-label="Loading"
         />
       </div>
@@ -24,7 +24,7 @@ export default function ItemsList({
   }
   if (!itemsList || itemsList.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center bg-primary-200 dark:bg-primary-700 w-full h-full text-primary-500 dark:text-primary-400 rounded-md">
+      <div className="flex flex-col justify-center items-center bg-primary-200 dark:bg-primary-700 w-full h-full text-gray-500 dark:text-gray-400 rounded-md">
         <p>{t.no_datasets}</p>
       </div>
     );
