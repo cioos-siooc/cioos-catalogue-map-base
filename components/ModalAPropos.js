@@ -16,14 +16,15 @@ export default function ModalAPropos(lang) {
 
   return (
     <>
-      <Button
-        outline
-        className="p-2 m-2 uppercase"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button className="p-2 m-2 uppercase" onClick={() => setOpenModal(true)}>
         {t.about}
       </Button>
-      <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
+      <Modal
+        className="dark:bg-primary-900"
+        dismissible
+        show={openModal}
+        onClose={() => setOpenModal(false)}
+      >
         <ModalHeader>À propos du catalogue cartographique</ModalHeader>
         <ModalBody>
           <p className="space-y-6 text-base leading-relaxed">
