@@ -27,7 +27,7 @@ function getBadge(filterType, value, lang, removeBadge) {
           : `${t[filterType].toLowerCase()}: ${value}`}
       </span>
       <button
-        className="ml-2 hover:text-white rounded-full p-1 transition duration-200 text-black dark:text-white"
+        className="ml-2 hover:text-white rounded-full p-1 transition duration-200"
         onClick={() => removeBadge(filterType)}
       >
         &times;
@@ -72,12 +72,7 @@ export function SearchFilter({ lang, setBadges }) {
 
   return (
     <>
-      <Button
-        color="alternative"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button pill size="xs" onClick={() => setOpenModal(true)}>
         {t.search}
       </Button>
       <Modal
@@ -86,7 +81,7 @@ export function SearchFilter({ lang, setBadges }) {
         size="xl"
         onClose={onCloseModal}
         popup
-        className="rounded-lg border-0 text-lg text-black [&>label]:text-black dark:text-white"
+        className="bg-primary-200 dark:bg-primary-900 rounded-lg border-0 text-lg"
       >
         <FloatingLabel
           id="query-input"
@@ -155,12 +150,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
 
   return (
     <>
-      <Button
-        color="alternative"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button pill size="xs" onClick={() => setOpenModal(true)}>
         {t.time}
       </Button>
       <Modal
@@ -169,6 +159,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
         size="3xl"
         onClose={onCloseModal}
         popup
+        className="bg-primary-200 dark:bg-primary-900"
       >
         <ModalHeader>
           {t.filter_by} {t.time}
@@ -282,12 +273,7 @@ export function FilterItems({
 
   return (
     <>
-      <Button
-        color="alternative"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button pill size="xs" onClick={() => setOpenModal(true)}>
         {t[filter_type]}
       </Button>
       <Modal
@@ -296,6 +282,7 @@ export function FilterItems({
         size="lg"
         onClose={onCloseModal}
         popup
+        className="bg-primary-200 dark:bg-primary-900"
       >
         <ModalHeader>
           {t.filter_by} {t[filter_type].toLowerCase()}
