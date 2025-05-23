@@ -178,7 +178,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                     id="date-filter-type"
                     onChange={(e) => setSelectedOption(e.target.value)}
                   >
-                    <option value="">Select an option</option>
+                    <option value="">{t.select}</option>
                     <option value="temporal-extent-begin">
                       temporal-extent-begin
                     </option>
@@ -294,7 +294,7 @@ export function FilterItems({
             onSelect={onCloseModal}
             onKeyDown={handleKeyDown}
           >
-            <option value="">Select an option</option>
+            <option value="">{t.select}</option>
             {OptionItems(filter_type, orgList, projList, eovList)}
           </Select>
         </ModalBody>
