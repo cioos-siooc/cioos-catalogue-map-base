@@ -194,7 +194,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                       temporal-extent-end
                     </option>
                     <option value="metadata_created">metadata_created</option>
-                    <option value="metadata_updated">metadata_updated</option>
+                    <option value="metadata_modified">metadata_modified</option>
                   </Select>
                 </div>
                 <div>

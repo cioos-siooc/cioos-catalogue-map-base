@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import config from "./config.js";
 import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
-import { useState, useEffect, useCallback, useMemo, use } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
@@ -21,7 +21,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const metadata = config.metadata.fr;
 
 // Import map with dynamic import (no ssr) and memoization
 const MapComponent = dynamic(() => import("@/components/Map"), {
@@ -44,23 +43,14 @@ function AppContent({ lang, setLang }) {
   const [organizationList, setOrganizationList] = useState([]);
   const [projectList, setProjectList] = useState([]);
   const [eovList, setEovList] = useState([]);
-  const [fetchURLFilter, setFetchURLFilter] = useState("");
   const [totalResultsCount, setTotalResultsCount] = useState(0);
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
   const [badgeCount, setBadgeCount] = useState(0);
-  const [inputValue, setInputValue] = useState("");
+  const [allItems, setAllItems] = useState([]); // Store the full list
+  const [badges, setBadges] = useState({}); // Store current filters
 
   const catalogueUrl = config.catalogue_url;
-  let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
-  // Memoize the fetch URL to avoid recalculation
-  const fetchURL = useMemo(() => {
-    let url = `${urlCustomSearch}${config.base_query}`;
-    if (fetchURLFilter) {
-      url += fetchURLFilter;
-    }
-    return url + `&rows=1000`;
-  }, [urlCustomSearch, fetchURLFilter]);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
@@ -82,10 +72,10 @@ function AppContent({ lang, setLang }) {
     fetch("/packages.json")
       .then((res) => res.json())
       .then((data) => {
+        setAllItems(data);
         setTotalResultsCount(data.length);
         fillOrganizationAndProjectLists(data);
-        setFilteredItems(data);
-        setFilteredResultsCount(data.length);
+        // Filtering will be handled in badges effect
       })
       .then(() => setLoading(false))
       .catch((error) => console.error("Error loading packages:", error));
@@ -95,22 +85,30 @@ function AppContent({ lang, setLang }) {
     fetchData();
   }, [fetchData]);
 
+  // When badges or allItems change, update filteredItems
+  useEffect(() => {
+    const filtered = filterItemsByBadges(allItems, badges);
+    setFilteredItems(filtered);
+    setFilteredResultsCount(filtered.length);
+  }, [allItems, badges]);
+
   // Function to process projects and add them to the project list
   const processProjects = (item, projList) => {
-    if (item.projects && Array.isArray(item.projects)) {
-      const isAlreadyPresent = item.projects.every((project) =>
+
+    if (item.project && Array.isArray(item.project)) {
+      const isAlreadyPresent = item.project.every((project) =>
         projList.has(project),
       );
       if (isAlreadyPresent) {
         return;
       }
-      item.projects.forEach((project) => projList.add(project));
+      item.project.forEach((project) => projList.add(project));
     }
   };
 
   // Function to process projects and add them to the project list
   const processEovs = (item, eovList) => {
-    if (item.projects && Array.isArray(item.eov)) {
+    if (item.eov && Array.isArray(item.eov)) {
       const isAlreadyPresent = item.eov.every((eov) => eovList.has(eov));
       if (isAlreadyPresent) {
         return;
@@ -187,7 +185,6 @@ function AppContent({ lang, setLang }) {
             onItemClick={handleListItemClick}
             lang={lang}
             setLang={setLang}
-            setFetchURLFilter={setFetchURLFilter}
             filteredResultsCount={filteredResultsCount}
             totalResultsCount={totalResultsCount}
             setBadgeCount={setBadgeCount}
@@ -195,6 +192,8 @@ function AppContent({ lang, setLang }) {
             organizationList={organizationList}
             projectList={projectList}
             eovList={eovList}
+            badges={badges}
+            setBadges={setBadges}
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
@@ -230,6 +229,38 @@ function useDrawer() {
   return context;
 }
 
+
+
+function filterItemsByBadges(items, badges) {
+  if (!items || items.length === 0) return [];
+  return items.filter((item) => {
+    return Object.entries(badges).every(([filterType, value]) => {
+      if (!value) return true;
+      if (filterType === "search") {
+        const searchVal = value.toLowerCase();
+        return (
+          (item.title_translated && Object.values(item.title_translated).some((t) => t.toLowerCase().includes(searchVal))) ||
+          (item.notes_translated && Object.values(item.notes_translated).some((n) => n.toLowerCase().includes(searchVal)))
+        );
+      } else if (filterType === "organization") {
+        return (
+          item.organization &&
+          item.organization.title_translated &&
+          Object.values(item.organization.title_translated).includes(value)
+        );
+      } else if (filterType === "projects") {
+        return item.project && item.project.includes(value);
+      } else if (filterType === "eov") {
+        return item.eov && item.eov.includes(value);
+      } else if (filterType === "filter_date") {
+        // Date filtering logic can be added here if needed
+        return true;
+      }
+      return true;
+    });
+  });
+}
+
 function RootLayout({ children }) {
   const [lang, setLang] = useState(config.default_language);
 
@@ -246,4 +277,5 @@ function RootLayout({ children }) {
     </html>
   );
 }
+
 export default RootLayout;

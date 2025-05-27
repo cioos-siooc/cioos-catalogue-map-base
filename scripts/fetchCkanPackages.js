@@ -70,10 +70,18 @@ async function fetchAllPackages() {
           id: item.id,
           name: item.name,
           title_translated: item.title_translated,
+          project : item.projects,
+          metadata_created: item.metadata_created,
+          metadata_modified: item.metadata_modified,
+          eov: item.eov,
           organization: {
             title_translated: item.organization.title_translated,
           },
           spatial: item.spatial,
+          temporal_extent:{
+            begin: item.temporal_extent.begin,
+            end: item.temporal_extent.end,
+          }
         };
       });
 
