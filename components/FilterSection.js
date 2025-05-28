@@ -81,7 +81,7 @@ export function SearchFilter({ lang, setBadges }) {
         size="xl"
         onClose={onCloseModal}
         popup
-        className="dark:bg-primary-900 rounded-lg border-0 text-lg"
+        className="rounded-lg border-0 text-lg"
       >
         <FloatingLabel
           id="query-input"
@@ -159,7 +159,6 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
         size="3xl"
         onClose={onCloseModal}
         popup
-        className="dark:bg-primary-900"
       >
         <ModalHeader>
           {t.filter_by} {t.time}
@@ -282,7 +281,6 @@ export function FilterItems({
         size="lg"
         onClose={onCloseModal}
         popup
-        className="dark:bg-primary-900"
       >
         <ModalHeader>
           {t.filter_by} {t[filter_type].toLowerCase()}
