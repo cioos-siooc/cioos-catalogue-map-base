@@ -56,32 +56,37 @@ async function fetchAllPackages() {
       if (data.result.results.length < rows) {
         break;
       }
-
+      
       // Increment start for the next batch
       start += rows;
     }
+ 
 
     // Filter: only consider items with a non-empty "spatial" property
     // Create a new array with only the desired properties
     const filtered = allResults
       .filter((item) => item.spatial)
       .map((item) => {
+        const temporalExtent = item['temporal-extent'] || {};
+        const begin = Object.values(temporalExtent)[0] ? Object.values(temporalExtent)[0].begin : null;
+        const end = Object.values(temporalExtent)[0] ? Object.values(temporalExtent)[0].end : null;
+        
         return {
           id: item.id,
           name: item.name,
           title_translated: item.title_translated,
-          project : item.projects,
+          project: item.projects,
           metadata_created: item.metadata_created,
           metadata_modified: item.metadata_modified,
           eov: item.eov,
           organization: {
             title_translated: item.organization.title_translated,
           },
+          temporal_extent: {
+            begin,
+            end,
+          },
           spatial: item.spatial,
-          temporal_extent:{
-            begin: item.temporal_extent.begin,
-            end: item.temporal_extent.end,
-          }
         };
       });
 

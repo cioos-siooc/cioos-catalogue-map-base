@@ -15,6 +15,7 @@ import { getLocale } from "@/app/get-locale";
 function getBadge(filterType, value, lang, removeBadge) {
   if (!value) return null; // Return null if value is empty
   const t = getLocale(lang);
+
   return (
     <div
       key={filterType}
@@ -23,7 +24,7 @@ function getBadge(filterType, value, lang, removeBadge) {
     >
       <span>
         {filterType === "filter_date"
-          ? `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value)}`
+          ? `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value, t)}`
           : `${t[filterType].toLowerCase()}: ${value}`}
       </span>
       <button
@@ -37,15 +38,16 @@ function getBadge(filterType, value, lang, removeBadge) {
 }
 
 // Helper function to format a date range string by removing the time
-function formatDateRangeWithoutTime(value) {
+function formatDateRangeWithoutTime(value, t) {
   // Expects value like '2025-05-16T00:00:00Z%20TO%202025-05-17T00:00:00Z'
+  console.log("::: ", value);
   if (!value) return "";
   const match = value.match(/(\d{4}-\d{2}-\d{2})T.*TO.*(\d{4}-\d{2}-\d{2})T/);
   if (match) {
-    return `${match[1]} to ${match[2]}`;
+    return `${match[1]} ${t.between_date} ${match[2]}`;
   }
   // Fallback: remove time if present, and replace %20TO%20 with ' to '
-  return value.replace(/T.*?Z/g, "").replace(/%20TO%20/i, " to ");
+  return value;//.replace(/T.*?Z/g, "").replace(/%20TO%20/i, " to ");
 }
 
 export function SearchFilter({ lang, setBadges }) {
@@ -136,9 +138,13 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
       return;
     }
     // TODO: add first drowdown value inside the badge
+    
+
+    const strDates = `${formatDateRangeWithoutTime(startDate.toISOString(),t)}%20TO%20${formatDateRangeWithoutTime(endDate.toISOString(),t)}`;
+    console.log("DATESSSSS :: ", strDates);
     setBadges((prevBadges) => ({
       ...prevBadges,
-      filter_date: `${startDate.toISOString().split(".")[0]}Z%20TO%20${endDate.toISOString().split(".")[0]}Z`,
+      filter_date: strDates,
     }));
 
     setOpenModal(false);

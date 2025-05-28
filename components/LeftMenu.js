@@ -24,9 +24,9 @@ export function Sidebar({
   eovList,
   badges, // new prop
   setBadges, // new prop
+  setSelectedDateFilterOption,
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
   const t = getLocale(lang);
   const ProgressBar = dynamic(() => import("./ProgressBar"), { ssr: false });
   const opposite_lang = lang === "en" ? "fr" : "en";

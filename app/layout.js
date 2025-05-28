@@ -48,6 +48,7 @@ function AppContent({ lang, setLang }) {
   const [badgeCount, setBadgeCount] = useState(0);
   const [allItems, setAllItems] = useState([]); // Store the full list
   const [badges, setBadges] = useState({}); // Store current filters
+  const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
 
   const catalogueUrl = config.catalogue_url;
 
@@ -87,9 +88,14 @@ function AppContent({ lang, setLang }) {
 
   // When badges or allItems change, update filteredItems
   useEffect(() => {
-    const filtered = filterItemsByBadges(allItems, badges);
+    console.log("Option Selected ::: " , selectedDateFilterOption);
+    const filtered = filterItemsByBadges(allItems, badges,selectedDateFilterOption);
     setFilteredItems(filtered);
     setFilteredResultsCount(filtered.length);
+    //reset selectedDateFilterOption to empty string after filtering
+    if (selectedDateFilterOption) {
+      setSelectedDateFilterOption("");
+    }
   }, [allItems, badges]);
 
   // Function to process projects and add them to the project list
@@ -194,6 +200,7 @@ function AppContent({ lang, setLang }) {
             eovList={eovList}
             badges={badges}
             setBadges={setBadges}
+            setSelectedDateFilterOption={setSelectedDateFilterOption}
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
@@ -231,7 +238,7 @@ function useDrawer() {
 
 
 
-function filterItemsByBadges(items, badges) {
+function filterItemsByBadges(items, badges, selectedDateFilterOption) {
   if (!items || items.length === 0) return [];
   return items.filter((item) => {
     return Object.entries(badges).every(([filterType, value]) => {
@@ -253,13 +260,59 @@ function filterItemsByBadges(items, badges) {
       } else if (filterType === "eov") {
         return item.eov && item.eov.includes(value);
       } else if (filterType === "filter_date") {
-        // Date filtering logic can be added here if needed
-        return true;
+        return (
+          manageDateFilterOptions(item, selectedDateFilterOption, value)
+        );
       }
       return true;
     });
   });
 }
+
+function manageDateFilterOptions(item, selectedDateFilterOption, value) {
+  // Split value on '%20TO%20' to get an array of date strings
+  const dateArr = value.split('%20TO%20');
+
+  if(selectedDateFilterOption.startsWith("metadata")) {
+    return compareMetadataDates(item, dateArr, selectedDateFilterOption);
+  }else if(selectedDateFilterOption.startsWith("temporal")) {
+    return compareTemporalDates(item, dateArr, selectedDateFilterOption.split('-')[2]);
+  }else{
+    console.warn("Unknown date filter option selected:", selectedDateFilterOption);
+    return true; // Default to true if no valid option is selected
+  }
+}
+
+function compareTemporalDates(item, dateArr, varName) {
+  // Compare two date strings in 'YYYY-MM-DD' format
+  const startDate = dateArr[0] ? new Date(dateArr[0]) : null;
+  const endDate = dateArr[1] ? new Date(dateArr[1]) : null;
+  if (!item.temporal_extent || !item.temporal_extent[`${varName}`]) return true;
+  const itemDate = new Date(item.temporal_extent[`${varName}`]);
+  if (startDate && endDate) {
+    return itemDate >= startDate && itemDate <= endDate;
+  }
+  return true;
+}
+//
+function compareMetadataDates(item, dateArr, varName) {
+
+  // Compare two date strings in 'YYYY-MM-DD' format
+  const startDate = dateArr[0] ? new Date(dateArr[0]) : null;
+  const endDate = dateArr[1] ? new Date(dateArr[1]) : null;
+  if (!item[`${varName}`]) return true;
+  const itemDate = new Date(item[`${varName}`]);
+  if (startDate && endDate) {
+    
+    let compare = itemDate >= startDate && itemDate <= endDate;
+    console.log("COMPARE ::  ", compare);
+    console.log("Start date : : ", startDate, " Item date :: ", item[`${varName}`]," End date : : " , endDate);
+    return compare;
+    
+  }
+  return true;
+}
+
 
 function RootLayout({ children }) {
   const [lang, setLang] = useState(config.default_language);
