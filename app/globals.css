@@ -40,19 +40,19 @@ body {
 
 /* Leaflet Marker Clusters CSS */
 .marker-cluster-small {
-  background-color: var(--color-gray-200) !important;
+  background-color: var(--color-primary-200) !important;
   color: var(--color-black) !important;
 }
 .marker-cluster-small div {
-  background-color: var(--color-gray-100) !important;
+  background-color: var(--color-primary-100) !important;
   color: var(--color-black) !important;
 }
 .marker-cluster-medium {
-  background-color: var(--color-gray-500) !important;
+  background-color: var(--color-primary-500) !important;
   color: var(--color-accent-50) !important;
 }
 .marker-cluster-medium div {
-  background-color: var(--color-gray-400) !important;
+  background-color: var(--color-primary-400) !important;
   color: var(--color-accent-50) !important;
 }
 .marker-cluster-large {

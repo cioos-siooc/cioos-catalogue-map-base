@@ -118,7 +118,7 @@ export function Sidebar({
         className={`fixed top-0 left-0 z-40 w-sm h-screen transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
         aria-label="Sidebar"
       >
-        <div className="h-full px-3 py-4 bg-gray-50 dark:bg-gray-800 flex flex-col">
+        <div className="h-full px-3 py-4 bg-primary-50 dark:bg-primary-800 flex flex-col">
           <div className="flex items-center justify-between ps-2.5 mb-5">
             <div id="title" className="flex flex-col align-left">
               <Logo logos={config.main_logo} lang={lang} default_width={120} />
@@ -135,12 +135,15 @@ export function Sidebar({
             </button>
             <button
               onClick={toggleSidebar}
-              className="flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+              className="flex items-center p-2 text-sm text-primary-500 
+              rounded-lg md:hidden hover:bg-primary-100 focus:outline-none 
+              focus:ring-2 focus:ring-gray-200 dark:text-white dark:hover:bg-primary-700
+               dark:focus:ring-gray-600"
               aria-controls="logo-sidebar"
               data-drawer-toggle="logo-sidebar"
             >
               <svg
-                className="w-5 h-5 text-gray-600 dark:text-gray-300"
+                className="w-5 h-5 text-primary-600 dark:text-primary-300"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -178,7 +181,7 @@ export function Sidebar({
               loading={loading}
             />
           </ul>
-          <div className="pt-3 text-sm font-medium text-gray-900 dark:text-white">
+          <div className="pt-3 text-sm font-medium text-black dark:text-white">
             <ProgressBar
               count={filteredResultsCount}
               total={totalResultsCount}
@@ -208,7 +211,7 @@ export const TopBanner = ({ lang }) => {
       aria-controls="logo-sidebar"
       type="button"
       onClick={toggleSidebar}
-      className="w-screen flex justify-between items-center p-2 text-sm bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+      className="w-screen flex justify-between items-center p-2 text-sm bg-primary-50 dark:bg-primary-800 hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-primary-700 dark:focus:ring-gray-600"
     >
       <div className="flex items-center ps-2.5">
         <a className="me-3">

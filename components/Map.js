@@ -23,7 +23,7 @@ const { BaseLayer, Overlay } = LayersControl;
 // Utility functions
 const getPrimaryColor = () => {
   const primaryColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--color-gray-500")
+    .getPropertyValue("--color-primary-500")
     .trim();
   return primaryColor;
 };
