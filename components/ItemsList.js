@@ -12,7 +12,7 @@ export default function ItemsList({
   const t = getLocale(lang);
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center bg-gray-200 dark:bg-gray-700 w-full h-full text-gray-500 dark:text-gray-400 rounded-md">
+      <div className="flex flex-col justify-center items-center bg-primary-200 dark:bg-primary-700 w-full h-full text-gray-500 dark:text-gray-400 rounded-md">
         <p>{t.load_datasets} ...</p>
         <br />
         <ImSpinner2
@@ -24,7 +24,7 @@ export default function ItemsList({
   }
   if (!itemsList || itemsList.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center bg-gray-200 dark:bg-gray-700 w-full h-full text-gray-500 dark:text-gray-400 rounded-md">
+      <div className="flex flex-col justify-center items-center bg-primary-200 dark:bg-primary-700 w-full h-full text-gray-500 dark:text-gray-400 rounded-md">
         <p>{t.no_datasets}</p>
       </div>
     );
@@ -34,13 +34,13 @@ export default function ItemsList({
       <div className="grid grid-flow-row z-50">
         <div
           id="drawer-navigation"
-          className="bg-gray-200 dark:bg-gray-700 w-full transition-transform duration-300 ease-in-out rounded-md"
+          className="bg-primary-200 dark:bg-primary-700 w-full transition-transform duration-300 ease-in-out rounded-md"
         >
           <ul className="space-y-2 font-medium">
             {itemsList.map(
               (item) => (
                 <li
-                  className="hover:bg-gray-500 hover:text-white cursor-pointer bg-gray-100 dark:bg-gray-900 m-2 p-2 text-sm rounded-md"
+                  className="hover:bg-primary-500 hover:text-white cursor-pointer bg-primary-100 dark:bg-primary-900 m-2 p-2 text-sm rounded-md"
                   onClick={() => onItemClick(item)}
                   onDoubleClick={() => onItemDoubleClick(item)}
                   key={item.id}

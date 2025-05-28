@@ -20,7 +20,7 @@ function getBadge(filterType, value, lang, removeBadge) {
     <div
       key={filterType}
       value={value}
-      className="flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
+      className="flex items-center bg-blue-100 text-black hover:text-black text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
     >
       <span>
         {filterType === "filter_date"
@@ -28,7 +28,7 @@ function getBadge(filterType, value, lang, removeBadge) {
           : `${t[filterType].toLowerCase()}: ${value}`}
       </span>
       <button
-        className="ml-2 hover:bg-blue-700 hover:text-white rounded-full p-1 transition duration-200"
+        className="ml-2 hover:text-white rounded-full p-1 transition duration-200"
         onClick={() => removeBadge(filterType)}
       >
         &times;
@@ -74,12 +74,7 @@ export function SearchFilter({ lang, setBadges }) {
 
   return (
     <>
-      <Button
-        color="alternative"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button pill size="xs" onClick={() => setOpenModal(true)}>
         {t.search}
       </Button>
       <Modal
@@ -88,6 +83,7 @@ export function SearchFilter({ lang, setBadges }) {
         size="xl"
         onClose={onCloseModal}
         popup
+        className="rounded-lg border-0 text-lg"
       >
         <FloatingLabel
           id="query-input"
@@ -96,7 +92,7 @@ export function SearchFilter({ lang, setBadges }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="rounded-lg border-0"
+          className="rounded-lg border-0 text-lg  peer-focus:text-black peer-focus:dark:text-white text-black dark:text-white"
         />
       </Modal>
     </>
@@ -160,12 +156,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
 
   return (
     <>
-      <Button
-        color="alternative"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button pill size="xs" onClick={() => setOpenModal(true)}>
         {t.time}
       </Button>
       <Modal
@@ -192,7 +183,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                     id="date-filter-type"
                     onChange={(e) => setSelectedOption(e.target.value)}
                   >
-                    <option value="">Select an option</option>
+                    <option value="">{t.select}</option>
                     <option value="temporal-extent-begin">
                       temporal-extent-begin
                     </option>
@@ -287,12 +278,7 @@ export function FilterItems({
 
   return (
     <>
-      <Button
-        color="alternative"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button pill size="xs" onClick={() => setOpenModal(true)}>
         {t[filter_type]}
       </Button>
       <Modal
@@ -312,7 +298,7 @@ export function FilterItems({
             onSelect={onCloseModal}
             onKeyDown={handleKeyDown}
           >
-            <option value="">Select an option</option>
+            <option value="">{t.select}</option>
             {OptionItems(filter_type, orgList, projList, eovList)}
           </Select>
         </ModalBody>

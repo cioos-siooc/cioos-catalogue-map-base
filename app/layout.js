@@ -26,8 +26,8 @@ const geistMono = Geist_Mono({
 const MapComponent = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
-    <div className="h-full w-full flex items-center justify-center bg-gray-200">
-      <p className="text-gray-500">Loading map...</p>
+    <div className="h-full w-full flex items-center justify-center bg-primary-200">
+      <p className="text-primary-500">Loading map...</p>
     </div>
   ),
 });

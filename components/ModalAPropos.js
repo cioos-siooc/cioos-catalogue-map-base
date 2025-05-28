@@ -16,11 +16,7 @@ export default function ModalAPropos(lang) {
 
   return (
     <>
-      <Button
-        outline
-        className="p-2 m-2 uppercase"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button className="p-2 m-2 uppercase" onClick={() => setOpenModal(true)}>
         {t.about}
       </Button>
       <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>

@@ -22,7 +22,7 @@ const generateTheme = () => {
 
   // Generate CSS content with both palettes
   const cssContent = `@theme {
-    ${generatePalette(primary_color, "gray")}
+    ${generatePalette(primary_color, "primary")}
     ${generatePalette(accent_color, "accent")}
   }\n`;
 
