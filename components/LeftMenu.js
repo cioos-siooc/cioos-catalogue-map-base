@@ -178,8 +178,6 @@ export function Sidebar({
         <div className="flex items-center pl-4 gap-2">
           <BsDatabase />
           <span>{t.datasets}</span>
-        </div>
-        <div className="text-sm">
           <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
         </div>
       </span>
