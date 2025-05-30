@@ -17,13 +17,13 @@ export default function ModalAPropos(lang) {
 
   return (
     <>
-      <div
+      <button
         className="flex gap-2 items-center p-2 pl-4 hover:bg-primary-100 dark:hover:bg-primary-700"
         onClick={() => setOpenModal(true)}
       >
         <MdInfoOutline />
         {t.about}
-      </div>
+      </button>
       <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
         <ModalHeader>À propos du catalogue cartographique</ModalHeader>
         <ModalBody>
