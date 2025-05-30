@@ -11,6 +11,8 @@ import {
 } from "flowbite-react";
 import { useState, useRef, useLayoutEffect } from "react";
 import { getLocale } from "@/app/get-locale";
+import { IoFilterOutline } from "react-icons/io5";
+import SidebarButton from "./SidebarButton";
 
 import SelectReact from "react-select";
 import makeAnimated from "react-select/animated";
@@ -371,6 +373,11 @@ export default function FilterSection({
   setSelectedOption,
 }) {
   const t = getLocale(lang);
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+
+  const toggleAccordion = () => {
+    setIsAccordionOpen(!isAccordionOpen);
+  };
 
   const removeBadge = (filterType) => {
     setBadges((prevBadges) => {
@@ -386,50 +393,59 @@ export default function FilterSection({
 
   return (
     <>
-      <span>{t.filters}</span>
-      <div className="m-1 flex flex-row items-center gap-1 flex-wrap justify-center">
-        <SearchFilter lang={lang} setBadges={setBadges} />
-        <FilterItems
-          filter_type="organization"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
-        <FilterItems
-          filter_type="projects"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
-        <FilterItems
-          filter_type="eov"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
-        <TimeFilter
-          lang={lang}
-          setBadges={setBadges}
-          setSelectedOption={setSelectedOption}
-        />
-      </div>
-      {/* Render Badges */}
-      <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
-        {Object.entries(badges).map(([filterType, value]) => (
-          <Badge
-            key={filterType}
-            filterType={filterType}
-            value={value}
+      <SidebarButton
+        logo={<IoFilterOutline />}
+        label={t.filters}
+        onClick={toggleAccordion}
+      />
+      <div
+        className={`transition-all duration-300 ${isAccordionOpen ? "pt-1" : "max-h-0 hidden"}`}
+      >
+        <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
+          <SearchFilter lang={lang} setBadges={setBadges} />
+          <FilterItems
+            filter_type="organization"
             lang={lang}
-            removeBadge={removeBadge}
+            setBadges={setBadges}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
           />
-        ))}
+          <FilterItems
+            filter_type="projects"
+            lang={lang}
+            setBadges={setBadges}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+          />
+          <FilterItems
+            filter_type="eov"
+            lang={lang}
+            setBadges={setBadges}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+          />
+          <TimeFilter
+            lang={lang}
+            setBadges={setBadges}
+            setSelectedOption={setSelectedOption}
+          />
+        </div>
+
+        {/* Render Badges */}
+        <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
+          {Object.entries(badges).map(([filterType, value]) => (
+            <Badge
+              key={filterType}
+              filterType={filterType}
+              value={value}
+              lang={lang}
+              removeBadge={removeBadge}
+            />
+          ))}
+        </div>
       </div>
     </>
   );

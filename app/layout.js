@@ -48,6 +48,11 @@ function AppContent({ lang, setLang }) {
   const [allItems, setAllItems] = useState([]); // Store the full list
   const [badges, setBadges] = useState({}); // Store current filters
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   const catalogueUrl = config.catalogue_url;
 
@@ -180,12 +185,11 @@ function AppContent({ lang, setLang }) {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col">
-      <header className="md:hidden">
-        <TopBanner lang={lang} />
-      </header>
-      <div className="h-screen flex flex-1">
-        <aside className="hidden md:block w-sm h-screen overflow-auto">
+    <>
+      <div className="flex h-screen relative overflow-hidden">
+        <div
+          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} z-30`}
+        >
           <Sidebar
             filteredItems={filteredItems}
             onInfoClick={onInfoClick}
@@ -202,9 +206,21 @@ function AppContent({ lang, setLang }) {
             badges={badges}
             setBadges={setBadges}
             setSelectedDateFilterOption={setSelectedDateFilterOption}
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
           />
-        </aside>
-        <main className="z-20 flex-1 h-full w-full">
+        </div>
+        <div className="absolute top-0 left-0 z-35">
+          <TopBanner
+            lang={lang}
+            setLang={setLang}
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
+          />
+        </div>
+        <main
+          className={`flex-1 relative ${isSidebarOpen ? "ml-90" : ""} transform transition-transform duration-300 ease-in-out z-20`}
+        >
           <MapComponent
             bounds={bounds}
             filteredItems={filteredItems}
@@ -215,16 +231,11 @@ function AppContent({ lang, setLang }) {
         {isDrawerOpen && dataSetInfo && (
           <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
-        <div className="absolute bottom-0 right-0 z-60 flex items-center justify-center pb-10 pr-4 md:hidden">
-          <Logo
-            logos={config.bottom_logo}
-            lang={lang}
-            default_width={220}
-            force_mode={"dark"}
-          />
+        <div className="absolute bottom-0 left-0 z-25 flex items-center w-90 bg-primary-50 dark:bg-primary-800 pt-2 justify-center rounded-tr-xl opacity-50">
+          <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
