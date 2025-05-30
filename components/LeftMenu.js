@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import dynamic from "next/dynamic";
 import ItemsList from "@/components/ItemsList";
 import ModalAPropos from "@/components/ModalAPropos";
@@ -10,6 +9,7 @@ import Logo from "./Logo";
 import { TfiMenu } from "react-icons/tfi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 import { BsDatabase } from "react-icons/bs";
+import SidebarButton from "./SidebarButton";
 
 const Title = ({ lang, setLang }) => {
   const opposite_lang = lang === "en" ? "fr" : "en";
@@ -46,18 +46,16 @@ export const TopBanner = ({ lang, setLang, toggleSidebar, isSidebarOpen }) => {
       <div className="flex items-center px-2 py-1">
         <Title lang={lang} setLang={setLang} />
       </div>
-      <button
-        type="button"
+      <SidebarButton
+        logo={<TfiMenu />}
+        label={
+          <div className="flex flex-row gap-4 items-center">
+            <div>Menu</div>
+            <div>{isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}</div>
+          </div>
+        }
         onClick={toggleSidebar}
-        className="flex w-full py-2 pl-4 items-center gap-4 cursor-pointer hover:bg-primary-500"
-      >
-        <span className="sr-only">{t.open_sidebar}</span>
-        <div className="flex items-center gap-2">
-          <TfiMenu />
-          <span>Menu</span>
-        </div>
-        {isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
-      </button>
+      />
     </div>
   );
 };
@@ -109,11 +107,7 @@ export function Sidebar({
         setSelectedOption={setSelectedDateFilterOption}
       />
 
-      <div className="w-full flex items-center pl-4 py-2 gap-2">
-        <BsDatabase />
-        <span>{t.datasets}</span>
-        <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
-      </div>
+      <SidebarButton logo={<BsDatabase />} label={t.datasets} />
       <ul className="flex-grow overflow-y-auto p-2 space-y-2 rounded-md">
         <ItemsList
           itemsList={filteredItems}

@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
 import { IoFilterOutline } from "react-icons/io5";
+import SidebarButton from "./SidebarButton";
 
 function getBadge(filterType, value, lang, removeBadge) {
   if (!value) return null; // Return null if value is empty
@@ -337,13 +338,11 @@ export default function FilterSection({
 
   return (
     <>
-      <button
-        className="flex items-center gap-2 pl-4 py-2 cursor-pointer hover:bg-primary-500 transition-colors duration-200"
+      <SidebarButton
+        logo={<IoFilterOutline />}
+        label={t.filters}
         onClick={toggleAccordion}
-      >
-        <IoFilterOutline />
-        <span>{t.filters}</span>
-      </button>
+      />
       <div
         className={`transition-all duration-300 ${isAccordionOpen ? "pt-1" : "max-h-0 hidden"}`}
       >
