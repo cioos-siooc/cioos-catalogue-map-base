@@ -1,15 +1,13 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import ItemsList from "@/components/ItemsList";
-import Image from "next/image";
 import ModalAPropos from "@/components/ModalAPropos";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
 import Logo from "./Logo";
 
-const basePath = process.env.BASE_PATH || "";
 
 export function Sidebar({
   filteredItems,
@@ -17,7 +15,6 @@ export function Sidebar({
   onItemClick,
   lang,
   setLang,
-  setFetchURLFilter,
   filteredResultsCount,
   totalResultsCount,
   setBadgeCount,
@@ -25,92 +22,26 @@ export function Sidebar({
   organizationList,
   projectList,
   eovList,
+  badges, // new prop
+  setBadges, // new prop
+  setSelectedDateFilterOption,
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [badges, setBadges] = useState([]);
-  const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
-
   const t = getLocale(lang);
-
   const ProgressBar = dynamic(() => import("./ProgressBar"), { ssr: false });
-
   const opposite_lang = lang === "en" ? "fr" : "en";
   const toggleLanguage = () => {
     setLang(lang === "en" ? "fr" : "en");
   };
-
   const toggleSidebar = () => {
-    console.log("Toggle Sidebar :: " + isSidebarOpen);
     setIsSidebarOpen(!isSidebarOpen);
   };
-
   const onLeftMenuItemClick = (selectedItem) => {
     onItemClick(selectedItem);
   };
-
   const onLeftMenuItemDoubleClick = (selectedItem) => {
     window.open(`${catalogueUrl}/dataset/${selectedItem.name}`);
   };
-
-  const generateQueryString = (badges) => {
-    let queryString = "";
-    console.log("Query first badges :: ", Object.keys(badges).length);
-    queryString += Object.entries(badges)
-      .map(([filterType, value]) => buildFilterString(filterType, value))
-      .join("");
-    console.log("Query second :: ", queryString);
-    if (Object.keys(badges).length > 1) {
-      queryString += "%20AND%20";
-    }
-
-    // check if there is a Date filter
-    if (selectedDateFilterOption) {
-      let dateFilters = buildDateFiltersString(
-        badges,
-        selectedDateFilterOption,
-      );
-      console.log("Date Filters :: ", dateFilters);
-      queryString += dateFilters;
-    }
-    console.log("Query Final Filters :: ", queryString);
-    return queryString;
-  };
-
-  //TODO rethink this function will be complicated with many searches terms involved
-  function buildFilterString(filterType, value) {
-    if (!value) return;
-    // Check if the filterType is a date filter, because we need to format it differently
-    if (filterType !== "filter_date") {
-      if (filterType === "search") {
-        return `${value}`;
-      } else if (filterType === "organization") {
-        return `responsible_organizations=${value}`;
-      } else if (filterType === "projects") {
-        return `projects=${value}`;
-      } else {
-        return `${filterType}=${value}`;
-      }
-    } else {
-      // If it's a date filter, we need to format it differently
-      return "";
-    }
-  }
-
-  // Builds a string for date filters using filterTypes: filter_date_type, start_date, end_date
-  function buildDateFiltersString(badges, selectedOption) {
-    const dateFilterStr = `${selectedOption}:[${badges["filter_date"]}]`;
-
-    return dateFilterStr;
-  }
-
-  // Trigger reharvest when badges change
-  useEffect(() => {
-    const queryString = generateQueryString(badges);
-    console.log("Query String :: " + queryString);
-    setFetchURLFilter(`${queryString}`);
-    setBadgeCount(Object.keys(badges).length);
-  }, [badges, setBadgeCount, setFetchURLFilter]); // Re-run whenever badges change
-
   return (
     <aside
       id="logo-sidebar"

@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import config from "./config.js";
 import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
-import { useState, useEffect, useCallback, useMemo, use } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
@@ -21,7 +21,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const metadata = config.metadata.fr;
 
 // Import map with dynamic import (no ssr) and memoization
 const MapComponent = dynamic(() => import("@/components/Map"), {
@@ -44,23 +43,15 @@ function AppContent({ lang, setLang }) {
   const [organizationList, setOrganizationList] = useState([]);
   const [projectList, setProjectList] = useState([]);
   const [eovList, setEovList] = useState([]);
-  const [fetchURLFilter, setFetchURLFilter] = useState("");
   const [totalResultsCount, setTotalResultsCount] = useState(0);
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
   const [badgeCount, setBadgeCount] = useState(0);
-  const [inputValue, setInputValue] = useState("");
+  const [allItems, setAllItems] = useState([]); // Store the full list
+  const [badges, setBadges] = useState({}); // Store current filters
+  const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
 
   const catalogueUrl = config.catalogue_url;
-  let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
 
-  // Memoize the fetch URL to avoid recalculation
-  const fetchURL = useMemo(() => {
-    let url = `${urlCustomSearch}${config.base_query}`;
-    if (fetchURLFilter) {
-      url += fetchURLFilter;
-    }
-    return url + `&rows=1000`;
-  }, [urlCustomSearch, fetchURLFilter]);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
@@ -79,52 +70,51 @@ function AppContent({ lang, setLang }) {
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
     setLoading(true);
-    try {
-      console.log("Fetching data from CKAN API...", fetchURL);
-      const response = await fetch(fetchURL);
-      if (!response.ok) {
-        throw new Error("There was an error fetching the data from CKAN API");
-      }
-      const awaitRes = await response.json();
-
-      setFilteredItems(awaitRes.result.results);
-      fillOrganizationAndProjectLists(awaitRes.result.results);
-      setInputValue("");
-      if (fetchURLFilter) {
-        setFilteredResultsCount(awaitRes.result.results.length);
-      } else {
-        setTotalResultsCount(awaitRes.result.results.length);
-      }
-      if (badgeCount === 0) {
-        setFilteredResultsCount(awaitRes.result.results.length);
-      }
-    } catch (error) {
-      console.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchURL, fetchURLFilter, badgeCount]);
+    fetch("/packages.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setAllItems(data);
+        setTotalResultsCount(data.length);
+        fillOrganizationAndProjectLists(data);
+        // Filtering will be handled in badges effect
+      })
+      .then(() => setLoading(false))
+      .catch((error) => console.error("Error loading packages:", error));
+  }, [badgeCount]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
+  // When badges or allItems change, update filteredItems
+  useEffect(() => {
+    console.log("Option Selected ::: " , selectedDateFilterOption);
+    const filtered = filterItemsByBadges(allItems, badges,selectedDateFilterOption);
+    setFilteredItems(filtered);
+    setFilteredResultsCount(filtered.length);
+    //reset selectedDateFilterOption to empty string after filtering
+    if (selectedDateFilterOption) {
+      setSelectedDateFilterOption("");
+    }
+  }, [allItems, badges]);
+
   // Function to process projects and add them to the project list
   const processProjects = (item, projList) => {
-    if (item.projects && Array.isArray(item.projects)) {
-      const isAlreadyPresent = item.projects.every((project) =>
+
+    if (item.project && Array.isArray(item.project)) {
+      const isAlreadyPresent = item.project.every((project) =>
         projList.has(project),
       );
       if (isAlreadyPresent) {
         return;
       }
-      item.projects.forEach((project) => projList.add(project));
+      item.project.forEach((project) => projList.add(project));
     }
   };
 
   // Function to process projects and add them to the project list
   const processEovs = (item, eovList) => {
-    if (item.projects && Array.isArray(item.eov)) {
+    if (item.eov && Array.isArray(item.eov)) {
       const isAlreadyPresent = item.eov.every((eov) => eovList.has(eov));
       if (isAlreadyPresent) {
         return;
@@ -142,6 +132,17 @@ function AppContent({ lang, setLang }) {
       orgList.add(item.organization.title_translated[lang]);
     }
   };
+
+  function fetchDataSetInfo(id) {
+    fetch(`${catalogueUrl}/api/3/action/package_show?id=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setDatasetInfo(data.result);
+      })
+      .catch((error) => {
+        console.error("Error loading dataset info:", error);
+      });
+  }
 
   // Function to fill organization and project lists
   const fillOrganizationAndProjectLists = (items) => {
@@ -167,7 +168,7 @@ function AppContent({ lang, setLang }) {
   const handleListItemClick = useCallback(
     (selectedItem) => {
       setBounds(selectedItem.spatial);
-      setDatasetInfo(selectedItem);
+      fetchDataSetInfo(selectedItem.id);
       openDrawer();
     },
     [openDrawer],
@@ -190,7 +191,6 @@ function AppContent({ lang, setLang }) {
             onItemClick={handleListItemClick}
             lang={lang}
             setLang={setLang}
-            setFetchURLFilter={setFetchURLFilter}
             filteredResultsCount={filteredResultsCount}
             totalResultsCount={totalResultsCount}
             setBadgeCount={setBadgeCount}
@@ -198,6 +198,9 @@ function AppContent({ lang, setLang }) {
             organizationList={organizationList}
             projectList={projectList}
             eovList={eovList}
+            badges={badges}
+            setBadges={setBadges}
+            setSelectedDateFilterOption={setSelectedDateFilterOption}
           />
         </aside>
         <main className="z-20 flex-1 h-full w-full">
@@ -233,6 +236,84 @@ function useDrawer() {
   return context;
 }
 
+
+
+function filterItemsByBadges(items, badges, selectedDateFilterOption) {
+  if (!items || items.length === 0) return [];
+  return items.filter((item) => {
+    return Object.entries(badges).every(([filterType, value]) => {
+      if (!value) return true;
+      if (filterType === "search") {
+        const searchVal = value.toLowerCase();
+        return (
+          (item.title_translated && Object.values(item.title_translated).some((t) => t.toLowerCase().includes(searchVal))) ||
+          (item.notes_translated && Object.values(item.notes_translated).some((n) => n.toLowerCase().includes(searchVal)))
+        );
+      } else if (filterType === "organization") {
+        return (
+          item.organization &&
+          item.organization.title_translated &&
+          Object.values(item.organization.title_translated).includes(value)
+        );
+      } else if (filterType === "projects") {
+        return item.project && item.project.includes(value);
+      } else if (filterType === "eov") {
+        return item.eov && item.eov.includes(value);
+      } else if (filterType === "filter_date") {
+        return (
+          manageDateFilterOptions(item, selectedDateFilterOption, value)
+        );
+      }
+      return true;
+    });
+  });
+}
+
+function manageDateFilterOptions(item, selectedDateFilterOption, value) {
+  // Split value on '%20TO%20' to get an array of date strings
+  const dateArr = value.split('%20TO%20');
+
+  if(selectedDateFilterOption.startsWith("metadata")) {
+    return compareMetadataDates(item, dateArr, selectedDateFilterOption);
+  }else if(selectedDateFilterOption.startsWith("temporal")) {
+    return compareTemporalDates(item, dateArr, selectedDateFilterOption.split('-')[2]);
+  }else{
+    console.warn("Unknown date filter option selected:", selectedDateFilterOption);
+    return true; // Default to true if no valid option is selected
+  }
+}
+
+function compareTemporalDates(item, dateArr, varName) {
+  // Compare two date strings in 'YYYY-MM-DD' format
+  const startDate = dateArr[0] ? new Date(dateArr[0]) : null;
+  const endDate = dateArr[1] ? new Date(dateArr[1]) : null;
+  if (!item.temporal_extent || !item.temporal_extent[`${varName}`]) return true;
+  const itemDate = new Date(item.temporal_extent[`${varName}`]);
+  if (startDate && endDate) {
+    return itemDate >= startDate && itemDate <= endDate;
+  }
+  return true;
+}
+//
+function compareMetadataDates(item, dateArr, varName) {
+
+  // Compare two date strings in 'YYYY-MM-DD' format
+  const startDate = dateArr[0] ? new Date(dateArr[0]) : null;
+  const endDate = dateArr[1] ? new Date(dateArr[1]) : null;
+  if (!item[`${varName}`]) return true;
+  const itemDate = new Date(item[`${varName}`]);
+  if (startDate && endDate) {
+    
+    let compare = itemDate >= startDate && itemDate <= endDate;
+    console.log("COMPARE ::  ", compare);
+    console.log("Start date : : ", startDate, " Item date :: ", item[`${varName}`]," End date : : " , endDate);
+    return compare;
+    
+  }
+  return true;
+}
+
+
 function RootLayout({ children }) {
   const [lang, setLang] = useState(config.default_language);
 
@@ -249,4 +330,5 @@ function RootLayout({ children }) {
     </html>
   );
 }
+
 export default RootLayout;

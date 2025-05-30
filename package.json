@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "node scripts/fetchCkanPackages.js && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "flowbite-react patch",
     "export": "next build && next export",
-    "prepare": "husky && husky install"
+    "prepare": "husky && husky install",
+    "load_data": "node scripts/fetchCkanPackages.js"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": "prettier --write",
