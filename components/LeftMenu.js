@@ -109,13 +109,11 @@ export function Sidebar({
         setSelectedOption={setSelectedDateFilterOption}
       />
 
-      <span className="w-full p-1 border-t border-t-gray-200 dark:border-t-gray-700 flex flex-row justify-between items-bottom">
-        <div className="flex items-center pl-4 gap-2">
-          <BsDatabase />
-          <span>{t.datasets}</span>
-          <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
-        </div>
-      </span>
+      <div className="w-full flex items-center pl-4 gap-2">
+        <BsDatabase />
+        <span>{t.datasets}</span>
+        <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
+      </div>
       <ul className="flex-grow overflow-y-auto p-2 space-y-2 rounded-md">
         <ItemsList
           itemsList={filteredItems}
