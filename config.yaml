@@ -40,7 +40,7 @@ favicon: "/images/favicon.ico"
 #                (default, "h-auto").
 # - `width`: The width of the logo in pixels or percentage.
 
-# main_logo: This logo is typically used as the main branding 
+# main_logo: This logo is typically used as the main branding
 #           element in the application.
 main_logo:
   - url: "/Images/OGSL_NoTag.png"
@@ -57,22 +57,22 @@ bottom_logo:
     lang: en
     mode: light
     alt: "CIOOS National"
-    className: "max-h-[75px] h-auto"
+    className: "max-h-[75px] h-auto m-3"
   - url: "/Images/cioos-national_FR-01.png"
     lang: fr
     mode: light
     alt: "CIOOS National"
-    className: "max-h-[75px] h-auto"
+    className: "max-h-[75px] h-auto m-3"
   - url: "/Images/cioos-national_EN_W.svg"
     lang: en
     mode: dark
     alt: "CIOOS National"
-    className: "max-h-[75px] h-auto"
+    className: "max-h-[75px] h-auto m-3"
   - url: "/Images/cioos-national_FR_W.svg"
     lang: fr
     mode: dark
     alt: "CIOOS National"
-    className: "max-h-[75px] h-auto"
+    className: "max-h-[75px] h-auto m-3"
 
 basemaps:
   - name:
