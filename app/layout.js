@@ -49,7 +49,7 @@ function AppContent({ lang, setLang }) {
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
   const [badgeCount, setBadgeCount] = useState(0);
   const [inputValue, setInputValue] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -203,13 +203,15 @@ function AppContent({ lang, setLang }) {
             projectList={projectList}
             eovList={eovList}
             toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
           />
         </sidebar>
-        <div className="absolute top-0 left-0 z-25">
+        <div className="absolute top-0 left-0 z-35">
           <TopBanner
             lang={lang}
             setLang={setLang}
             toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
           />
         </div>
         <main
@@ -226,12 +228,7 @@ function AppContent({ lang, setLang }) {
           <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
         <div className="absolute bottom-0 left-0 z-30 flex items-center w-90 bg-primary-50 dark:bg-primary-800 pt-2 justify-center rounded-tr-xl opacity-50">
-          <Logo
-            logos={config.bottom_logo}
-            lang={lang}
-            default_width={220}
-            force_mode={"dark"}
-          />
+          <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
         </div>
       </div>
     </>

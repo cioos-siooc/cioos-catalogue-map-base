@@ -8,6 +8,7 @@ import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
 import Logo from "./Logo";
 import { TfiMenu } from "react-icons/tfi";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 
 const basePath = process.env.BASE_PATH || "";
 
@@ -35,7 +36,7 @@ const Title = ({ lang, setLang }) => {
   );
 };
 
-export const TopBanner = ({ lang, setLang, toggleSidebar }) => {
+export const TopBanner = ({ lang, setLang, toggleSidebar, isSidebarOpen }) => {
   const t = getLocale(lang);
   return (
     <div className="w-90 my-1 pt-1  bg-primary-50 dark:bg-primary-800 rounded-r-3xl">
@@ -45,10 +46,12 @@ export const TopBanner = ({ lang, setLang, toggleSidebar }) => {
       <button
         type="button"
         onClick={toggleSidebar}
-        className="flex w-full pt-2 pb-3 items-center justify-center text-lg hover:bg-primary-100  dark:hover:bg-primary-700 hover:rounded-br-3xl"
+        className="flex w-full pt-1 pb-2 items-center justify-center text-lg hover:bg-primary-100  dark:hover:bg-primary-700 gap-2 hover:rounded-br-3xl"
       >
         <span className="sr-only">{t.open_sidebar}</span>
         <TfiMenu />
+        <div>Menu</div>
+        {isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
       </button>
     </div>
   );
@@ -69,6 +72,7 @@ export function Sidebar({
   projectList,
   eovList,
   toggleSidebar,
+  isSidebarOpen,
 }) {
   const [badges, setBadges] = useState([]);
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
@@ -146,7 +150,12 @@ export function Sidebar({
 
   return (
     <div className="h-screen bg-primary-50 dark:bg-primary-800 flex flex-col">
-      <TopBanner lang={lang} setLang={setLang} toggleSidebar={toggleSidebar} />
+      <TopBanner
+        lang={lang}
+        setLang={setLang}
+        toggleSidebar={toggleSidebar}
+        isSidebarOpen={isSidebarOpen}
+      />
       <FilterSection
         lang={lang}
         badges={badges}
