@@ -56,21 +56,24 @@ async function fetchAllPackages() {
       if (data.result.results.length < rows) {
         break;
       }
-      
+
       // Increment start for the next batch
       start += rows;
     }
- 
 
     // Filter: only consider items with a non-empty "spatial" property
     // Create a new array with only the desired properties
     const filtered = allResults
       .filter((item) => item.spatial)
       .map((item) => {
-        const temporalExtent = item['temporal-extent'] || {};
-        const begin = Object.values(temporalExtent)[0] ? Object.values(temporalExtent)[0].begin : null;
-        const end = Object.values(temporalExtent)[0] ? Object.values(temporalExtent)[0].end : null;
-        
+        const temporalExtent = item["temporal-extent"] || {};
+        const begin = Object.values(temporalExtent)[0]
+          ? Object.values(temporalExtent)[0].begin
+          : null;
+        const end = Object.values(temporalExtent)[0]
+          ? Object.values(temporalExtent)[0].end
+          : null;
+
         return {
           id: item.id,
           name: item.name,

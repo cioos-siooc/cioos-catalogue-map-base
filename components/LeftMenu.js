@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import dynamic from "next/dynamic";
 import ItemsList from "@/components/ItemsList";
 import ModalAPropos from "@/components/ModalAPropos";
@@ -7,7 +6,59 @@ import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
 import Logo from "./Logo";
+import { TfiMenu } from "react-icons/tfi";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import { BsDatabase } from "react-icons/bs";
+import SidebarButton from "./SidebarButton";
 
+const Title = ({ lang, setLang }) => {
+  const opposite_lang = lang === "en" ? "fr" : "en";
+  const toggleLanguage = () => {
+    setLang(lang === "en" ? "fr" : "en");
+  };
+
+  return (
+    <div className="flex flex-row w-full justify-between">
+      <div className="flex-col">
+        <Logo logos={config.main_logo} lang={lang} default_width={120} />
+        <span className="pt-3 text-xl font-semibold">{config.title[lang]}</span>
+      </div>
+
+      <button
+        className="p-1 uppercase cursor-pointer"
+        id="headerTranslation"
+        onClick={toggleLanguage}
+      >
+        {opposite_lang}
+      </button>
+    </div>
+  );
+};
+
+export const TopBanner = ({ lang, setLang, toggleSidebar, isSidebarOpen }) => {
+  const t = getLocale(lang);
+  return (
+    <div
+      className={`w-90 mt-1 pt-1 bg-primary-50 dark:bg-primary-800 ${
+        !isSidebarOpen ? "rounded-r-3xl overflow-hidden" : ""
+      }`}
+    >
+      <div className="flex items-center px-2 py-1">
+        <Title lang={lang} setLang={setLang} />
+      </div>
+      <SidebarButton
+        logo={<TfiMenu />}
+        label={
+          <div className="flex flex-row gap-4 items-center">
+            <div>Menu</div>
+            <div>{isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}</div>
+          </div>
+        }
+        onClick={toggleSidebar}
+      />
+    </div>
+  );
+};
 
 export function Sidebar({
   filteredItems,
@@ -25,17 +76,12 @@ export function Sidebar({
   badges, // new prop
   setBadges, // new prop
   setSelectedDateFilterOption,
+  toggleSidebar,
+  isSidebarOpen,
 }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const t = getLocale(lang);
   const ProgressBar = dynamic(() => import("./ProgressBar"), { ssr: false });
-  const opposite_lang = lang === "en" ? "fr" : "en";
-  const toggleLanguage = () => {
-    setLang(lang === "en" ? "fr" : "en");
-  };
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+
   const onLeftMenuItemClick = (selectedItem) => {
     onItemClick(selectedItem);
   };
@@ -43,124 +89,37 @@ export function Sidebar({
     window.open(`${catalogueUrl}/dataset/${selectedItem.name}`);
   };
   return (
-    <aside
-      id="logo-sidebar"
-      className={`fixed top-0 left-0 z-40 w-sm h-screen transition-transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
-      aria-label="Sidebar"
-    >
-      <div className="h-full px-3 py-4 bg-primary-50 dark:bg-primary-800 flex flex-col">
-        <div className="flex items-center justify-between mb-2">
-          <div id="title" className="flex flex-col align-left">
-            <Logo logos={config.main_logo} lang={lang} default_width={120} />
-            <span className="pt-3 text-xl font-semibold">
-              {config.title[lang]}
-            </span>
-          </div>
-          <button
-            className="p-1 uppercase cursor-pointer"
-            id="headerTranslation"
-            onClick={toggleLanguage}
-          >
-            {opposite_lang}
-          </button>
-          <button
-            onClick={toggleSidebar}
-            className="flex items-center p-2 text-sm text-primary-500 
-              rounded-lg md:hidden hover:bg-primary-100 focus:outline-none 
-              focus:ring-2 focus:ring-gray-200 dark:text-white dark:hover:bg-primary-700
-               dark:focus:ring-gray-600"
-            aria-controls="logo-sidebar"
-            data-drawer-toggle="logo-sidebar"
-          >
-            <svg
-              className="w-5 h-5 text-primary-600 dark:text-primary-300"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+    <div className="h-screen bg-primary-50 dark:bg-primary-800 flex flex-col">
+      <TopBanner
+        lang={lang}
+        setLang={setLang}
+        toggleSidebar={toggleSidebar}
+        isSidebarOpen={isSidebarOpen}
+      />
+      <ModalAPropos lang={lang} />
+      <FilterSection
+        lang={lang}
+        badges={badges}
+        setBadges={setBadges}
+        orgList={organizationList}
+        projList={projectList}
+        eovList={eovList}
+        setSelectedOption={setSelectedDateFilterOption}
+      />
 
-        <FilterSection
+      <SidebarButton logo={<BsDatabase />} label={t.datasets} />
+      <ul className="flex-grow overflow-y-auto p-2 space-y-2 rounded-md">
+        <ItemsList
+          itemsList={filteredItems}
+          onItemClick={onLeftMenuItemClick}
+          onItemDoubleClick={onLeftMenuItemDoubleClick}
           lang={lang}
-          badges={badges}
-          setBadges={setBadges}
-          orgList={organizationList}
-          projList={projectList}
-          eovList={eovList}
-          setSelectedOption={setSelectedDateFilterOption}
+          loading={loading}
         />
-
-        <span className="pt-4 border-t border-t-gray-200 dark:border-t-gray-700">
-          {t.datasets}
-        </span>
-        <ul className="flex-grow overflow-y-auto pt-1 mt-1 space-y-2 rounded-md">
-          <ItemsList
-            itemsList={filteredItems}
-            onItemClick={onLeftMenuItemClick}
-            onItemDoubleClick={onLeftMenuItemDoubleClick}
-            lang={lang}
-            loading={loading}
-          />
-        </ul>
-        <div className="pt-3 text-sm font-medium text-black dark:text-white">
-          <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
-        </div>
-        <ModalAPropos lang={lang} />
-        <div className="flex items-center justify-center mt-1">
-          <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
-        </div>
+      </ul>
+      <div className="flex items-center justify-center mt-2">
+        <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
       </div>
-    </aside>
+    </div>
   );
 }
-
-export const TopBanner = ({ lang }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-  const t = getLocale(lang);
-  return (
-    <button
-      id="sidebar-toggle"
-      data-drawer-target="logo-sidebar"
-      data-drawer-toggle="logo-sidebar"
-      aria-controls="logo-sidebar"
-      type="button"
-      onClick={toggleSidebar}
-      className="w-screen flex justify-between items-center p-2 text-sm bg-primary-50 dark:bg-primary-800 hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-primary-700 dark:focus:ring-gray-600"
-    >
-      <div className="flex items-center ps-2.5">
-        <a className="me-3">
-          <Logo logos={config.main_logo} lang={lang} default_width={120} />
-          <span className="self-center text-xl font-semibold whitespace-nowrap">
-            {config.title[lang]}
-          </span>
-        </a>
-        <span className="sr-only">{t.open_sidebar}</span>
-      </div>
-      <svg
-        className="w-6 h-6"
-        aria-hidden="true"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          clipRule="evenodd"
-          fillRule="evenodd"
-          d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
-        ></path>
-      </svg>
-    </button>
-  );
-};
