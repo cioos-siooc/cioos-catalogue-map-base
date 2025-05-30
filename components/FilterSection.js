@@ -11,6 +11,7 @@ import {
 } from "flowbite-react";
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
+import { IoFilterOutline } from "react-icons/io5";
 
 function getBadge(filterType, value, lang, removeBadge) {
   if (!value) return null; // Return null if value is empty
@@ -326,8 +327,11 @@ export default function FilterSection({
 
   return (
     <>
-      <div className="relative flex flex-row items-center gap-1 flex-wrap justify-center">
-        <span className="absolute top-0 left-2">{t.filters}</span>
+      <span className="flex items-center gap-2 pl-4 py-2">
+        <IoFilterOutline />
+        <span>{t.filters}</span>
+      </span>
+      <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
         <SearchFilter lang={lang} setBadges={setBadges} />
         <FilterItems
           filter_type="organization"
@@ -361,7 +365,7 @@ export default function FilterSection({
       </div>
 
       {/* Render Badges */}
-      <div className="pb-2 flex flex-wrap gap-1 justify-center">
+      <div className="py-2 flex flex-wrap gap-1 justify-center">
         {Object.entries(badges).map(([filterType, value]) =>
           getBadge(filterType, value, lang, removeBadge),
         )}

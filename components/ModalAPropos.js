@@ -9,6 +9,7 @@ import {
 } from "flowbite-react";
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale.js";
+import { MdInfoOutline } from "react-icons/md";
 
 export default function ModalAPropos(lang) {
   const [openModal, setOpenModal] = useState(true);
@@ -16,9 +17,13 @@ export default function ModalAPropos(lang) {
 
   return (
     <>
-      <Button className="p-2 m-2 uppercase" onClick={() => setOpenModal(true)}>
+      <div
+        className="flex gap-2 items-center p-2 pl-4 hover:bg-primary-100 dark:hover:bg-primary-700"
+        onClick={() => setOpenModal(true)}
+      >
+        <MdInfoOutline />
         {t.about}
-      </Button>
+      </div>
       <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
         <ModalHeader>À propos du catalogue cartographique</ModalHeader>
         <ModalBody>

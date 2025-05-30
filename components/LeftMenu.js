@@ -9,6 +9,7 @@ import FilterSection from "./FilterSection";
 import Logo from "./Logo";
 import { TfiMenu } from "react-icons/tfi";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import { BsDatabase } from "react-icons/bs";
 
 const basePath = process.env.BASE_PATH || "";
 
@@ -39,18 +40,24 @@ const Title = ({ lang, setLang }) => {
 export const TopBanner = ({ lang, setLang, toggleSidebar, isSidebarOpen }) => {
   const t = getLocale(lang);
   return (
-    <div className="w-90 my-1 pt-1  bg-primary-50 dark:bg-primary-800 rounded-r-3xl">
+    <div
+      className={`w-90 mt-1 pt-1 bg-primary-50 dark:bg-primary-800 ${
+        !isSidebarOpen ? "rounded-r-3xl overflow-hidden" : ""
+      }`}
+    >
       <div className="flex items-center px-2 py-1">
         <Title lang={lang} setLang={setLang} />
       </div>
       <button
         type="button"
         onClick={toggleSidebar}
-        className="flex w-full pt-1 pb-2 items-center justify-center text-lg hover:bg-primary-100  dark:hover:bg-primary-700 gap-2 hover:rounded-br-3xl"
+        className="flex w-full py-2 pl-4 items-center gap-4 hover:bg-primary-100  dark:hover:bg-primary-700 gap-2"
       >
         <span className="sr-only">{t.open_sidebar}</span>
-        <TfiMenu />
-        <div>Menu</div>
+        <div className="flex items-center gap-2">
+          <TfiMenu />
+          <span>Menu</span>
+        </div>
         {isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}
       </button>
     </div>
@@ -156,6 +163,7 @@ export function Sidebar({
         toggleSidebar={toggleSidebar}
         isSidebarOpen={isSidebarOpen}
       />
+      <ModalAPropos lang={lang} />
       <FilterSection
         lang={lang}
         badges={badges}
@@ -167,7 +175,10 @@ export function Sidebar({
       />
 
       <span className="w-full p-1 border-t border-t-gray-200 dark:border-t-gray-700 flex flex-row justify-between items-bottom">
-        <div>{t.datasets}</div>
+        <div className="flex items-center pl-4 gap-2">
+          <BsDatabase />
+          <span>{t.datasets}</span>
+        </div>
         <div className="text-sm">
           <ProgressBar count={filteredResultsCount} total={totalResultsCount} />
         </div>
@@ -181,8 +192,7 @@ export function Sidebar({
           loading={loading}
         />
       </ul>
-      <ModalAPropos lang={lang} />
-      <div className="flex items-center justify-center mt-1">
+      <div className="flex items-center justify-center mt-2">
         <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
       </div>
     </div>
