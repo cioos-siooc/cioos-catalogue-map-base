@@ -156,8 +156,7 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
       zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
-      // Adding key={false} to prevent re-mounting the entire map
-      key={false}
+      key={filteredItems.length}
     >
       <ZoomControl position="topright" />
       <LayersControl position="bottomright">
