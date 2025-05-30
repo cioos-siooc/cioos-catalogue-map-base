@@ -10,7 +10,6 @@ import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
 import dynamic from "next/dynamic";
 import React from "react";
-import { TfiMenu } from "react-icons/tfi";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
