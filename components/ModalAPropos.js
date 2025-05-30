@@ -18,7 +18,7 @@ export default function ModalAPropos(lang) {
   return (
     <>
       <button
-        className="flex gap-2 items-center p-2 pl-4 hover:bg-primary-100 dark:hover:bg-primary-700"
+        className="flex gap-2 items-center p-2 pl-4 cursor-pointer hover:bg-primary-500"
         onClick={() => setOpenModal(true)}
       >
         <MdInfoOutline />

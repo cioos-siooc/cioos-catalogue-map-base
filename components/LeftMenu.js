@@ -49,7 +49,7 @@ export const TopBanner = ({ lang, setLang, toggleSidebar, isSidebarOpen }) => {
       <button
         type="button"
         onClick={toggleSidebar}
-        className="flex w-full py-2 pl-4 items-center gap-4 hover:bg-primary-100  dark:hover:bg-primary-700 gap-2"
+        className="flex w-full py-2 pl-4 items-center gap-4 cursor-pointer hover:bg-primary-500"
       >
         <span className="sr-only">{t.open_sidebar}</span>
         <div className="flex items-center gap-2">
@@ -109,7 +109,7 @@ export function Sidebar({
         setSelectedOption={setSelectedDateFilterOption}
       />
 
-      <div className="w-full flex items-center pl-4 gap-2">
+      <div className="w-full flex items-center pl-4 py-2 gap-2">
         <BsDatabase />
         <span>{t.datasets}</span>
         <ProgressBar count={filteredResultsCount} total={totalResultsCount} />

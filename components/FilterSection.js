@@ -317,6 +317,11 @@ export default function FilterSection({
   setSelectedOption,
 }) {
   const t = getLocale(lang);
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+
+  const toggleAccordion = () => {
+    setIsAccordionOpen(!isAccordionOpen);
+  };
 
   const removeBadge = (filterType) => {
     setBadges((prevBadges) => {
@@ -332,48 +337,55 @@ export default function FilterSection({
 
   return (
     <>
-      <span className="flex items-center gap-2 pl-4 py-2">
+      <button
+        className="flex items-center gap-2 pl-4 py-2 cursor-pointer hover:bg-primary-500 transition-colors duration-200"
+        onClick={toggleAccordion}
+      >
         <IoFilterOutline />
         <span>{t.filters}</span>
-      </span>
-      <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
-        <SearchFilter lang={lang} setBadges={setBadges} />
-        <FilterItems
-          filter_type="organization"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
-        <FilterItems
-          filter_type="projects"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
-        <FilterItems
-          filter_type="eov"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
-        <TimeFilter
-          lang={lang}
-          setBadges={setBadges}
-          setSelectedOption={setSelectedOption}
-        />
-      </div>
+      </button>
+      <div
+        className={`transition-all duration-300 ${isAccordionOpen ? "pt-1" : "max-h-0 hidden"}`}
+      >
+        <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
+          <SearchFilter lang={lang} setBadges={setBadges} />
+          <FilterItems
+            filter_type="organization"
+            lang={lang}
+            setBadges={setBadges}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+          />
+          <FilterItems
+            filter_type="projects"
+            lang={lang}
+            setBadges={setBadges}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+          />
+          <FilterItems
+            filter_type="eov"
+            lang={lang}
+            setBadges={setBadges}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+          />
+          <TimeFilter
+            lang={lang}
+            setBadges={setBadges}
+            setSelectedOption={setSelectedOption}
+          />
+        </div>
 
-      {/* Render Badges */}
-      <div className="py-2 flex flex-wrap gap-1 justify-center">
-        {Object.entries(badges).map(([filterType, value]) =>
-          getBadge(filterType, value, lang, removeBadge),
-        )}
+        {/* Render Badges */}
+        <div className="py-2 flex flex-wrap gap-1 justify-center">
+          {Object.entries(badges).map(([filterType, value]) =>
+            getBadge(filterType, value, lang, removeBadge),
+          )}
+        </div>
       </div>
     </>
   );
