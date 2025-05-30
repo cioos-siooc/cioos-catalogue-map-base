@@ -1,12 +1,16 @@
 const ProgressBar = ({ count, total }) => {
-  const progress = Math.round((count / total) * 100);
+  const ratio = Math.round((count / total) * 100);
   if (count === total) {
-    return <>{count}</>;
+    return (
+      <div className="bg-primary-500 text-white text-xs rounded-md px-2 py-0.5">
+        {count}
+      </div>
+    );
   }
   return (
-    <>
-      {count} / {total} ( {progress} % )
-    </>
+    <div className="bg-primary-500 text-white text-xs rounded-md px-2 py-0.5">
+      {count} / {total} ( {ratio} % )
+    </div>
   );
 };
 
