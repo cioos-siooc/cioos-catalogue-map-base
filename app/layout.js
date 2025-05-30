@@ -203,6 +203,11 @@ function AppContent({ lang, setLang }) {
             organizationList={organizationList}
             projectList={projectList}
             eovList={eovList}
+            badges={badges}
+            setBadges={setBadges}
+            setSelectedDateFilterOption={setSelectedDateFilterOption}
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
           />
         </div>
         <div className="absolute top-0 left-0 z-35">
