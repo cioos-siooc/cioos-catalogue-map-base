@@ -8,6 +8,7 @@ import {
   useMap,
   Tooltip,
   LayersControl,
+  ZoomControl,
 } from "react-leaflet";
 import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -152,12 +153,14 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
       className="h-full w-full"
       center={config.map.center}
       zoom={config.map.zoom}
+      zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
       // Adding key={false} to prevent re-mounting the entire map
       key={false}
     >
-      <LayersControl position="bottomleft">
+      <ZoomControl position="topright" />
+      <LayersControl position="bottomright">
         <BaseLayers basemaps={config.basemaps} lang={lang} />
         {bounds && <FitBounds bounds={bounds} />}
         <Overlay checked name={t.dataset_markers}>

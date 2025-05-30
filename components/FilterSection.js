@@ -326,8 +326,8 @@ export default function FilterSection({
 
   return (
     <>
-      <span>{t.filters}</span>
-      <div className="m-1 flex flex-row items-center gap-1 flex-wrap justify-center">
+      <div className="relative flex flex-row items-center gap-1 flex-wrap justify-center">
+        <span className="absolute top-0 left-2">{t.filters}</span>
         <SearchFilter lang={lang} setBadges={setBadges} />
         <FilterItems
           filter_type="organization"
@@ -361,7 +361,7 @@ export default function FilterSection({
       </div>
 
       {/* Render Badges */}
-      <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
+      <div className="pb-2 flex flex-wrap gap-1 justify-center">
         {Object.entries(badges).map(([filterType, value]) =>
           getBadge(filterType, value, lang, removeBadge),
         )}

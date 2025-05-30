@@ -10,6 +10,7 @@ import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
 import dynamic from "next/dynamic";
 import React from "react";
+import { TfiMenu } from "react-icons/tfi";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +50,11 @@ function AppContent({ lang, setLang }) {
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
   const [badgeCount, setBadgeCount] = useState(0);
   const [inputValue, setInputValue] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   const catalogueUrl = config.catalogue_url;
   let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
@@ -178,12 +184,11 @@ function AppContent({ lang, setLang }) {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col">
-      <header className="md:hidden">
-        <TopBanner lang={lang} />
-      </header>
-      <div className="h-screen flex flex-1">
-        <aside className="hidden md:block w-sm h-screen overflow-auto">
+    <>
+      <div className="flex h-screen relative overflow-hidden">
+        <sidebar
+          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} z-30`}
+        >
           <Sidebar
             filteredItems={filteredItems}
             onInfoClick={onInfoClick}
@@ -198,9 +203,19 @@ function AppContent({ lang, setLang }) {
             organizationList={organizationList}
             projectList={projectList}
             eovList={eovList}
+            toggleSidebar={toggleSidebar}
           />
-        </aside>
-        <main className="z-20 flex-1 h-full w-full">
+        </sidebar>
+        <div className="absolute top-0 left-0 z-25">
+          <TopBanner
+            lang={lang}
+            setLang={setLang}
+            toggleSidebar={toggleSidebar}
+          />
+        </div>
+        <main
+          className={`flex-1 relative ${isSidebarOpen ? "ml-90" : ""} transform transition-transform duration-300 ease-in-out z-20`}
+        >
           <MapComponent
             bounds={bounds}
             filteredItems={filteredItems}
@@ -211,7 +226,7 @@ function AppContent({ lang, setLang }) {
         {isDrawerOpen && dataSetInfo && (
           <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
-        <div className="absolute bottom-0 right-0 z-60 flex items-center justify-center pb-10 pr-4 md:hidden">
+        <div className="absolute bottom-0 left-0 z-30 flex items-center w-90 bg-primary-50 dark:bg-primary-800 pt-2 justify-center rounded-tr-xl opacity-50">
           <Logo
             logos={config.bottom_logo}
             lang={lang}
@@ -220,7 +235,7 @@ function AppContent({ lang, setLang }) {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
