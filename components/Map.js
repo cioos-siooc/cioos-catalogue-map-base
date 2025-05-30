@@ -154,8 +154,7 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
       zoom={config.map.zoom}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
-      // Adding key={false} to prevent re-mounting the entire map
-      key={false}
+      key={filteredItems.length}
     >
       <LayersControl position="bottomleft">
         <BaseLayers basemaps={config.basemaps} lang={lang} />
