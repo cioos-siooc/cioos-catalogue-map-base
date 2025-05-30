@@ -9,36 +9,11 @@ import {
   Select,
   Datepicker,
 } from "flowbite-react";
-import { useState } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { getLocale } from "@/app/get-locale";
 
 import SelectReact from "react-select";
 import makeAnimated from "react-select/animated";
-
-function getBadge(filterType, value, lang, removeBadge) {
-  if (!value) return null; // Return null if value is empty
-  const t = getLocale(lang);
-
-  return (
-    <div
-      key={filterType}
-      value={value}
-      className="flex items-center bg-blue-100 text-black hover:text-black text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
-    >
-      <span>
-        {filterType === "filter_date"
-          ? `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value, t)}`
-          : `${t[filterType].toLowerCase()}: ${value}`}
-      </span>
-      <button
-        className="ml-2 hover:text-white rounded-full p-1 transition duration-200"
-        onClick={() => removeBadge(filterType)}
-      >
-        &times;
-      </button>
-    </div>
-  );
-}
 
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value, t) {
@@ -50,7 +25,7 @@ function formatDateRangeWithoutTime(value, t) {
     return `${match[1]} ${t.between_date} ${match[2]}`;
   }
   // Fallback: remove time if present, and replace %20TO%20 with ' to '
-  return value;//.replace(/T.*?Z/g, "").replace(/%20TO%20/i, " to ");
+  return value; //.replace(/T.*?Z/g, "").replace(/%20TO%20/i, " to ");
 }
 
 export function SearchFilter({ lang, setBadges }) {
@@ -137,9 +112,8 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
       return;
     }
     // TODO: add first drowdown value inside the badge
-    
 
-    const strDates = `${formatDateRangeWithoutTime(startDate.toISOString(),t)}%20TO%20${formatDateRangeWithoutTime(endDate.toISOString(),t)}`;
+    const strDates = `${formatDateRangeWithoutTime(startDate.toISOString(), t)}%20TO%20${formatDateRangeWithoutTime(endDate.toISOString(), t)}`;
     console.log("DATESSSSS :: ", strDates);
     setBadges((prevBadges) => ({
       ...prevBadges,
@@ -339,6 +313,54 @@ export function FilterItems({
   );
 }
 
+// Convert getBadge to a React component so hooks can be used
+function Badge({ filterType, value, lang, removeBadge }) {
+  const t = getLocale(lang);
+  const badgeRef = useRef(null);
+  const [topOffset, setTopOffset] = useState(4);
+
+  useLayoutEffect(() => {
+    if (badgeRef.current) {
+      const height = badgeRef.current.offsetHeight;
+      console.log("Badge height : ", height);
+      setTopOffset(Math.max(4, Math.round(height * 0.15)));
+    }
+  }, [value]);
+
+  if (!value) return null;
+
+  return (
+    <div
+      key={filterType}
+      value={value}
+      ref={badgeRef}
+      className="relative max-w-full w-auto flex flex-wrap items-center bg-blue-100 text-black hover:text-black text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
+    >
+      <button
+        className="absolute right-3 hover:text-white rounded-full p-1 transition duration-200"
+        style={{ top: `${topOffset}px`, lineHeight: 1 }}
+        onClick={() => removeBadge(filterType)}
+        aria-label="Remove filter"
+      >
+        &times;
+      </button>
+      <span className="pl-6 pr-6">
+        {filterType === "filter_date" ? (
+          `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value, t)}`
+        ) : Array.isArray(value) ? (
+          <>
+            {t[filterType].toLowerCase()} :{" "}
+            <span className="inline md:hidden block" />
+            {value.join(", ")}
+          </>
+        ) : (
+          `${t[filterType].toLowerCase()} : ${value}`
+        )}
+      </span>
+    </div>
+  );
+}
+
 export default function FilterSection({
   lang,
   badges,
@@ -397,12 +419,17 @@ export default function FilterSection({
           setSelectedOption={setSelectedOption}
         />
       </div>
-
       {/* Render Badges */}
       <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
-        {Object.entries(badges).map(([filterType, value]) =>
-          getBadge(filterType, value, lang, removeBadge),
-        )}
+        {Object.entries(badges).map(([filterType, value]) => (
+          <Badge
+            key={filterType}
+            filterType={filterType}
+            value={value}
+            lang={lang}
+            removeBadge={removeBadge}
+          />
+        ))}
       </div>
     </>
   );

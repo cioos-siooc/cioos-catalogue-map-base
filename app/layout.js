@@ -21,7 +21,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 // Import map with dynamic import (no ssr) and memoization
 const MapComponent = dynamic(() => import("@/components/Map"), {
   ssr: false,
@@ -51,7 +50,6 @@ function AppContent({ lang, setLang }) {
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
 
   const catalogueUrl = config.catalogue_url;
-
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
@@ -88,8 +86,12 @@ function AppContent({ lang, setLang }) {
 
   // When badges or allItems change, update filteredItems
   useEffect(() => {
-    console.log("Option Selected ::: " , selectedDateFilterOption);
-    const filtered = filterItemsByBadges(allItems, badges,selectedDateFilterOption);
+    console.log("Option Selected ::: ", selectedDateFilterOption);
+    const filtered = filterItemsByBadges(
+      allItems,
+      badges,
+      selectedDateFilterOption,
+    );
     setFilteredItems(filtered);
     setFilteredResultsCount(filtered.length);
     //reset selectedDateFilterOption to empty string after filtering
@@ -100,7 +102,6 @@ function AppContent({ lang, setLang }) {
 
   // Function to process projects and add them to the project list
   const processProjects = (item, projList) => {
-
     if (item.project && Array.isArray(item.project)) {
       const isAlreadyPresent = item.project.every((project) =>
         projList.has(project),
@@ -236,8 +237,6 @@ function useDrawer() {
   return context;
 }
 
-
-
 function filterItemsByBadges(items, badges, selectedDateFilterOption) {
   if (!items || items.length === 0) return [];
   return items.filter((item) => {
@@ -246,39 +245,70 @@ function filterItemsByBadges(items, badges, selectedDateFilterOption) {
       if (filterType === "search") {
         const searchVal = value.toLowerCase();
         return (
-          (item.title_translated && Object.values(item.title_translated).some((t) => t.toLowerCase().includes(searchVal))) ||
-          (item.notes_translated && Object.values(item.notes_translated).some((n) => n.toLowerCase().includes(searchVal)))
+          (item.title_translated &&
+            Object.values(item.title_translated).some((t) =>
+              t.toLowerCase().includes(searchVal),
+            )) ||
+          (item.notes_translated &&
+            Object.values(item.notes_translated).some((n) =>
+              n.toLowerCase().includes(searchVal),
+            ))
         );
-      } else if (filterType === "organization") {
-        return (
-          item.organization &&
-          item.organization.title_translated &&
-          Object.values(item.organization.title_translated).includes(value)
-        );
-      } else if (filterType === "projects") {
-        return item.project && item.project.includes(value);
-      } else if (filterType === "eov") {
-        return item.eov && item.eov.includes(value);
+      } else if (
+        filterType === "organization" ||
+        filterType === "projects" ||
+        filterType === "eov"
+      ) {
+        return filterByOrganizationProjectsEov(item, filterType, value);
       } else if (filterType === "filter_date") {
-        return (
-          manageDateFilterOptions(item, selectedDateFilterOption, value)
-        );
+        return manageDateFilterOptions(item, selectedDateFilterOption, value);
       }
       return true;
     });
   });
 }
 
+function filterByOrganizationProjectsEov(item, filterType, value) {
+  if (filterType === "organization") {
+    return Array.isArray(value)
+      ? value.some(
+          (v) =>
+            item.organization &&
+            item.organization.title_translated &&
+            Object.values(item.organization.title_translated).includes(v),
+        )
+      : item.organization &&
+          item.organization.title_translated &&
+          Object.values(item.organization.title_translated).includes(value);
+  } else if (filterType === "projects") {
+    return Array.isArray(value)
+      ? value.some((v) => item.project && item.project.includes(v))
+      : item.project && item.project.includes(value);
+  } else if (filterType === "eov") {
+    return Array.isArray(value)
+      ? value.some((v) => item.eov && item.eov.includes(v))
+      : item.eov && item.eov.includes(value);
+  }
+  return true;
+}
+
 function manageDateFilterOptions(item, selectedDateFilterOption, value) {
   // Split value on '%20TO%20' to get an array of date strings
-  const dateArr = value.split('%20TO%20');
+  const dateArr = value.split("%20TO%20");
 
-  if(selectedDateFilterOption.startsWith("metadata")) {
+  if (selectedDateFilterOption.startsWith("metadata")) {
     return compareMetadataDates(item, dateArr, selectedDateFilterOption);
-  }else if(selectedDateFilterOption.startsWith("temporal")) {
-    return compareTemporalDates(item, dateArr, selectedDateFilterOption.split('-')[2]);
-  }else{
-    console.warn("Unknown date filter option selected:", selectedDateFilterOption);
+  } else if (selectedDateFilterOption.startsWith("temporal")) {
+    return compareTemporalDates(
+      item,
+      dateArr,
+      selectedDateFilterOption.split("-")[2],
+    );
+  } else {
+    console.warn(
+      "Unknown date filter option selected:",
+      selectedDateFilterOption,
+    );
     return true; // Default to true if no valid option is selected
   }
 }
@@ -296,23 +326,26 @@ function compareTemporalDates(item, dateArr, varName) {
 }
 //
 function compareMetadataDates(item, dateArr, varName) {
-
   // Compare two date strings in 'YYYY-MM-DD' format
   const startDate = dateArr[0] ? new Date(dateArr[0]) : null;
   const endDate = dateArr[1] ? new Date(dateArr[1]) : null;
   if (!item[`${varName}`]) return true;
   const itemDate = new Date(item[`${varName}`]);
   if (startDate && endDate) {
-    
     let compare = itemDate >= startDate && itemDate <= endDate;
     console.log("COMPARE ::  ", compare);
-    console.log("Start date : : ", startDate, " Item date :: ", item[`${varName}`]," End date : : " , endDate);
+    console.log(
+      "Start date : : ",
+      startDate,
+      " Item date :: ",
+      item[`${varName}`],
+      " End date : : ",
+      endDate,
+    );
     return compare;
-    
   }
   return true;
 }
-
 
 function RootLayout({ children }) {
   const [lang, setLang] = useState(config.default_language);
