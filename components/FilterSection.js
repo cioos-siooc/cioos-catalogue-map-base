@@ -12,6 +12,9 @@ import {
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
 
+import SelectReact from "react-select";
+import makeAnimated from "react-select/animated";
+
 function getBadge(filterType, value, lang, removeBadge) {
   if (!value) return null; // Return null if value is empty
   const t = getLocale(lang);
@@ -235,7 +238,7 @@ export function FilterItems({
   eovList,
 }) {
   const [openModal, setOpenModal] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState([]);
   const t = getLocale(lang);
 
   function onCloseModal() {
@@ -243,6 +246,7 @@ export function FilterItems({
       setOpenModal(false);
       return;
     }
+    console.log("Adding badge for:", filter_type, "with query:", query);
     setBadges((prevBadges) => ({
       ...prevBadges,
       [filter_type]: query,
@@ -286,15 +290,43 @@ export function FilterItems({
           {t.filter_by} {t[filter_type].toLowerCase()}
         </ModalHeader>
         <ModalBody>
-          <Select
+          <SelectReact
             id={`${t[filter_type].toLowerCase()}-select`}
-            onChange={(e) => setQuery(e.target.value)}
-            onSelect={onCloseModal}
+            isMulti
+            options={(filter_type === "organization"
+              ? orgList
+              : filter_type === "projects"
+                ? projList
+                : eovList
+            ).map((item) => ({ value: item, label: item }))}
+            value={query.map((val) => ({ value: val, label: val }))}
+            onChange={(selectedOptions) => {
+              const values = selectedOptions
+                ? selectedOptions.map((opt) => opt.value)
+                : [];
+              console.log(
+                "Adding badge for:",
+                filter_type,
+                "with query:",
+                values,
+              );
+              setQuery(values);
+            }}
             onKeyDown={handleKeyDown}
-          >
-            <option value="">{t.select}</option>
-            {OptionItems(filter_type, orgList, projList, eovList)}
-          </Select>
+            closeMenuOnSelect={false}
+            placeholder={t.select}
+            components={makeAnimated()}
+            menuPortalTarget={
+              typeof window !== "undefined" ? document.body : null
+            }
+            menuPosition="fixed"
+            styles={{
+              menuPortal: (base) => ({
+                ...base,
+                zIndex: 9999,
+              }),
+            }}
+          />
         </ModalBody>
       </Modal>
     </>
