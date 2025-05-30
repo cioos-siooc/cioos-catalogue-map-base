@@ -148,35 +148,33 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
   const t = getLocale(lang);
 
   return (
-    <div id="container" className="h-full w-full">
-      <MapContainer
-        className="h-full w-full"
-        center={config.map.center}
-        zoom={config.map.zoom}
-        scrollWheelZoom={true}
-        boundsOptions={{ padding: [1, 1] }}
-        // Adding key={false} to prevent re-mounting the entire map
-        key={false}
-      >
-        <LayersControl position="bottomleft">
-          <BaseLayers basemaps={config.basemaps} lang={lang} />
-          {bounds && <FitBounds bounds={bounds} />}
-          <Overlay checked name={t.dataset_markers}>
-            <MarkerClusterGroup>
-              {filteredItems.map((item) => (
-                <DatasetMarker
-                  key={item.id}
-                  record={item}
-                  handleListItemClick={handleListItemClick}
-                  lang={lang}
-                  openDrawer={openDrawer}
-                />
-              ))}
-            </MarkerClusterGroup>
-          </Overlay>
-        </LayersControl>
-      </MapContainer>
-    </div>
+    <MapContainer
+      className="h-full w-full"
+      center={config.map.center}
+      zoom={config.map.zoom}
+      scrollWheelZoom={true}
+      boundsOptions={{ padding: [1, 1] }}
+      // Adding key={false} to prevent re-mounting the entire map
+      key={false}
+    >
+      <LayersControl position="bottomleft">
+        <BaseLayers basemaps={config.basemaps} lang={lang} />
+        {bounds && <FitBounds bounds={bounds} />}
+        <Overlay checked name={t.dataset_markers}>
+          <MarkerClusterGroup>
+            {filteredItems.map((item) => (
+              <DatasetMarker
+                key={item.id}
+                record={item}
+                handleListItemClick={handleListItemClick}
+                lang={lang}
+                openDrawer={openDrawer}
+              />
+            ))}
+          </MarkerClusterGroup>
+        </Overlay>
+      </LayersControl>
+    </MapContainer>
   );
 }
 
