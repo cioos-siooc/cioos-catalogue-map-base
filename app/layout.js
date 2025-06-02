@@ -91,7 +91,6 @@ function AppContent({ lang, setLang }) {
 
   // When badges or allItems change, update filteredItems
   useEffect(() => {
-    console.log("Option Selected ::: ", selectedDateFilterOption);
     const filtered = filterItemsByBadges(
       allItems,
       badges,
@@ -165,7 +164,6 @@ function AppContent({ lang, setLang }) {
     setOrganizationList(Array.from(orgList));
     setProjectList(Array.from(projList));
     setEovList(Array.from(eovList));
-    console.log("EOVs List: ", eovList);
   };
 
   // Import the useDrawer hook to get drawer state and methods

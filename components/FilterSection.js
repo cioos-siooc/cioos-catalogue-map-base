@@ -230,7 +230,6 @@ export function FilterItems({
       setOpenModal(false);
       return;
     }
-    console.log("Adding badge for:", filter_type, "with query:", query);
     setBadges((prevBadges) => ({
       ...prevBadges,
       [filter_type]: query,
@@ -288,12 +287,6 @@ export function FilterItems({
               const values = selectedOptions
                 ? selectedOptions.map((opt) => opt.value)
                 : [];
-              console.log(
-                "Adding badge for:",
-                filter_type,
-                "with query:",
-                values,
-              );
               setQuery(values);
             }}
             onKeyDown={handleKeyDown}
@@ -326,12 +319,11 @@ function Badge({ filterType, value, lang, removeBadge }) {
   useLayoutEffect(() => {
     if (badgeRef.current) {
       const height = badgeRef.current.offsetHeight;
-      console.log("Badge height : ", height);
       setTopOffset(Math.max(4, Math.round(height * 0.15)));
     }
   }, [value]);
-
-  if (!value) return null;
+  // Ensure the badge is not empty before rendering
+  if (value.length === 0) return null;
 
   return (
     <div
@@ -353,12 +345,11 @@ function Badge({ filterType, value, lang, removeBadge }) {
           `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value, t)}`
         ) : Array.isArray(value) ? (
           <>
-            {t[filterType].toLowerCase()} :{" "}
-            <span className="inline md:hidden block" />
+            {t[filterType]} : <span className="inline md:hidden block" />
             {value.join(", ")}
           </>
         ) : (
-          `${t[filterType].toLowerCase()} : ${value}`
+          `${t[filterType]} : ${value}`
         )}
       </span>
     </div>
