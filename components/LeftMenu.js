@@ -88,6 +88,23 @@ export function Sidebar({
   const onLeftMenuItemDoubleClick = (selectedItem) => {
     window.open(`${catalogueUrl}/dataset/${selectedItem.name}`);
   };
+
+  const generateDatasetsLabel = (count, total, noResultsText, resultsText) => {
+    var content = null;
+    if (count === 0) {
+      return noResultsText;
+    } else if (count === total) {
+      content = total;
+    } else {
+      content = `${count} / ${total}`;
+    }
+    return (
+      <div className="text-xs font-extralight text-white bg-primary-500 px-1.5 py-0.5 rounded-full">
+        {content}
+      </div>
+    );
+  };
+
   return (
     <div className="h-screen bg-primary-50 dark:bg-primary-800 flex flex-col">
       <TopBanner
@@ -107,7 +124,20 @@ export function Sidebar({
         setSelectedOption={setSelectedDateFilterOption}
       />
 
-      <SidebarButton logo={<BsDatabase />} label={t.datasets} />
+      <SidebarButton
+        logo={<BsDatabase />}
+        label={
+          <div className="flex items-center gap-2">
+            <span>{t.datasets}</span>
+            {generateDatasetsLabel(
+              filteredResultsCount,
+              totalResultsCount,
+              t.no_results,
+              t.results,
+            )}
+          </div>
+        }
+      />
       <ul className="flex-grow overflow-y-auto p-2 space-y-2 rounded-md">
         <ItemsList
           itemsList={filteredItems}
