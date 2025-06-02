@@ -243,7 +243,7 @@ export function FilterItems({
     }
 
     if (e.key === "Enter") {
-      if (!query) {
+      if (query.length === 0) {
         console.log("No query entered");
         return;
       }
