@@ -224,7 +224,9 @@ export function FilterItems({
   const t = getLocale(lang);
 
   function onCloseModal() {
-    if (!query) {
+    if (query.length === 0) {
+      // If no query is selected, close the modal without adding a badge
+      console.log("No query entered, closing modal", query);
       setOpenModal(false);
       return;
     }

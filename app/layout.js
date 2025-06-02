@@ -99,6 +99,7 @@ function AppContent({ lang, setLang }) {
     );
     setFilteredItems(filtered);
     setFilteredResultsCount(filtered.length);
+
     //reset selectedDateFilterOption to empty string after filtering
     if (selectedDateFilterOption) {
       setSelectedDateFilterOption("");
@@ -250,9 +251,13 @@ function useDrawer() {
 
 function filterItemsByBadges(items, badges, selectedDateFilterOption) {
   if (!items || items.length === 0) return [];
+  // If no badges, return all items
+  if (!badges || Object.keys(badges).length === 0) return items;
   return items.filter((item) => {
     return Object.entries(badges).every(([filterType, value]) => {
-      if (!value) return true;
+      if (value.length === 0) {
+        return true; // If no value, skip this filter
+      }
       if (filterType === "search") {
         const searchVal = value.toLowerCase();
         return (
