@@ -13,9 +13,7 @@ import { useState, useRef, useLayoutEffect } from "react";
 import { getLocale } from "@/app/get-locale";
 import { IoFilterOutline } from "react-icons/io5";
 import SidebarButton from "./SidebarButton";
-
-import SelectReact from "react-select";
-import makeAnimated from "react-select/animated";
+import { SelectReactComponent } from "./SelectReact";
 
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value, t) {
@@ -273,36 +271,14 @@ export function FilterItems({
           {t.filter_by} {t[filter_type].toLowerCase()}
         </ModalHeader>
         <ModalBody>
-          <SelectReact
-            id={`${t[filter_type].toLowerCase()}-select`}
-            isMulti
-            options={(filter_type === "organization"
-              ? orgList
-              : filter_type === "projects"
-                ? projList
-                : eovList
-            ).map((item) => ({ value: item, label: item }))}
-            value={query.map((val) => ({ value: val, label: val }))}
-            onChange={(selectedOptions) => {
-              const values = selectedOptions
-                ? selectedOptions.map((opt) => opt.value)
-                : [];
-              setQuery(values);
-            }}
-            onKeyDown={handleKeyDown}
-            closeMenuOnSelect={false}
-            placeholder={t.select}
-            components={makeAnimated()}
-            menuPortalTarget={
-              typeof window !== "undefined" ? document.body : null
-            }
-            menuPosition="fixed"
-            styles={{
-              menuPortal: (base) => ({
-                ...base,
-                zIndex: 9999,
-              }),
-            }}
+          <SelectReactComponent
+            filter_type={filter_type}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+            setQuery={setQuery}
+            query={query}
+            lang={lang}
           />
         </ModalBody>
       </Modal>
@@ -346,7 +322,7 @@ function Badge({ filterType, value, lang, removeBadge }) {
         ) : Array.isArray(value) ? (
           <>
             {t[filterType]} : <span className="inline md:hidden block" />
-            {value.join(", ")}
+            {value.map((item) => item[1]).join(", ")}
           </>
         ) : (
           `${t[filterType]} : ${value}`

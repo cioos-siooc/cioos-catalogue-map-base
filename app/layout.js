@@ -49,6 +49,7 @@ function AppContent({ lang, setLang }) {
   const [badges, setBadges] = useState({}); // Store current filters
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [translatedEovList, setTranslatedEovList] = useState([]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -67,6 +68,11 @@ function AppContent({ lang, setLang }) {
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("preferredLanguage", lang);
+    }
+    console.log("Language changed to:", lang);
+    console.log("All items :", allItems);
+    if (allItems.length > 0) {
+      fillOrganizationAndProjectLists(allItems);
     }
   }, [lang]);
 
@@ -104,6 +110,26 @@ function AppContent({ lang, setLang }) {
       setSelectedDateFilterOption("");
     }
   }, [allItems, badges]);
+
+  // Fonction pour charger et filtrer les EOVs traduits
+  const fetchAndFilterEovsTranslated = useCallback(async (lang, eovList) => {
+    const res = await fetch("/eovs.json");
+    const data = await res.json();
+    const eovs = data.eovs;
+
+    const labelkey = `label_${lang}`;
+    const filtered = eovs
+      .filter((eov) => eovList.includes(eov.value)) // comparez par value qui correspond à l'identifiant de l'EOV
+      .map((eov) => [eov.value, eov[labelkey]]);
+
+    setTranslatedEovList(filtered);
+  }, []);
+
+  useEffect(() => {
+    if (eovList.length > 0 && lang) {
+      fetchAndFilterEovsTranslated(lang, eovList);
+    }
+  }, [lang, eovList, fetchAndFilterEovsTranslated]);
 
   // Function to process projects and add them to the project list
   const processProjects = (item, projList) => {
@@ -201,7 +227,7 @@ function AppContent({ lang, setLang }) {
             loading={loading}
             organizationList={organizationList}
             projectList={projectList}
-            eovList={eovList}
+            eovList={translatedEovList}
             badges={badges}
             setBadges={setBadges}
             setSelectedDateFilterOption={setSelectedDateFilterOption}
@@ -281,27 +307,30 @@ function filterItemsByBadges(items, badges, selectedDateFilterOption) {
     });
   });
 }
-
-function filterByOrganizationProjectsEov(item, filterType, value) {
+// Function to filter items by organization, projects, or eov
+function filterByOrganizationProjectsEov(item, filterType, selected_values) {
+  const selectedValues = selected_values.map((arr) => arr[0]);
   if (filterType === "organization") {
-    return Array.isArray(value)
-      ? value.some(
-          (v) =>
-            item.organization &&
-            item.organization.title_translated &&
-            Object.values(item.organization.title_translated).includes(v),
-        )
-      : item.organization &&
-          item.organization.title_translated &&
-          Object.values(item.organization.title_translated).includes(value);
+    if (
+      !Array.isArray(selected_values) ||
+      !Array.isArray(Object.values(item.organization.title_translated))
+    )
+      return false;
+
+    return Object.values(item.organization.title_translated).some((org) =>
+      selectedValues.includes(org),
+    );
   } else if (filterType === "projects") {
-    return Array.isArray(value)
-      ? value.some((v) => item.project && item.project.includes(v))
-      : item.project && item.project.includes(value);
+    if (!Array.isArray(selected_values) || !Array.isArray(item.project))
+      return false;
+    // Return true if at least one eov of the item is in the selection
+    return item.project.some((project) => selectedValues.includes(project));
   } else if (filterType === "eov") {
-    return Array.isArray(value)
-      ? value.some((v) => item.eov && item.eov.includes(v))
-      : item.eov && item.eov.includes(value);
+    if (!Array.isArray(selected_values) || !Array.isArray(item.eov))
+      return false;
+
+    // Return true if at least one eov of the item is in the selection
+    return item.eov.some((eov) => selectedValues.includes(eov));
   }
   return true;
 }
