@@ -43,6 +43,7 @@ export function SelectReactComponent({
         closeMenuOnSelect={false}
         placeholder={t.select || "Select"}
         components={makeAnimated()}
+        hideSelectedOptions={false}
         menuPortalTarget={typeof window !== "undefined" ? document.body : null}
         menuPosition="fixed"
         styles={{
