@@ -111,7 +111,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
               href={citation?.URL}
               className="text-md font-bold"
             />
-            <p className="text-xs">
+            <div className="text-xs">
               <Item
                 value={dataSetInfo?.organization.title_translated[lang]}
                 href={add_base_url(
@@ -134,7 +134,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
                 value={citation?.DOI}
                 href={`https://doi.org/${citation?.DOI}`}
               />
-            </p>
+            </div>
           </div>
         </div>
 
