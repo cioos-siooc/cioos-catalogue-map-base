@@ -9,6 +9,7 @@ import { getLocale } from "@/app/get-locale.js";
 import config from "@/app/config.js";
 import DOMPurify from "dompurify";
 import { IoMdClose } from "react-icons/io";
+import { GoLinkExternal } from "react-icons/go";
 
 /**
  * Converts Markdown to HTML (basic implementation).
@@ -44,6 +45,8 @@ export function DatasetDetails({ dataSetInfo, lang }) {
     markdownToHtml(dataSetInfo?.notes_translated[lang]),
   );
   const citation = parseCitation(dataSetInfo?.citation[lang]);
+  const source_label =
+    citation?.doi || citation?.URL.replace(/^https?:\/\//, "").split("/")[0];
 
   return (
     <Drawer
@@ -83,16 +86,24 @@ export function DatasetDetails({ dataSetInfo, lang }) {
             </p>
             <hr className="border-gray-800 dark:border-gray-200" />
             <p className="text-xs">
-              Source:{" "}
+              {t.source}:{" "}
               <a
-                href={citation.URL.replace(/^https?:\/\//, "")}
-                className="text-blue-600 hover:underline"
+                href={citation.URL}
+                title={citation.URL}
+                target="_blank"
+                className="text-primary-500 hover:underline"
               >
-                {citation.doi ||
-                  config.catalogue_url.replace(/^https?:\/\//, "")}
+                {source_label}
               </a>
               <br />
-              {t.license}: {dataSetInfo?.license_title}
+              {t.license}:{" "}
+              <a
+                href={dataSetInfo?.license_url}
+                target="_blank"
+                className="hover:text-primary-500 hover:underline"
+              >
+                {dataSetInfo?.license_title}
+              </a>
             </p>
           </div>
         </div>
