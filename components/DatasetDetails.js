@@ -26,9 +26,12 @@ function Item({ label, value, href, className = "" }) {
         <a
           href={href}
           target="_blank"
-          className={`hover:underline flex flex-row gap-1 items-center ${className}`}
+          className={`hover:underline ${className}`}
         >
-          {value} <ExternalLinkLogo />
+          {value}
+          <span className="inline-flex items-baseline ml-1 opacity-0 group-hover:opacity-100 transition-opacity w-2 h-2">
+            <GoLinkExternal />
+          </span>
         </a>
       ) : (
         <span
@@ -52,14 +55,6 @@ function markdownToHtml(markdown) {
     .replace(/\*(.*)\*/gim, "<i>$1</i>")
     .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
     .replace(/\n$/gim, "<br>");
-}
-
-function ExternalLinkLogo() {
-  return (
-    <span className="inline-flex items-baseline opacity-0 group-hover:opacity-100 transition-opacity w-2 h-2">
-      <GoLinkExternal />
-    </span>
-  );
 }
 
 export function DatasetDetails({ dataSetInfo, lang }) {
