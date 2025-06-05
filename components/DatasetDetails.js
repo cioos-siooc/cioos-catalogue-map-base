@@ -3,7 +3,7 @@
 import { Drawer, DrawerHeader, DrawerItems } from "flowbite-react";
 import { DrawerContext } from "../app/context/DrawerContext";
 import Image from "next/image";
-import Citation from "@/components/Citation";
+import { parseCitation, Citation } from "@/components/Citation";
 import { useContext } from "react";
 import { getLocale } from "@/app/get-locale.js";
 import config from "@/app/config.js";
@@ -43,6 +43,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
   const sanitizedHtml = DOMPurify.sanitize(
     markdownToHtml(dataSetInfo?.notes_translated[lang]),
   );
+  const citation = parseCitation(dataSetInfo?.citation[lang]);
 
   return (
     <Drawer
@@ -82,6 +83,15 @@ export function DatasetDetails({ dataSetInfo, lang }) {
             </p>
             <hr className="border-gray-800 dark:border-gray-200" />
             <p className="text-xs">
+              Source:{" "}
+              <a
+                href={citation.URL.replace(/^https?:\/\//, "")}
+                className="text-blue-600 hover:underline"
+              >
+                {citation.doi ||
+                  config.catalogue_url.replace(/^https?:\/\//, "")}
+              </a>
+              <br />
               {t.license}: {dataSetInfo?.license_title}
             </p>
           </div>
