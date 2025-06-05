@@ -9,43 +9,23 @@ import {
   Select,
   Datepicker,
 } from "flowbite-react";
-import { useState } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { getLocale } from "@/app/get-locale";
-
-function getBadge(filterType, value, lang, removeBadge) {
-  if (!value) return null; // Return null if value is empty
-  const t = getLocale(lang);
-  return (
-    <div
-      key={filterType}
-      value={value}
-      className="flex items-center bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
-    >
-      <span>
-        {filterType === "filter_date"
-          ? `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value)}`
-          : `${t[filterType].toLowerCase()}: ${value}`}
-      </span>
-      <button
-        className="ml-2 hover:bg-blue-700 hover:text-white rounded-full p-1 transition duration-200"
-        onClick={() => removeBadge(filterType)}
-      >
-        &times;
-      </button>
-    </div>
-  );
-}
+import { IoFilterOutline } from "react-icons/io5";
+import SidebarButton from "./SidebarButton";
+import { SelectReactComponent } from "./SelectReact";
 
 // Helper function to format a date range string by removing the time
-function formatDateRangeWithoutTime(value) {
+function formatDateRangeWithoutTime(value, t) {
   // Expects value like '2025-05-16T00:00:00Z%20TO%202025-05-17T00:00:00Z'
+  console.log("::: ", value);
   if (!value) return "";
   const match = value.match(/(\d{4}-\d{2}-\d{2})T.*TO.*(\d{4}-\d{2}-\d{2})T/);
   if (match) {
-    return `${match[1]} to ${match[2]}`;
+    return `${match[1]} ${t.between_date} ${match[2]}`;
   }
   // Fallback: remove time if present, and replace %20TO%20 with ' to '
-  return value.replace(/T.*?Z/g, "").replace(/%20TO%20/i, " to ");
+  return value; //.replace(/T.*?Z/g, "").replace(/%20TO%20/i, " to ");
 }
 
 export function SearchFilter({ lang, setBadges }) {
@@ -72,12 +52,7 @@ export function SearchFilter({ lang, setBadges }) {
 
   return (
     <>
-      <Button
-        color="alternative"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button pill size="xs" onClick={() => setOpenModal(true)}>
         {t.search}
       </Button>
       <Modal
@@ -86,6 +61,7 @@ export function SearchFilter({ lang, setBadges }) {
         size="xl"
         onClose={onCloseModal}
         popup
+        className="rounded-lg border-0 text-lg"
       >
         <FloatingLabel
           id="query-input"
@@ -94,7 +70,7 @@ export function SearchFilter({ lang, setBadges }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="rounded-lg border-0"
+          className="rounded-lg border-0 text-lg  peer-focus:text-black peer-focus:dark:text-white text-black dark:text-white"
         />
       </Modal>
     </>
@@ -136,9 +112,12 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
       return;
     }
     // TODO: add first drowdown value inside the badge
+
+    const strDates = `${formatDateRangeWithoutTime(startDate.toISOString(), t)}%20TO%20${formatDateRangeWithoutTime(endDate.toISOString(), t)}`;
+    console.log("DATESSSSS :: ", strDates);
     setBadges((prevBadges) => ({
       ...prevBadges,
-      filter_date: `${startDate.toISOString().split(".")[0]}Z%20TO%20${endDate.toISOString().split(".")[0]}Z`,
+      filter_date: strDates,
     }));
 
     setOpenModal(false);
@@ -154,12 +133,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
 
   return (
     <>
-      <Button
-        color="alternative"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button pill size="xs" onClick={() => setOpenModal(true)}>
         {t.time}
       </Button>
       <Modal
@@ -186,7 +160,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                     id="date-filter-type"
                     onChange={(e) => setSelectedOption(e.target.value)}
                   >
-                    <option value="">Select an option</option>
+                    <option value="">{t.select}</option>
                     <option value="temporal-extent-begin">
                       temporal-extent-begin
                     </option>
@@ -194,7 +168,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                       temporal-extent-end
                     </option>
                     <option value="metadata_created">metadata_created</option>
-                    <option value="metadata_updated">metadata_updated</option>
+                    <option value="metadata_modified">metadata_modified</option>
                   </Select>
                 </div>
                 <div>
@@ -244,11 +218,13 @@ export function FilterItems({
   eovList,
 }) {
   const [openModal, setOpenModal] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState([]);
   const t = getLocale(lang);
 
   function onCloseModal() {
-    if (!query) {
+    if (query.length === 0) {
+      // If no query is selected, close the modal without adding a badge
+      console.log("No query entered, closing modal", query);
       setOpenModal(false);
       return;
     }
@@ -264,7 +240,7 @@ export function FilterItems({
     }
 
     if (e.key === "Enter") {
-      if (!query) {
+      if (query.length === 0) {
         console.log("No query entered");
         return;
       }
@@ -281,12 +257,7 @@ export function FilterItems({
 
   return (
     <>
-      <Button
-        color="alternative"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
+      <Button pill size="xs" onClick={() => setOpenModal(true)}>
         {t[filter_type]}
       </Button>
       <Modal
@@ -300,18 +271,64 @@ export function FilterItems({
           {t.filter_by} {t[filter_type].toLowerCase()}
         </ModalHeader>
         <ModalBody>
-          <Select
-            id={`${t[filter_type].toLowerCase()}-select`}
-            onChange={(e) => setQuery(e.target.value)}
-            onSelect={onCloseModal}
-            onKeyDown={handleKeyDown}
-          >
-            <option value="">Select an option</option>
-            {OptionItems(filter_type, orgList, projList, eovList)}
-          </Select>
+          <SelectReactComponent
+            filter_type={filter_type}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+            setQuery={setQuery}
+            query={query}
+            lang={lang}
+          />
         </ModalBody>
       </Modal>
     </>
+  );
+}
+
+// Convert getBadge to a React component so hooks can be used
+function Badge({ filterType, value, lang, removeBadge }) {
+  const t = getLocale(lang);
+  const badgeRef = useRef(null);
+  const [topOffset, setTopOffset] = useState(4);
+
+  useLayoutEffect(() => {
+    if (badgeRef.current) {
+      const height = badgeRef.current.offsetHeight;
+      setTopOffset(Math.max(4, Math.round(height * 0.15)));
+    }
+  }, [value]);
+  // Ensure the badge is not empty before rendering
+  if (value.length === 0) return null;
+
+  return (
+    <div
+      key={filterType}
+      value={value}
+      ref={badgeRef}
+      className="relative max-w-full w-auto flex flex-wrap items-center bg-blue-100 text-black hover:text-black text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
+    >
+      <button
+        className="absolute right-3 hover:text-white rounded-full p-1 transition duration-200"
+        style={{ top: `${topOffset}px`, lineHeight: 1 }}
+        onClick={() => removeBadge(filterType)}
+        aria-label="Remove filter"
+      >
+        &times;
+      </button>
+      <span className="pl-6 pr-6">
+        {filterType === "filter_date" ? (
+          `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value, t)}`
+        ) : Array.isArray(value) ? (
+          <>
+            {t[filterType]} : <span className="inline md:hidden block" />
+            {value.map((item) => item[1]).join(", ")}
+          </>
+        ) : (
+          `${t[filterType]} : ${value}`
+        )}
+      </span>
+    </div>
   );
 }
 
@@ -325,6 +342,11 @@ export default function FilterSection({
   setSelectedOption,
 }) {
   const t = getLocale(lang);
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+
+  const toggleAccordion = () => {
+    setIsAccordionOpen(!isAccordionOpen);
+  };
 
   const removeBadge = (filterType) => {
     setBadges((prevBadges) => {
@@ -340,45 +362,59 @@ export default function FilterSection({
 
   return (
     <>
-      <span>{t.filters}</span>
-      <div className="m-1 flex flex-row items-center gap-1 flex-wrap justify-center">
-        <SearchFilter lang={lang} setBadges={setBadges} />
-        <FilterItems
-          filter_type="organization"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
-        <FilterItems
-          filter_type="projects"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
-        <FilterItems
-          filter_type="eov"
-          lang={lang}
-          setBadges={setBadges}
-          orgList={orgList}
-          projList={projList}
-          eovList={eovList}
-        />
-        <TimeFilter
-          lang={lang}
-          setBadges={setBadges}
-          setSelectedOption={setSelectedOption}
-        />
-      </div>
+      <SidebarButton
+        logo={<IoFilterOutline />}
+        label={t.filters}
+        onClick={toggleAccordion}
+      />
+      <div
+        className={`transition-all duration-300 ${isAccordionOpen ? "pt-1" : "max-h-0 hidden"}`}
+      >
+        <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
+          <SearchFilter lang={lang} setBadges={setBadges} />
+          <FilterItems
+            filter_type="organization"
+            lang={lang}
+            setBadges={setBadges}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+          />
+          <FilterItems
+            filter_type="projects"
+            lang={lang}
+            setBadges={setBadges}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+          />
+          <FilterItems
+            filter_type="eov"
+            lang={lang}
+            setBadges={setBadges}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+          />
+          <TimeFilter
+            lang={lang}
+            setBadges={setBadges}
+            setSelectedOption={setSelectedOption}
+          />
+        </div>
 
-      {/* Render Badges */}
-      <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
-        {Object.entries(badges).map(([filterType, value]) =>
-          getBadge(filterType, value, lang, removeBadge),
-        )}
+        {/* Render Badges */}
+        <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
+          {Object.entries(badges).map(([filterType, value]) => (
+            <Badge
+              key={filterType}
+              filterType={filterType}
+              value={value}
+              lang={lang}
+              removeBadge={removeBadge}
+            />
+          ))}
+        </div>
       </div>
     </>
   );

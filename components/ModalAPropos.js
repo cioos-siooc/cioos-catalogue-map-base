@@ -9,6 +9,8 @@ import {
 } from "flowbite-react";
 import { useState } from "react";
 import { getLocale } from "@/app/get-locale.js";
+import { MdInfoOutline } from "react-icons/md";
+import SidebarButton from "./SidebarButton";
 
 export default function ModalAPropos(lang) {
   const [openModal, setOpenModal] = useState(true);
@@ -16,13 +18,11 @@ export default function ModalAPropos(lang) {
 
   return (
     <>
-      <Button
-        outline
-        className="p-2 m-2 uppercase"
+      <SidebarButton
+        logo={<MdInfoOutline />}
+        label={t.about}
         onClick={() => setOpenModal(true)}
-      >
-        {t.about}
-      </Button>
+      />
       <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
         <ModalHeader>À propos du catalogue cartographique</ModalHeader>
         <ModalBody>

@@ -6,7 +6,18 @@ import DOMPurify from "dompurify";
 import { GoLinkExternal } from "react-icons/go";
 import { getLocale } from "@/app/get-locale";
 
-export default function Citation({ dataSetInfo, lang }) {
+export function parseCitation(citation) {
+  try {
+    // Parse the citation JSON string
+    const parsedCitation = JSON.parse(citation.replace(/\\"/g, '"'))[0];
+    return parsedCitation;
+  } catch (error) {
+    console.error("Error parsing citation:", error);
+    return null;
+  }
+}
+
+export function Citation({ dataSetInfo, lang }) {
   // State to hold the formatted citation (HTML formatted)
   const [citationHtml, setCitationHtml] = useState("");
   const [citationURL, setCitationURL] = useState("");
@@ -20,9 +31,7 @@ export default function Citation({ dataSetInfo, lang }) {
     try {
       // Create a new Cite instance with your bibliographic data
       if (dataSetInfo && dataSetInfo.citation) {
-        const parsed_citation = JSON.parse(
-          dataSetInfo.citation[lang].replace(/\\"/g, '"'),
-        )[0];
+        const parsed_citation = parseCitation(dataSetInfo.citation[lang]);
         setCitationURL(parsed_citation.URL);
         const cite = new Cite(parsed_citation);
         // Format as a bibliography entry in APA style and output in HTML
@@ -67,7 +76,7 @@ export default function Citation({ dataSetInfo, lang }) {
         // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
         <a
           href={citationURL}
-          className="flex-shrink-0 relative text-xs p-1 border-gray-200 border-2 rounded-md mt-4"
+          className="flex-shrink-0 relative text-xs p-2 rounded-md mt-4 bg-primary-50 dark:bg-primary-800"
         >
           <SafeHTML content={citationHtml} />
           <div className="absolute -top-4 flex flex-row gap-1 text-xs items-center rounded-md">

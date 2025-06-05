@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import config from "./config.js";
 import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
-import { useState, useEffect, useCallback, useMemo, use } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
@@ -21,14 +21,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const metadata = config.metadata.fr;
-
 // Import map with dynamic import (no ssr) and memoization
 const MapComponent = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
-    <div className="h-full w-full flex items-center justify-center bg-gray-200">
-      <p className="text-gray-500">Loading map...</p>
+    <div className="h-full w-full flex items-center justify-center bg-primary-200">
+      <p className="text-primary-500">Loading map...</p>
     </div>
   ),
 });
@@ -44,23 +42,20 @@ function AppContent({ lang, setLang }) {
   const [organizationList, setOrganizationList] = useState([]);
   const [projectList, setProjectList] = useState([]);
   const [eovList, setEovList] = useState([]);
-  const [fetchURLFilter, setFetchURLFilter] = useState("");
   const [totalResultsCount, setTotalResultsCount] = useState(0);
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
   const [badgeCount, setBadgeCount] = useState(0);
-  const [inputValue, setInputValue] = useState("");
+  const [allItems, setAllItems] = useState([]); // Store the full list
+  const [badges, setBadges] = useState({}); // Store current filters
+  const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [translatedEovList, setTranslatedEovList] = useState([]);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   const catalogueUrl = config.catalogue_url;
-  let urlCustomSearch = `${catalogueUrl}/api/3/action/package_search?q=`;
-
-  // Memoize the fetch URL to avoid recalculation
-  const fetchURL = useMemo(() => {
-    let url = `${urlCustomSearch}${config.base_query}`;
-    if (fetchURLFilter) {
-      url += fetchURLFilter;
-    }
-    return url + `&rows=1000`;
-  }, [urlCustomSearch, fetchURLFilter]);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
@@ -74,57 +69,84 @@ function AppContent({ lang, setLang }) {
     if (typeof window !== "undefined") {
       localStorage.setItem("preferredLanguage", lang);
     }
+    console.log("Language changed to:", lang);
+    console.log("All items :", allItems);
+    if (allItems.length > 0) {
+      fillOrganizationAndProjectLists(allItems);
+    }
   }, [lang]);
 
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
     setLoading(true);
-    try {
-      console.log("Fetching data from CKAN API...", fetchURL);
-      const response = await fetch(fetchURL);
-      if (!response.ok) {
-        throw new Error("There was an error fetching the data from CKAN API");
-      }
-      const awaitRes = await response.json();
-
-      setFilteredItems(awaitRes.result.results);
-      fillOrganizationAndProjectLists(awaitRes.result.results);
-      setInputValue("");
-      if (fetchURLFilter) {
-        setFilteredResultsCount(awaitRes.result.results.length);
-      } else {
-        setTotalResultsCount(awaitRes.result.results.length);
-      }
-      if (badgeCount === 0) {
-        setFilteredResultsCount(awaitRes.result.results.length);
-      }
-    } catch (error) {
-      console.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchURL, fetchURLFilter, badgeCount]);
+    fetch("/packages.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setAllItems(data);
+        setTotalResultsCount(data.length);
+        fillOrganizationAndProjectLists(data);
+        // Filtering will be handled in badges effect
+      })
+      .then(() => setLoading(false))
+      .catch((error) => console.error("Error loading packages:", error));
+  }, [badgeCount]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
+  // When badges or allItems change, update filteredItems
+  useEffect(() => {
+    const filtered = filterItemsByBadges(
+      allItems,
+      badges,
+      selectedDateFilterOption,
+    );
+    setFilteredItems(filtered);
+    setFilteredResultsCount(filtered.length);
+
+    //reset selectedDateFilterOption to empty string after filtering
+    if (selectedDateFilterOption) {
+      setSelectedDateFilterOption("");
+    }
+  }, [allItems, badges]);
+
+  // Fonction pour charger et filtrer les EOVs traduits
+  const fetchAndFilterEovsTranslated = useCallback(async (lang, eovList) => {
+    const res = await fetch("/eovs.json");
+    const data = await res.json();
+    const eovs = data.eovs;
+
+    const labelkey = `label_${lang}`;
+    const filtered = eovs
+      .filter((eov) => eovList.includes(eov.value)) // comparez par value qui correspond à l'identifiant de l'EOV
+      .map((eov) => [eov.value, eov[labelkey]]);
+
+    setTranslatedEovList(filtered);
+  }, []);
+
+  useEffect(() => {
+    if (eovList.length > 0 && lang) {
+      fetchAndFilterEovsTranslated(lang, eovList);
+    }
+  }, [lang, eovList, fetchAndFilterEovsTranslated]);
+
   // Function to process projects and add them to the project list
   const processProjects = (item, projList) => {
-    if (item.projects && Array.isArray(item.projects)) {
-      const isAlreadyPresent = item.projects.every((project) =>
+    if (item.project && Array.isArray(item.project)) {
+      const isAlreadyPresent = item.project.every((project) =>
         projList.has(project),
       );
       if (isAlreadyPresent) {
         return;
       }
-      item.projects.forEach((project) => projList.add(project));
+      item.project.forEach((project) => projList.add(project));
     }
   };
 
   // Function to process projects and add them to the project list
   const processEovs = (item, eovList) => {
-    if (item.projects && Array.isArray(item.eov)) {
+    if (item.eov && Array.isArray(item.eov)) {
       const isAlreadyPresent = item.eov.every((eov) => eovList.has(eov));
       if (isAlreadyPresent) {
         return;
@@ -143,6 +165,17 @@ function AppContent({ lang, setLang }) {
     }
   };
 
+  function fetchDataSetInfo(id) {
+    fetch(`${catalogueUrl}/api/3/action/package_show?id=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setDatasetInfo(data.result);
+      })
+      .catch((error) => {
+        console.error("Error loading dataset info:", error);
+      });
+  }
+
   // Function to fill organization and project lists
   const fillOrganizationAndProjectLists = (items) => {
     let orgList = new Set();
@@ -157,7 +190,6 @@ function AppContent({ lang, setLang }) {
     setOrganizationList(Array.from(orgList));
     setProjectList(Array.from(projList));
     setEovList(Array.from(eovList));
-    console.log("EOVs List: ", eovList);
   };
 
   // Import the useDrawer hook to get drawer state and methods
@@ -167,7 +199,7 @@ function AppContent({ lang, setLang }) {
   const handleListItemClick = useCallback(
     (selectedItem) => {
       setBounds(selectedItem.spatial);
-      setDatasetInfo(selectedItem);
+      fetchDataSetInfo(selectedItem.id);
       openDrawer();
     },
     [openDrawer],
@@ -178,29 +210,42 @@ function AppContent({ lang, setLang }) {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col">
-      <header className="md:hidden">
-        <TopBanner lang={lang} />
-      </header>
-      <div className="h-screen flex flex-1">
-        <aside className="hidden md:block w-sm h-screen overflow-auto">
+    <>
+      <div className="flex h-screen relative overflow-hidden">
+        <div
+          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} z-30`}
+        >
           <Sidebar
             filteredItems={filteredItems}
             onInfoClick={onInfoClick}
             onItemClick={handleListItemClick}
             lang={lang}
             setLang={setLang}
-            setFetchURLFilter={setFetchURLFilter}
             filteredResultsCount={filteredResultsCount}
             totalResultsCount={totalResultsCount}
             setBadgeCount={setBadgeCount}
             loading={loading}
             organizationList={organizationList}
             projectList={projectList}
-            eovList={eovList}
+            eovList={translatedEovList}
+            badges={badges}
+            setBadges={setBadges}
+            setSelectedDateFilterOption={setSelectedDateFilterOption}
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
           />
-        </aside>
-        <main className="z-20 flex-1 h-full w-full">
+        </div>
+        <div className="absolute top-0 left-0 z-35">
+          <TopBanner
+            lang={lang}
+            setLang={setLang}
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
+          />
+        </div>
+        <main
+          className={`flex-1 relative ${isSidebarOpen ? "ml-90" : ""} transform transition-transform duration-300 ease-in-out z-20`}
+        >
           <MapComponent
             bounds={bounds}
             filteredItems={filteredItems}
@@ -211,16 +256,11 @@ function AppContent({ lang, setLang }) {
         {isDrawerOpen && dataSetInfo && (
           <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
-        <div className="absolute bottom-0 right-0 z-60 flex items-center justify-center pb-10 pr-4 md:hidden">
-          <Logo
-            logos={config.bottom_logo}
-            lang={lang}
-            default_width={220}
-            force_mode={"dark"}
-          />
+        <div className="absolute bottom-0 left-0 z-25 flex items-center w-90 bg-primary-50 dark:bg-primary-800 pt-2 justify-center rounded-tr-xl opacity-50">
+          <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -231,6 +271,123 @@ function useDrawer() {
     throw new Error("useDrawer must be used within a DrawerProvider");
   }
   return context;
+}
+
+function filterItemsByBadges(items, badges, selectedDateFilterOption) {
+  if (!items || items.length === 0) return [];
+  // If no badges, return all items
+  if (!badges || Object.keys(badges).length === 0) return items;
+  return items.filter((item) => {
+    return Object.entries(badges).every(([filterType, value]) => {
+      if (value.length === 0) {
+        return true; // If no value, skip this filter
+      }
+      if (filterType === "search") {
+        const searchVal = value.toLowerCase();
+        return (
+          (item.title_translated &&
+            Object.values(item.title_translated).some((t) =>
+              t.toLowerCase().includes(searchVal),
+            )) ||
+          (item.notes_translated &&
+            Object.values(item.notes_translated).some((n) =>
+              n.toLowerCase().includes(searchVal),
+            ))
+        );
+      } else if (
+        filterType === "organization" ||
+        filterType === "projects" ||
+        filterType === "eov"
+      ) {
+        return filterByOrganizationProjectsEov(item, filterType, value);
+      } else if (filterType === "filter_date") {
+        return manageDateFilterOptions(item, selectedDateFilterOption, value);
+      }
+      return true;
+    });
+  });
+}
+// Function to filter items by organization, projects, or eov
+function filterByOrganizationProjectsEov(item, filterType, selected_values) {
+  const selectedValues = selected_values.map((arr) => arr[0]);
+  if (filterType === "organization") {
+    if (
+      !Array.isArray(selected_values) ||
+      !Array.isArray(Object.values(item.organization.title_translated))
+    )
+      return false;
+
+    return Object.values(item.organization.title_translated).some((org) =>
+      selectedValues.includes(org),
+    );
+  } else if (filterType === "projects") {
+    if (!Array.isArray(selected_values) || !Array.isArray(item.project))
+      return false;
+    // Return true if at least one eov of the item is in the selection
+    return item.project.some((project) => selectedValues.includes(project));
+  } else if (filterType === "eov") {
+    if (!Array.isArray(selected_values) || !Array.isArray(item.eov))
+      return false;
+
+    // Return true if at least one eov of the item is in the selection
+    return item.eov.some((eov) => selectedValues.includes(eov));
+  }
+  return true;
+}
+
+function manageDateFilterOptions(item, selectedDateFilterOption, value) {
+  // Split value on '%20TO%20' to get an array of date strings
+  const dateArr = value.split("%20TO%20");
+
+  if (selectedDateFilterOption.startsWith("metadata")) {
+    return compareMetadataDates(item, dateArr, selectedDateFilterOption);
+  } else if (selectedDateFilterOption.startsWith("temporal")) {
+    return compareTemporalDates(
+      item,
+      dateArr,
+      selectedDateFilterOption.split("-")[2],
+    );
+  } else {
+    console.warn(
+      "Unknown date filter option selected:",
+      selectedDateFilterOption,
+    );
+    return true; // Default to true if no valid option is selected
+  }
+}
+
+function compareTemporalDates(item, dateArr, varName) {
+  // Compare two date strings in 'YYYY-MM-DD' format
+  const startDate = dateArr[0] ? new Date(dateArr[0]) : null;
+  const endDate = dateArr[1] ? new Date(dateArr[1]) : null;
+  if (!item.temporal_extent || !item.temporal_extent[`${varName}`]) return true;
+  const itemDate = new Date(item.temporal_extent[`${varName}`]);
+  if (startDate && endDate) {
+    return itemDate >= startDate && itemDate <= endDate;
+  }
+  return true;
+}
+//
+function compareMetadataDates(item, dateArr, varName) {
+  // Compare two date strings in 'YYYY-MM-DD' format
+  const startDate = dateArr[0] ? new Date(dateArr[0]) : null;
+  const endDate = dateArr[1] ? new Date(dateArr[1]) : null;
+  if (!item[`${varName}`]) return true;
+  const itemDate = new Date(item[`${varName}`]);
+  if (startDate && endDate) {
+    let compare = itemDate >= startDate && itemDate <= endDate;
+    console.log("COMPARE ::  ", compare);
+    console.log(
+      "Start date : : ",
+      startDate,
+      " Item date :: ",
+      item[`${varName}`],
+      " End date : : ",
+      endDate,
+    );
+    return compare;
+  }
+  return true;
 }
 
 function RootLayout({ children }) {
@@ -249,4 +406,5 @@ function RootLayout({ children }) {
     </html>
   );
 }
+
 export default RootLayout;

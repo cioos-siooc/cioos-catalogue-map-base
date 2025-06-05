@@ -8,6 +8,7 @@ import {
   useMap,
   Tooltip,
   LayersControl,
+  ZoomControl,
 } from "react-leaflet";
 import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -23,7 +24,7 @@ const { BaseLayer, Overlay } = LayersControl;
 // Utility functions
 const getPrimaryColor = () => {
   const primaryColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--color-gray-500")
+    .getPropertyValue("--color-primary-500")
     .trim();
   return primaryColor;
 };
@@ -148,35 +149,34 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
   const t = getLocale(lang);
 
   return (
-    <div id="container" className="h-full w-full">
-      <MapContainer
-        className="h-full w-full"
-        center={config.map.center}
-        zoom={config.map.zoom}
-        scrollWheelZoom={true}
-        boundsOptions={{ padding: [1, 1] }}
-        // Adding key={false} to prevent re-mounting the entire map
-        key={false}
-      >
-        <LayersControl position="bottomleft">
-          <BaseLayers basemaps={config.basemaps} lang={lang} />
-          {bounds && <FitBounds bounds={bounds} />}
-          <Overlay checked name={t.dataset_markers}>
-            <MarkerClusterGroup>
-              {filteredItems.map((item) => (
-                <DatasetMarker
-                  key={item.id}
-                  record={item}
-                  handleListItemClick={handleListItemClick}
-                  lang={lang}
-                  openDrawer={openDrawer}
-                />
-              ))}
-            </MarkerClusterGroup>
-          </Overlay>
-        </LayersControl>
-      </MapContainer>
-    </div>
+    <MapContainer
+      className="h-full w-full"
+      center={config.map.center}
+      zoom={config.map.zoom}
+      zoomControl={false}
+      scrollWheelZoom={true}
+      boundsOptions={{ padding: [1, 1] }}
+      key={filteredItems.length}
+    >
+      <ZoomControl position="topright" />
+      <LayersControl position="bottomright">
+        <BaseLayers basemaps={config.basemaps} lang={lang} />
+        {bounds && <FitBounds bounds={bounds} />}
+        <Overlay checked name={t.dataset_markers}>
+          <MarkerClusterGroup>
+            {filteredItems.map((item) => (
+              <DatasetMarker
+                key={item.id}
+                record={item}
+                handleListItemClick={handleListItemClick}
+                lang={lang}
+                openDrawer={openDrawer}
+              />
+            ))}
+          </MarkerClusterGroup>
+        </Overlay>
+      </LayersControl>
+    </MapContainer>
   );
 }
 

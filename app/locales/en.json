@@ -22,5 +22,8 @@
   "today": "Today",
   "clear": "Clear",
   "dataset_markers": "Dataset markers",
-  "about": "About"
+  "about": "About",
+  "between_date": "to",
+  "select": "Select an option",
+  "source": "Source"
 }
