@@ -21,6 +21,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const basePath = process.env.BASE_PATH || "";
+
 // Import map with dynamic import (no ssr) and memoization
 const MapComponent = dynamic(() => import("@/components/Map"), {
   ssr: false,
@@ -79,7 +81,7 @@ function AppContent({ lang, setLang }) {
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
     setLoading(true);
-    fetch("/packages.json")
+    fetch(basePath + "/packages.json")
       .then((res) => res.json())
       .then((data) => {
         setAllItems(data);
@@ -113,7 +115,7 @@ function AppContent({ lang, setLang }) {
 
   // Fonction pour charger et filtrer les EOVs traduits
   const fetchAndFilterEovsTranslated = useCallback(async (lang, eovList) => {
-    const res = await fetch("/eovs.json");
+    const res = await fetch(basePath + "/eovs.json");
     const data = await res.json();
     const eovs = data.eovs;
 
