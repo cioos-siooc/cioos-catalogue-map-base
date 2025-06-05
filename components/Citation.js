@@ -76,7 +76,7 @@ export function Citation({ dataSetInfo, lang }) {
         // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
         <a
           href={citationURL}
-          className="flex-shrink-0 relative text-xs p-1 border-gray-200 border-2 rounded-md mt-4"
+          className="flex-shrink-0 relative text-xs p-2 rounded-md mt-4 bg-primary-50 dark:bg-primary-800"
         >
           <SafeHTML content={citationHtml} />
           <div className="absolute -top-4 flex flex-row gap-1 text-xs items-center rounded-md">
