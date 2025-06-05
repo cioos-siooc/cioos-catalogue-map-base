@@ -16,6 +16,31 @@ import { GoLinkExternal } from "react-icons/go";
  * @param {string} markdown - The Markdown input text.
  * @returns {string} The converted HTML string.
  */
+
+function Item({ label, value, href, className = "" }) {
+  if (!value) return null;
+  return (
+    <div className="group flex flex-row gap-2">
+      {label ? <span>{label}:</span> : null}
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          className={`hover:underline flex flex-row gap-1 items-center ${className}`}
+        >
+          {value} <ExternalLinkLogo />
+        </a>
+      ) : (
+        <span
+          className={`hover:underline flex flex-row gap-1 items-center ${className}`}
+        >
+          {value}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function markdownToHtml(markdown) {
   if (!markdown) return "";
   return markdown
@@ -27,6 +52,14 @@ function markdownToHtml(markdown) {
     .replace(/\*(.*)\*/gim, "<i>$1</i>")
     .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
     .replace(/\n$/gim, "<br>");
+}
+
+function ExternalLinkLogo() {
+  return (
+    <span className="inline-flex items-baseline opacity-0 group-hover:opacity-100 transition-opacity w-2 h-2">
+      <GoLinkExternal />
+    </span>
+  );
 }
 
 export function DatasetDetails({ dataSetInfo, lang }) {
@@ -46,7 +79,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
   );
   const citation = parseCitation(dataSetInfo?.citation[lang]);
   const source_label =
-    citation?.doi || citation?.URL.replace(/^https?:\/\//, "").split("/")[0];
+    citation?.DOI || citation?.URL.replace(/^https?:\/\//, "").split("/")[0];
 
   return (
     <Drawer
@@ -80,30 +113,34 @@ export function DatasetDetails({ dataSetInfo, lang }) {
             <p>No image available</p>
           )}
           <div className="flex flex-col gap-1 mt-4">
-            <h4 className="font-bold">{dataSetInfo?.title_translated[lang]}</h4>
+            <Item
+              value={dataSetInfo?.title_translated[lang]}
+              href={citation?.URL}
+              className="text-md font-bold"
+            />
             <p className="text-xs">
-              {dataSetInfo?.organization.title_translated[lang]}
-            </p>
-            <hr className="border-gray-800 dark:border-gray-200" />
-            <p className="text-xs">
-              {t.source}:{" "}
-              <a
-                href={citation.URL}
-                title={citation.URL}
-                target="_blank"
-                className="text-primary-500 hover:underline"
-              >
-                {source_label}
-              </a>
-              <br />
-              {t.license}:{" "}
-              <a
+              <Item
+                value={dataSetInfo?.organization.title_translated[lang]}
+                href={add_base_url(
+                  dataSetInfo?.organization?.external_home_url,
+                )}
+              />
+              <hr className="border-gray-800 dark:border-gray-200 my-1  " />
+              <Item
+                label={t.source}
+                value={citation?.URL.replace(/^https?:\/\//, "").split("/")[0]}
+                href={citation?.URL}
+              />
+              <Item
+                label={t.license}
+                value={dataSetInfo?.license_title}
                 href={dataSetInfo?.license_url}
-                target="_blank"
-                className="hover:text-primary-500 hover:underline"
-              >
-                {dataSetInfo?.license_title}
-              </a>
+              />
+              <Item
+                label="DOI"
+                value={citation?.DOI}
+                href={`https://doi.org/${citation?.DOI}`}
+              />
             </p>
           </div>
         </div>
