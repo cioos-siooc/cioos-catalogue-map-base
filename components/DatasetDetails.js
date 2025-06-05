@@ -45,66 +45,55 @@ export function DatasetDetails({ dataSetInfo, lang }) {
   );
 
   return (
-    <>
-      <button
-        className="absolute top-0 right-96 p-3 z-60 rounded-bl-lg bg-primary-50/90 dark:text-white dark:bg-primary-800/90 backdrop-blur-sm hidden md:block"
-        onClick={closeDrawer}
-        aria-label="Close Dataset Details"
-        title="Close Dataset Details"
-      >
-        <IoMdClose />
-      </button>
-      <Drawer
-        open={isDrawerOpen}
-        onClose={closeDrawer}
-        position="right"
-        backdrop={false}
-        className="bg-primary-50/50 dark:text-white dark:bg-primary-800/50 backdrop-blur-sm h-screen w-screen md:w-96"
-      >
-        <DrawerItems className="flex-grow overflow-y-auto flex flex-col">
-          <button
-            className="absolute top-0 right-0 p-4 md:hidden"
-            onClick={closeDrawer}
-            aria-label="Close Dataset Details"
-            title="Close Dataset Details"
-          >
-            <IoMdClose />
-          </button>
-          <div id="top" className="flex-shrink-0">
-            {dataSetInfo && dataSetInfo.organization ? (
-              <Image
-                className="rounded-sm w-auto max-h-40 max-w-[300px] bg-white p-1"
-                src={add_base_url(
-                  dataSetInfo?.organization?.image_url_translated[lang],
-                )}
-                alt="Organization Logo"
-                width={0}
-                height={40}
-              />
-            ) : (
-              <p>No image available</p>
-            )}
-            <div className="flex flex-col gap-1 mt-4">
-              <h4 className="font-bold">
-                {dataSetInfo?.title_translated[lang]}
-              </h4>
-              <p className="text-xs">
-                {dataSetInfo?.organization.title_translated[lang]}
-              </p>
-              <hr className="border-gray-800 dark:border-gray-200" />
-              <p className="text-xs">
-                {t.license}: {dataSetInfo?.license_title}
-              </p>
-            </div>
+    <Drawer
+      open={isDrawerOpen}
+      onClose={closeDrawer}
+      position="right"
+      backdrop={false}
+      className="bg-primary-50/50 dark:text-white dark:bg-primary-800/50 backdrop-blur-sm h-screen w-screen md:w-96"
+    >
+      <DrawerItems className="flex-grow overflow-y-auto flex flex-col h-full">
+        <button
+          className="absolute top-0 right-0 p-4"
+          onClick={closeDrawer}
+          aria-label="Close Dataset Details"
+          title="Close Dataset Details"
+        >
+          <IoMdClose />
+        </button>
+        <div id="top" className="flex-shrink-0">
+          {dataSetInfo && dataSetInfo.organization ? (
+            <Image
+              className="rounded-sm w-auto max-h-40 max-w-[300px] bg-white p-1"
+              src={add_base_url(
+                dataSetInfo?.organization?.image_url_translated[lang],
+              )}
+              alt="Organization Logo"
+              width={0}
+              height={40}
+            />
+          ) : (
+            <p>No image available</p>
+          )}
+          <div className="flex flex-col gap-1 mt-4">
+            <h4 className="font-bold">{dataSetInfo?.title_translated[lang]}</h4>
+            <p className="text-xs">
+              {dataSetInfo?.organization.title_translated[lang]}
+            </p>
+            <hr className="border-gray-800 dark:border-gray-200" />
+            <p className="text-xs">
+              {t.license}: {dataSetInfo?.license_title}
+            </p>
           </div>
+        </div>
 
-          <div
-            className="relative flex-grow overflow-y-auto mt-4 mb-4 text-sm prose"
-            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
-          ></div>
-          <Citation dataSetInfo={dataSetInfo} lang={lang} />
-        </DrawerItems>
-      </Drawer>
-    </>
+        <div
+          className="relative flex-grow overflow-y-auto mt-4 mb-4 text-sm prose"
+          id="dataset-description"
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+        ></div>
+        <Citation dataSetInfo={dataSetInfo} lang={lang} />
+      </DrawerItems>
+    </Drawer>
   );
 }
