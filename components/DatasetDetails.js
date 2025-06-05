@@ -73,8 +73,6 @@ export function DatasetDetails({ dataSetInfo, lang }) {
     markdownToHtml(dataSetInfo?.notes_translated[lang]),
   );
   const citation = parseCitation(dataSetInfo?.citation[lang]);
-  const source_label =
-    citation?.DOI || citation?.URL.replace(/^https?:\/\//, "").split("/")[0];
 
   return (
     <Drawer
