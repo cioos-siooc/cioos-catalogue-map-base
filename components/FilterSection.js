@@ -9,35 +9,11 @@ import {
   Select,
   Datepicker,
 } from "flowbite-react";
-import { useState } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import { getLocale } from "@/app/get-locale";
 import { IoFilterOutline } from "react-icons/io5";
 import SidebarButton from "./SidebarButton";
-
-function getBadge(filterType, value, lang, removeBadge) {
-  if (!value) return null; // Return null if value is empty
-  const t = getLocale(lang);
-
-  return (
-    <div
-      key={filterType}
-      value={value}
-      className="flex items-center bg-blue-100 text-black hover:text-black text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
-    >
-      <span>
-        {filterType === "filter_date"
-          ? `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value, t)}`
-          : `${t[filterType].toLowerCase()}: ${value}`}
-      </span>
-      <button
-        className="ml-2 hover:text-white rounded-full p-1 transition duration-200"
-        onClick={() => removeBadge(filterType)}
-      >
-        &times;
-      </button>
-    </div>
-  );
-}
+import { SelectReactComponent } from "./SelectReact";
 
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value, t) {
@@ -242,11 +218,13 @@ export function FilterItems({
   eovList,
 }) {
   const [openModal, setOpenModal] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState([]);
   const t = getLocale(lang);
 
   function onCloseModal() {
-    if (!query) {
+    if (query.length === 0) {
+      // If no query is selected, close the modal without adding a badge
+      console.log("No query entered, closing modal", query);
       setOpenModal(false);
       return;
     }
@@ -262,7 +240,7 @@ export function FilterItems({
     }
 
     if (e.key === "Enter") {
-      if (!query) {
+      if (query.length === 0) {
         console.log("No query entered");
         return;
       }
@@ -293,18 +271,64 @@ export function FilterItems({
           {t.filter_by} {t[filter_type].toLowerCase()}
         </ModalHeader>
         <ModalBody>
-          <Select
-            id={`${t[filter_type].toLowerCase()}-select`}
-            onChange={(e) => setQuery(e.target.value)}
-            onSelect={onCloseModal}
-            onKeyDown={handleKeyDown}
-          >
-            <option value="">{t.select}</option>
-            {OptionItems(filter_type, orgList, projList, eovList)}
-          </Select>
+          <SelectReactComponent
+            filter_type={filter_type}
+            orgList={orgList}
+            projList={projList}
+            eovList={eovList}
+            setQuery={setQuery}
+            query={query}
+            lang={lang}
+          />
         </ModalBody>
       </Modal>
     </>
+  );
+}
+
+// Convert getBadge to a React component so hooks can be used
+function Badge({ filterType, value, lang, removeBadge }) {
+  const t = getLocale(lang);
+  const badgeRef = useRef(null);
+  const [topOffset, setTopOffset] = useState(4);
+
+  useLayoutEffect(() => {
+    if (badgeRef.current) {
+      const height = badgeRef.current.offsetHeight;
+      setTopOffset(Math.max(4, Math.round(height * 0.15)));
+    }
+  }, [value]);
+  // Ensure the badge is not empty before rendering
+  if (value.length === 0) return null;
+
+  return (
+    <div
+      key={filterType}
+      value={value}
+      ref={badgeRef}
+      className="relative max-w-full w-auto flex flex-wrap items-center bg-blue-100 text-black hover:text-black text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
+    >
+      <button
+        className="absolute right-3 hover:text-white rounded-full p-1 transition duration-200"
+        style={{ top: `${topOffset}px`, lineHeight: 1 }}
+        onClick={() => removeBadge(filterType)}
+        aria-label="Remove filter"
+      >
+        &times;
+      </button>
+      <span className="pl-6 pr-6">
+        {filterType === "filter_date" ? (
+          `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value, t)}`
+        ) : Array.isArray(value) ? (
+          <>
+            {t[filterType]} : <span className="inline md:hidden block" />
+            {value.map((item) => item[1]).join(", ")}
+          </>
+        ) : (
+          `${t[filterType]} : ${value}`
+        )}
+      </span>
+    </div>
   );
 }
 
@@ -380,10 +404,16 @@ export default function FilterSection({
         </div>
 
         {/* Render Badges */}
-        <div className="py-2 flex flex-wrap gap-1 justify-center">
-          {Object.entries(badges).map(([filterType, value]) =>
-            getBadge(filterType, value, lang, removeBadge),
-          )}
+        <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
+          {Object.entries(badges).map(([filterType, value]) => (
+            <Badge
+              key={filterType}
+              filterType={filterType}
+              value={value}
+              lang={lang}
+              removeBadge={removeBadge}
+            />
+          ))}
         </div>
       </div>
     </>

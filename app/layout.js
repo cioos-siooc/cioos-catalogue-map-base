@@ -49,6 +49,7 @@ function AppContent({ lang, setLang }) {
   const [badges, setBadges] = useState({}); // Store current filters
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [translatedEovList, setTranslatedEovList] = useState([]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -67,6 +68,11 @@ function AppContent({ lang, setLang }) {
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("preferredLanguage", lang);
+    }
+    console.log("Language changed to:", lang);
+    console.log("All items :", allItems);
+    if (allItems.length > 0) {
+      fillOrganizationAndProjectLists(allItems);
     }
   }, [lang]);
 
@@ -91,7 +97,6 @@ function AppContent({ lang, setLang }) {
 
   // When badges or allItems change, update filteredItems
   useEffect(() => {
-    console.log("Option Selected ::: ", selectedDateFilterOption);
     const filtered = filterItemsByBadges(
       allItems,
       badges,
@@ -99,11 +104,32 @@ function AppContent({ lang, setLang }) {
     );
     setFilteredItems(filtered);
     setFilteredResultsCount(filtered.length);
+
     //reset selectedDateFilterOption to empty string after filtering
     if (selectedDateFilterOption) {
       setSelectedDateFilterOption("");
     }
   }, [allItems, badges]);
+
+  // Fonction pour charger et filtrer les EOVs traduits
+  const fetchAndFilterEovsTranslated = useCallback(async (lang, eovList) => {
+    const res = await fetch("/eovs.json");
+    const data = await res.json();
+    const eovs = data.eovs;
+
+    const labelkey = `label_${lang}`;
+    const filtered = eovs
+      .filter((eov) => eovList.includes(eov.value)) // comparez par value qui correspond à l'identifiant de l'EOV
+      .map((eov) => [eov.value, eov[labelkey]]);
+
+    setTranslatedEovList(filtered);
+  }, []);
+
+  useEffect(() => {
+    if (eovList.length > 0 && lang) {
+      fetchAndFilterEovsTranslated(lang, eovList);
+    }
+  }, [lang, eovList, fetchAndFilterEovsTranslated]);
 
   // Function to process projects and add them to the project list
   const processProjects = (item, projList) => {
@@ -164,7 +190,6 @@ function AppContent({ lang, setLang }) {
     setOrganizationList(Array.from(orgList));
     setProjectList(Array.from(projList));
     setEovList(Array.from(eovList));
-    console.log("EOVs List: ", eovList);
   };
 
   // Import the useDrawer hook to get drawer state and methods
@@ -202,7 +227,7 @@ function AppContent({ lang, setLang }) {
             loading={loading}
             organizationList={organizationList}
             projectList={projectList}
-            eovList={eovList}
+            eovList={translatedEovList}
             badges={badges}
             setBadges={setBadges}
             setSelectedDateFilterOption={setSelectedDateFilterOption}
@@ -250,9 +275,13 @@ function useDrawer() {
 
 function filterItemsByBadges(items, badges, selectedDateFilterOption) {
   if (!items || items.length === 0) return [];
+  // If no badges, return all items
+  if (!badges || Object.keys(badges).length === 0) return items;
   return items.filter((item) => {
     return Object.entries(badges).every(([filterType, value]) => {
-      if (!value) return true;
+      if (value.length === 0) {
+        return true; // If no value, skip this filter
+      }
       if (filterType === "search") {
         const searchVal = value.toLowerCase();
         return (
@@ -265,22 +294,45 @@ function filterItemsByBadges(items, badges, selectedDateFilterOption) {
               n.toLowerCase().includes(searchVal),
             ))
         );
-      } else if (filterType === "organization") {
-        return (
-          item.organization &&
-          item.organization.title_translated &&
-          Object.values(item.organization.title_translated).includes(value)
-        );
-      } else if (filterType === "projects") {
-        return item.project && item.project.includes(value);
-      } else if (filterType === "eov") {
-        return item.eov && item.eov.includes(value);
+      } else if (
+        filterType === "organization" ||
+        filterType === "projects" ||
+        filterType === "eov"
+      ) {
+        return filterByOrganizationProjectsEov(item, filterType, value);
       } else if (filterType === "filter_date") {
         return manageDateFilterOptions(item, selectedDateFilterOption, value);
       }
       return true;
     });
   });
+}
+// Function to filter items by organization, projects, or eov
+function filterByOrganizationProjectsEov(item, filterType, selected_values) {
+  const selectedValues = selected_values.map((arr) => arr[0]);
+  if (filterType === "organization") {
+    if (
+      !Array.isArray(selected_values) ||
+      !Array.isArray(Object.values(item.organization.title_translated))
+    )
+      return false;
+
+    return Object.values(item.organization.title_translated).some((org) =>
+      selectedValues.includes(org),
+    );
+  } else if (filterType === "projects") {
+    if (!Array.isArray(selected_values) || !Array.isArray(item.project))
+      return false;
+    // Return true if at least one eov of the item is in the selection
+    return item.project.some((project) => selectedValues.includes(project));
+  } else if (filterType === "eov") {
+    if (!Array.isArray(selected_values) || !Array.isArray(item.eov))
+      return false;
+
+    // Return true if at least one eov of the item is in the selection
+    return item.eov.some((eov) => selectedValues.includes(eov));
+  }
+  return true;
 }
 
 function manageDateFilterOptions(item, selectedDateFilterOption, value) {
