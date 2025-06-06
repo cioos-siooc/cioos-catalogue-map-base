@@ -63,18 +63,66 @@ function AppContent({ lang, setLang }) {
     const initialLanguage =
       savedLanguage || browserLanguage || config.default_language;
     setLang(initialLanguage);
+    manageURLParametersOnLoad();
   }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("preferredLanguage", lang);
     }
-    console.log("Language changed to:", lang);
-    console.log("All items :", allItems);
     if (allItems.length > 0) {
       fillOrganizationAndProjectLists(allItems);
     }
   }, [lang]);
+
+  // Manage URL parameters on initial load
+  function manageURLParametersOnLoad() {
+    // Check if the URL has parameters and update the state accordingly
+    const urlParams = new URLSearchParams(window.location.search);
+    const search = urlParams.has("search") ? urlParams.get("search") : null;
+    const organization = urlParams.has("organization")
+      ? urlParams.getAll("organization")
+      : [];
+    const projects = urlParams.has("projects")
+      ? urlParams.getAll("projects")
+      : [];
+    const eov = urlParams.has("eov") ? urlParams.getAll("eov") : [];
+
+    // Loop through all entries and set badges for each
+    urlParams.forEach((value, key) => {
+      // For multi-value params (like organization, projects, eov), get all values as array of [value, value]
+      let badgeValue;
+      if (["organization", "projects", "eov"].includes(key)) {
+        const allValues = urlParams.getAll(key);
+        badgeValue = allValues.map((v) => [v, v]);
+        console.log("Badge value for multi-select:", badgeValue);
+      } else {
+        console.log("Badge value for single-select:", value);
+        badgeValue = value;
+      }
+      setBadges((prevBadges) => ({
+        ...prevBadges,
+        [key]: badgeValue,
+      }));
+    });
+  }
+
+  useEffect(() => {
+    // On first page load, check for fragment and open drawer if present
+    if (typeof window !== "undefined") {
+      const fragment = window.location.hash.replace(/^#/, "");
+      if (fragment) {
+        // Find the item with the matching id in allItems
+        const selectedItem = allItems.find((item) => item.id === fragment);
+        if (selectedItem) {
+          setBounds(selectedItem.spatial);
+          fetchDataSetInfo(selectedItem.id);
+          openDrawer();
+        }
+      }
+    }
+    // Only run after allItems are loaded
+  }, [allItems]);
 
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
@@ -102,6 +150,7 @@ function AppContent({ lang, setLang }) {
       badges,
       selectedDateFilterOption,
     );
+    initURLUpdateProcess(badges);
     setFilteredItems(filtered);
     setFilteredResultsCount(filtered.length);
 
@@ -110,6 +159,54 @@ function AppContent({ lang, setLang }) {
       setSelectedDateFilterOption("");
     }
   }, [allItems, badges]);
+
+  function initURLUpdateProcess(badges) {
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log(" badges : : ", badges);
+    updateURL(urlParams, badges);
+    // Update the URL without reloading the page
+    console.log("Updating URL with parameters : : ", urlParams.toString());
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}?${urlParams.toString()}`,
+    );
+  }
+
+  // Function to update URL parameters based on the current state
+  // This function will be called whenever eovList, projectList, or organizationList changes
+  function updateURL(urlParams, badges) {
+    // Remove all previous filter params
+    urlParams.delete("eov");
+    urlParams.delete("projects");
+    urlParams.delete("organization");
+    urlParams.delete("search");
+    urlParams.delete("filter_date");
+
+    // For each badge, update the URL params accordingly
+    Object.entries(badges).forEach(([filter_type, filter_value]) => {
+      if (!filter_value || filter_value.length === 0) {
+        urlParams.delete(filter_type);
+        return;
+      }
+      // For array values (like organization, projects, eov)
+      if (Array.isArray(filter_value)) {
+        // If value is an array of arrays (e.g. [["val", "label"], ...])
+        if (Array.isArray(filter_value[0])) {
+          // Add each value as a separate param (for multi-select)
+          filter_value.forEach((v) => {
+            urlParams.append(filter_type, v[0]);
+          });
+        } else {
+          // Otherwise, join as comma-separated
+          urlParams.set(filter_type, filter_value.join(","));
+        }
+      } else {
+        // For string values (like search, filter_date)
+        urlParams.set(filter_type, filter_value);
+      }
+    });
+  }
 
   // Fonction pour charger et filtrer les EOVs traduits
   const fetchAndFilterEovsTranslated = useCallback(async (lang, eovList) => {
@@ -200,6 +297,7 @@ function AppContent({ lang, setLang }) {
     (selectedItem) => {
       setBounds(selectedItem.spatial);
       fetchDataSetInfo(selectedItem.id);
+      updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
     },
     [openDrawer],
@@ -208,6 +306,18 @@ function AppContent({ lang, setLang }) {
   const onInfoClick = useCallback(() => {
     setShowModal(true);
   }, []);
+
+  function updateURLWithSelectedItem(selectedItemId) {
+    if (typeof window !== "undefined" && selectedItemId) {
+      // Keep current search params, just update the fragment/hash
+      const { pathname, search } = window.location;
+      window.history.replaceState(
+        null,
+        "",
+        `${pathname}${search}#${selectedItemId}`,
+      );
+    }
+  }
 
   return (
     <>
@@ -307,6 +417,7 @@ function filterItemsByBadges(items, badges, selectedDateFilterOption) {
     });
   });
 }
+
 // Function to filter items by organization, projects, or eov
 function filterByOrganizationProjectsEov(item, filterType, selected_values) {
   const selectedValues = selected_values.map((arr) => arr[0]);
