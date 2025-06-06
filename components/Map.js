@@ -22,12 +22,10 @@ import { getLocale } from "@/app/get-locale";
 const { BaseLayer, Overlay } = LayersControl;
 
 // Utility functions
-const getPrimaryColor = () => {
-  const primaryColor = getComputedStyle(document.documentElement)
+const getPrimaryColor = () =>
+  getComputedStyle(document.documentElement)
     .getPropertyValue("--color-primary-500")
     .trim();
-  return primaryColor;
-};
 
 const clearMapLayers = (map) => {
   map.eachLayer((layer) => {
@@ -37,8 +35,8 @@ const clearMapLayers = (map) => {
   });
 };
 
-// Map components
-const FitBounds = ({ bounds }) => {
+// FitBounds component
+const FitBounds = memo(({ bounds }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -55,76 +53,79 @@ const FitBounds = ({ bounds }) => {
         duration: 0.3,
       });
     }
-  }, [bounds, map]); // Run effect when bounds or map changes
+  }, [bounds, map]);
 
   return null;
-};
+});
+FitBounds.displayName = "FitBounds";
 
-// Dataset marker component
-const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
-  let point = turf.centerOfMass(record.spatial);
-  // Verify if point within the polygon
-  const isPointInPolygon = turf.booleanPointInPolygon(point, record.spatial);
-  if (!isPointInPolygon) {
-    point = turf.pointOnFeature(record.spatial);
-  }
-
-  const handleMarkerClick = () => {
-    console.log("Marker clicked:", record.id);
-    handleListItemClick(record);
-    openDrawer();
-  };
-
-  const handleMouseOver = (e) => {
-    const map = e.target._map;
-    const polygon = L.geoJSON(record.spatial, {
-      style: {
-        color: getPrimaryColor(),
-        weight: 2,
-        fillColor: getPrimaryColor(),
-        fillOpacity: 0.5,
-      },
-    }).addTo(map);
-
-    // Store the polygon layer on the marker for later removal
-    e.target._hoverPolygon = polygon;
-  };
-
-  const handleMouseOut = (e) => {
-    // Remove the polygon layer when the mouse leaves the marker
-    const map = e.target._map;
-    if (e.target._hoverPolygon) {
-      map.removeLayer(e.target._hoverPolygon);
-      e.target._hoverPolygon = null;
+// DatasetMarker component
+const DatasetMarker = memo(
+  ({ record, handleListItemClick, lang, openDrawer }) => {
+    let point = turf.centerOfMass(record.spatial);
+    if (!turf.booleanPointInPolygon(point, record.spatial)) {
+      point = turf.pointOnFeature(record.spatial);
     }
-  };
 
-  return (
-    <Marker
-      key={record.id}
-      position={[point.geometry.coordinates[1], point.geometry.coordinates[0]]}
-      eventHandlers={{
-        click: handleMarkerClick,
-        mouseover: handleMouseOver,
-        mouseout: handleMouseOut,
-      }}
-    >
-      <Tooltip>
-        <div className="w-[200px]">
-          <h2 className="font-bold text-wrap">
-            {record.title_translated[lang]}
-          </h2>
-          <p className="text-xs text-wrap">
-            {record.organization.title_translated[lang]}
-          </p>
-        </div>
-      </Tooltip>
-    </Marker>
-  );
-};
+    const handleMarkerClick = () => {
+      console.log("Marker clicked:", record.id);
+      handleListItemClick(record);
+      openDrawer();
+    };
 
-// Base map layers component
-const BaseLayers = ({ basemaps, lang }) => (
+    const handleMouseOver = (e) => {
+      const map = e.target._map;
+      const polygon = L.geoJSON(record.spatial, {
+        style: {
+          color: getPrimaryColor(),
+          weight: 2,
+          fillColor: getPrimaryColor(),
+          fillOpacity: 0.5,
+        },
+      }).addTo(map);
+
+      e.target._hoverPolygon = polygon;
+    };
+
+    const handleMouseOut = (e) => {
+      const map = e.target._map;
+      if (e.target._hoverPolygon) {
+        map.removeLayer(e.target._hoverPolygon);
+        e.target._hoverPolygon = null;
+      }
+    };
+
+    return (
+      <Marker
+        key={record.id}
+        position={[
+          point.geometry.coordinates[1],
+          point.geometry.coordinates[0],
+        ]}
+        eventHandlers={{
+          click: handleMarkerClick,
+          mouseover: handleMouseOver,
+          mouseout: handleMouseOut,
+        }}
+      >
+        <Tooltip>
+          <div className="w-[200px]">
+            <h2 className="font-bold text-wrap">
+              {record.title_translated[lang]}
+            </h2>
+            <p className="text-xs text-wrap">
+              {record.organization.title_translated[lang]}
+            </p>
+          </div>
+        </Tooltip>
+      </Marker>
+    );
+  },
+);
+DatasetMarker.displayName = "DatasetMarker";
+
+// BaseLayers component
+const BaseLayers = memo(({ basemaps, lang }) => (
   <>
     {basemaps.map((layer) => (
       <BaseLayer
@@ -141,7 +142,8 @@ const BaseLayers = ({ basemaps, lang }) => (
       </BaseLayer>
     ))}
   </>
-);
+));
+BaseLayers.displayName = "BaseLayers";
 
 // Main Map component
 function Map({ bounds, filteredItems, handleListItemClick, lang }) {
@@ -149,35 +151,29 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
   const t = getLocale(lang);
 
   const mapRef = useRef();
-
   const [visibleItems, setVisibleItems] = useState(filteredItems);
-
-  const updateVisibleItems = () => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    const bounds = map.getBounds();
-    const visible = filteredItems.filter((item) => {
-      const point = turf.centerOfMass(item.spatial);
-      const lat = point.geometry.coordinates[1];
-      const lng = point.geometry.coordinates[0];
-      return bounds.contains([lat, lng]);
-    });
-
-    setVisibleItems(visible);
-  };
 
   useEffect(() => {
     const map = mapRef.current;
-    if (map) {
-      map.on("moveend", updateVisibleItems);
-      updateVisibleItems(); // Initial load
-    }
+    if (!map) return;
+
+    const updateVisibleItems = () => {
+      const bounds = map.getBounds();
+      const visible = filteredItems.filter((item) => {
+        const point = turf.centerOfMass(item.spatial);
+        const lat = point.geometry.coordinates[1];
+        const lng = point.geometry.coordinates[0];
+        return bounds.contains([lat, lng]);
+      });
+
+      setVisibleItems(visible);
+    };
+
+    map.on("moveend", updateVisibleItems);
+    updateVisibleItems();
 
     return () => {
-      if (map) {
-        map.off("moveend", updateVisibleItems);
-      }
+      map.off("moveend", updateVisibleItems);
     };
   }, [filteredItems]);
 
@@ -213,4 +209,4 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
   );
 }
 
-export default Map;
+export default memo(Map);
