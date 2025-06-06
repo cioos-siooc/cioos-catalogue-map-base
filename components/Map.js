@@ -148,6 +148,39 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
   const { openDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
 
+  const mapRef = useRef();
+
+  const [visibleItems, setVisibleItems] = useState(filteredItems);
+
+  const updateVisibleItems = () => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const bounds = map.getBounds();
+    const visible = filteredItems.filter((item) => {
+      const point = turf.centerOfMass(item.spatial);
+      const lat = point.geometry.coordinates[1];
+      const lng = point.geometry.coordinates[0];
+      return bounds.contains([lat, lng]);
+    });
+
+    setVisibleItems(visible);
+  };
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map) {
+      map.on("moveend", updateVisibleItems);
+      updateVisibleItems(); // Initial load
+    }
+
+    return () => {
+      if (map) {
+        map.off("moveend", updateVisibleItems);
+      }
+    };
+  }, [filteredItems]);
+
   return (
     <MapContainer
       className="h-full w-full"
@@ -156,7 +189,7 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
       zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
-      key={filteredItems.length}
+      whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
     >
       <ZoomControl position="topright" />
       <LayersControl position="bottomright">
@@ -164,7 +197,7 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
         {bounds && <FitBounds bounds={bounds} />}
         <Overlay checked name={t.dataset_markers}>
           <MarkerClusterGroup>
-            {filteredItems.map((item) => (
+            {visibleItems.map((item) => (
               <DatasetMarker
                 key={item.id}
                 record={item}
