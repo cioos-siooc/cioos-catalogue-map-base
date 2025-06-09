@@ -63,7 +63,7 @@ function AppContent({ lang, setLang }) {
     const initialLanguage =
       savedLanguage || browserLanguage || config.default_language;
     setLang(initialLanguage);
-    manageURLParametersOnLoad();
+    console.log(" ::: ");
   }, []);
 
   useEffect(() => {
@@ -79,19 +79,14 @@ function AppContent({ lang, setLang }) {
   function manageURLParametersOnLoad() {
     // Check if the URL has parameters and update the state accordingly
     const urlParams = new URLSearchParams(window.location.search);
-    const search = urlParams.has("search") ? urlParams.get("search") : null;
-    const organization = urlParams.has("organization")
-      ? urlParams.getAll("organization")
-      : [];
-    const projects = urlParams.has("projects")
-      ? urlParams.getAll("projects")
-      : [];
-    const eov = urlParams.has("eov") ? urlParams.getAll("eov") : [];
+
+    console.log("URL Parameters on load:", window.location);
 
     // Loop through all entries and set badges for each
     urlParams.forEach((value, key) => {
       // For multi-value params (like organization, projects, eov), get all values as array of [value, value]
       let badgeValue;
+      console.log("Parameters : ", value, " Key : ", key);
       if (["organization", "projects", "eov"].includes(key)) {
         const allValues = urlParams.getAll(key);
         badgeValue = allValues.map((v) => [v, v]);
@@ -107,23 +102,6 @@ function AppContent({ lang, setLang }) {
     });
   }
 
-  useEffect(() => {
-    // On first page load, check for fragment and open drawer if present
-    if (typeof window !== "undefined") {
-      const fragment = window.location.hash.replace(/^#/, "");
-      if (fragment) {
-        // Find the item with the matching id in allItems
-        const selectedItem = allItems.find((item) => item.id === fragment);
-        if (selectedItem) {
-          setBounds(selectedItem.spatial);
-          fetchDataSetInfo(selectedItem.id);
-          openDrawer();
-        }
-      }
-    }
-    // Only run after allItems are loaded
-  }, [allItems]);
-
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -137,7 +115,7 @@ function AppContent({ lang, setLang }) {
       })
       .then(() => setLoading(false))
       .catch((error) => console.error("Error loading packages:", error));
-  }, [badgeCount]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -150,7 +128,7 @@ function AppContent({ lang, setLang }) {
       badges,
       selectedDateFilterOption,
     );
-    initURLUpdateProcess(badges);
+
     setFilteredItems(filtered);
     setFilteredResultsCount(filtered.length);
 
@@ -160,9 +138,32 @@ function AppContent({ lang, setLang }) {
     }
   }, [allItems, badges]);
 
+  useEffect(() => {
+    console.log("All items loaded, checking for fragment in URL...");
+    console.log("Parameters URL...", allItems);
+    if (
+      typeof window !== "undefined" &&
+      Array.isArray(allItems) &&
+      allItems.length > 0
+    ) {
+      console.log("WINDOWS : : ", window.location);
+      const fragment = window.location.hash.replace(/^#/, "");
+      manageURLParametersOnLoad();
+      if (fragment) {
+        const selectedItem = allItems.find((item) => item.id === fragment);
+        if (selectedItem) {
+          setBounds(selectedItem.spatial);
+          fetchDataSetInfo(selectedItem.id);
+          openDrawer();
+        }
+      }
+    }
+  }, [allItems]);
+
   function initURLUpdateProcess(badges) {
     const urlParams = new URLSearchParams(window.location.search);
     console.log(" badges : : ", badges);
+    if (!badges || Object.keys(badges).length === 0) return; // No badges, nothing to update
     updateURL(urlParams, badges);
     // Update the URL without reloading the page
     console.log("Updating URL with parameters : : ", urlParams.toString());
@@ -172,6 +173,11 @@ function AppContent({ lang, setLang }) {
       `${window.location.pathname}?${urlParams.toString()}`,
     );
   }
+
+  // This effect updates the URL only when badges change
+  useEffect(() => {
+    initURLUpdateProcess(badges);
+  }, [badges]);
 
   // Function to update URL parameters based on the current state
   // This function will be called whenever eovList, projectList, or organizationList changes
@@ -299,6 +305,8 @@ function AppContent({ lang, setLang }) {
       fetchDataSetInfo(selectedItem.id);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
+
+      console.log("URL UPDATED HASH : ", window.location.hash);
     },
     [openDrawer],
   );
