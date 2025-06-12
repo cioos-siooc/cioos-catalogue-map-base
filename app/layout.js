@@ -79,20 +79,14 @@ function AppContent({ lang, setLang }) {
   function manageURLParametersOnLoad() {
     // Check if the URL has parameters and update the state accordingly
     const urlParams = new URLSearchParams(window.location.search);
-
-    console.log("URL Parameters on load:", window.location);
-
     // Loop through all entries and set badges for each
     urlParams.forEach((value, key) => {
       // For multi-value params (like organization, projects, eov), get all values as array of [value, value]
       let badgeValue;
-      console.log("Parameters : ", value, " Key : ", key);
       if (["organization", "projects", "eov"].includes(key)) {
         const allValues = urlParams.getAll(key);
         badgeValue = allValues.map((v) => [v, v]);
-        console.log("Badge value for multi-select:", badgeValue);
       } else {
-        console.log("Badge value for single-select:", value);
         badgeValue = value;
       }
       setBadges((prevBadges) => ({
@@ -139,14 +133,12 @@ function AppContent({ lang, setLang }) {
   }, [allItems, badges]);
 
   useEffect(() => {
-    console.log("All items loaded, checking for fragment in URL...");
-    console.log("Parameters URL...", allItems);
     if (
       typeof window !== "undefined" &&
       Array.isArray(allItems) &&
       allItems.length > 0
     ) {
-      console.log("WINDOWS : : ", window.location);
+
       const fragment = window.location.hash.replace(/^#/, "");
       manageURLParametersOnLoad();
       if (fragment) {
@@ -154,6 +146,7 @@ function AppContent({ lang, setLang }) {
         if (selectedItem) {
           setBounds(selectedItem.spatial);
           fetchDataSetInfo(selectedItem.id);
+          updateURLWithSelectedItem(selectedItem.id);
           openDrawer();
         }
       }
@@ -162,11 +155,14 @@ function AppContent({ lang, setLang }) {
 
   function initURLUpdateProcess(badges) {
     const urlParams = new URLSearchParams(window.location.search);
-    console.log(" badges : : ", badges);
+    
     if (!badges || Object.keys(badges).length === 0) return; // No badges, nothing to update
     updateURL(urlParams, badges);
     // Update the URL without reloading the page
     console.log("Updating URL with parameters : : ", urlParams.toString());
+
+    console.log(" URL content ::: ", window.location.hash);
+    if( hasHashInURL()) return; // If there's a hash in the URL, don't update the search params
     window.history.replaceState(
       null,
       "",
@@ -178,6 +174,10 @@ function AppContent({ lang, setLang }) {
   useEffect(() => {
     initURLUpdateProcess(badges);
   }, [badges]);
+
+  function hasHashInURL() {
+    return typeof window !== "undefined" && window.location.hash !== "";
+  }
 
   // Function to update URL parameters based on the current state
   // This function will be called whenever eovList, projectList, or organizationList changes
@@ -316,6 +316,7 @@ function AppContent({ lang, setLang }) {
   }, []);
 
   function updateURLWithSelectedItem(selectedItemId) {
+    console.log("UDPATE URL SELECTED ID : : ");
     if (typeof window !== "undefined" && selectedItemId) {
       // Keep current search params, just update the fragment/hash
       const { pathname, search } = window.location;
