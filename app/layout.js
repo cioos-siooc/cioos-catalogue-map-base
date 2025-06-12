@@ -63,7 +63,6 @@ function AppContent({ lang, setLang }) {
     const initialLanguage =
       savedLanguage || browserLanguage || config.default_language;
     setLang(initialLanguage);
-    console.log(" ::: ");
   }, []);
 
   useEffect(() => {

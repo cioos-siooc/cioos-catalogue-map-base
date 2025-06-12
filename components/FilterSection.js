@@ -18,7 +18,6 @@ import { SelectReactComponent } from "./SelectReact";
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value, t) {
   // Expects value like '2025-05-16T00:00:00Z%20TO%202025-05-17T00:00:00Z'
-  console.log("::: ", value);
   if (!value) return "";
   const match = value.match(/(\d{4}-\d{2}-\d{2})T.*TO.*(\d{4}-\d{2}-\d{2})T/);
   if (match) {
