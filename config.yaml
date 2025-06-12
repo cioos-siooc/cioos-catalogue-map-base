@@ -5,6 +5,7 @@ base_query: ""
 map:
   center: [50, -70]
   zoom: 5
+  zoom_mobile: 6
 
 default_language: en
 title:
