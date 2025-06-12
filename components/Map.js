@@ -152,7 +152,7 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
     <MapContainer
       className="h-full w-full"
       center={config.map.center}
-      zoom={config.map.zoom}
+      zoom={typeof window !== "undefined" && window.innerWidth < 600 ? 6 : config.map.zoom} // More zoomed out for mobile
       zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}

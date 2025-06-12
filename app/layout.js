@@ -246,7 +246,7 @@ function AppContent({ lang, setLang }) {
           />
         </div>
         <main
-          className={`flex-1 relative ${isSidebarOpen ? "ml-90" : ""} transform transition-transform duration-300 ease-in-out z-20`}
+          className={`flex-1 relative transform transition-transform duration-300 ease-in-out z-20`}
         >
           <MapComponent
             bounds={bounds}
