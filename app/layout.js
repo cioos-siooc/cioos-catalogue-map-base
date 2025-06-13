@@ -258,7 +258,7 @@ function AppContent({ lang, setLang }) {
         {isDrawerOpen && dataSetInfo && (
           <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
-        <div className="absolute bottom-0 left-0 z-25 flex items-center w-90 bg-primary-50 dark:bg-primary-800 pt-2 justify-center rounded-tr-xl opacity-50">
+        <div className="max-sm:mb-8 absolute bottom-0 left-0 z-25 flex items-center w-90 bg-primary-50 dark:bg-primary-800 pt-2 justify-center rounded-tr-xl opacity-50">
           <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
         </div>
       </div>
