@@ -69,13 +69,15 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
     point = turf.pointOnFeature(record.spatial);
   }
 
-  const handleMarkerClick = () => {
+  const handleMarkerClick = (e) => {
     console.log("Marker clicked:", record.id);
+    removeLayer(e);
     handleListItemClick(record);
     openDrawer();
   };
 
   const handleMouseOver = (e) => {
+    removeLayer(e);
     const map = e.target._map;
     const polygon = L.geoJSON(record.spatial, {
       style: {
@@ -92,12 +94,16 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
 
   const handleMouseOut = (e) => {
     // Remove the polygon layer when the mouse leaves the marker
+    removeLayer(e);
+  };
+  // Function to remove the polygon layer when the marker is removed
+  function removeLayer(e) {
     const map = e.target._map;
     if (e.target._hoverPolygon) {
       map.removeLayer(e.target._hoverPolygon);
       e.target._hoverPolygon = null;
     }
-  };
+  }
 
   return (
     <Marker
