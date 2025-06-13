@@ -14,6 +14,7 @@ import { getLocale } from "@/app/get-locale";
 import { IoFilterOutline } from "react-icons/io5";
 import SidebarButton from "./SidebarButton";
 import { SelectReactComponent } from "./SelectReact";
+import { updateURLWithBadges } from "@/components/UrlParametrization";
 
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value, t) {
@@ -355,6 +356,7 @@ export default function FilterSection({
       if (filterType === "filter_date") {
         setSelectedOption("");
       }
+      // Update the URL with the new badges
       return updatedBadges;
     });
   };

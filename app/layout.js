@@ -10,6 +10,11 @@ import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
 import dynamic from "next/dynamic";
 import React from "react";
+import { manageURLParametersOnLoad, updateURLWithSelectedItem, initURLUpdateProcess } 
+from "@/components/UrlParametrization";
+import { filterItemsByBadges,fetchAndFilterEovsTranslated } from "@/components/FilterManagement";
+import { fillOrganizationAndProjectLists,fetchDataSetInfo } from "@/components/FetchItemsListManagement";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,30 +75,10 @@ function AppContent({ lang, setLang }) {
       localStorage.setItem("preferredLanguage", lang);
     }
     if (allItems.length > 0) {
-      fillOrganizationAndProjectLists(allItems);
+      fillOrganizationAndProjectLists(allItems,setOrganizationList, setProjectList, setEovList, lang);
     }
   }, [lang]);
 
-  // Manage URL parameters on initial load
-  function manageURLParametersOnLoad() {
-    // Check if the URL has parameters and update the state accordingly
-    const urlParams = new URLSearchParams(window.location.search);
-    // Loop through all entries and set badges for each
-    urlParams.forEach((value, key) => {
-      // For multi-value params (like organization, projects, eov), get all values as array of [value, value]
-      let badgeValue;
-      if (["organization", "projects", "eov"].includes(key)) {
-        const allValues = urlParams.getAll(key);
-        badgeValue = allValues.map((v) => [v, v]);
-      } else {
-        badgeValue = value;
-      }
-      setBadges((prevBadges) => ({
-        ...prevBadges,
-        [key]: badgeValue,
-      }));
-    });
-  }
 
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
@@ -103,7 +88,7 @@ function AppContent({ lang, setLang }) {
       .then((data) => {
         setAllItems(data);
         setTotalResultsCount(data.length);
-        fillOrganizationAndProjectLists(data);
+        fillOrganizationAndProjectLists(data,setOrganizationList,setProjectList,setEovList,lang);
         // Filtering will be handled in badges effect
       })
       .then(() => setLoading(false))
@@ -139,12 +124,12 @@ function AppContent({ lang, setLang }) {
     ) {
 
       const fragment = window.location.hash.replace(/^#/, "");
-      manageURLParametersOnLoad();
+      manageURLParametersOnLoad(setBadges);
       if (fragment) {
         const selectedItem = allItems.find((item) => item.id === fragment);
         if (selectedItem) {
           setBounds(selectedItem.spatial);
-          fetchDataSetInfo(selectedItem.id);
+          fetchDataSetInfo(selectedItem.id,setDatasetInfo, catalogueUrl);
           updateURLWithSelectedItem(selectedItem.id);
           openDrawer();
         }
@@ -152,147 +137,18 @@ function AppContent({ lang, setLang }) {
     }
   }, [allItems]);
 
-  function initURLUpdateProcess(badges) {
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    if (!badges || Object.keys(badges).length === 0) return; // No badges, nothing to update
-    updateURL(urlParams, badges);
-    // Update the URL without reloading the page
-    console.log("Updating URL with parameters : : ", urlParams.toString());
-
-    console.log(" URL content ::: ", window.location.hash);
-    if( hasHashInURL()) return; // If there's a hash in the URL, don't update the search params
-    window.history.replaceState(
-      null,
-      "",
-      `${window.location.pathname}?${urlParams.toString()}`,
-    );
-  }
-
   // This effect updates the URL only when badges change
   useEffect(() => {
     initURLUpdateProcess(badges);
   }, [badges]);
 
-  function hasHashInURL() {
-    return typeof window !== "undefined" && window.location.hash !== "";
-  }
 
-  // Function to update URL parameters based on the current state
-  // This function will be called whenever eovList, projectList, or organizationList changes
-  function updateURL(urlParams, badges) {
-    // Remove all previous filter params
-    urlParams.delete("eov");
-    urlParams.delete("projects");
-    urlParams.delete("organization");
-    urlParams.delete("search");
-    urlParams.delete("filter_date");
-
-    // For each badge, update the URL params accordingly
-    Object.entries(badges).forEach(([filter_type, filter_value]) => {
-      if (!filter_value || filter_value.length === 0) {
-        urlParams.delete(filter_type);
-        return;
-      }
-      // For array values (like organization, projects, eov)
-      if (Array.isArray(filter_value)) {
-        // If value is an array of arrays (e.g. [["val", "label"], ...])
-        if (Array.isArray(filter_value[0])) {
-          // Add each value as a separate param (for multi-select)
-          filter_value.forEach((v) => {
-            urlParams.append(filter_type, v[0]);
-          });
-        } else {
-          // Otherwise, join as comma-separated
-          urlParams.set(filter_type, filter_value.join(","));
-        }
-      } else {
-        // For string values (like search, filter_date)
-        urlParams.set(filter_type, filter_value);
-      }
-    });
-  }
-
-  // Fonction pour charger et filtrer les EOVs traduits
-  const fetchAndFilterEovsTranslated = useCallback(async (lang, eovList) => {
-    const res = await fetch("/eovs.json");
-    const data = await res.json();
-    const eovs = data.eovs;
-
-    const labelkey = `label_${lang}`;
-    const filtered = eovs
-      .filter((eov) => eovList.includes(eov.value)) // comparez par value qui correspond à l'identifiant de l'EOV
-      .map((eov) => [eov.value, eov[labelkey]]);
-
-    setTranslatedEovList(filtered);
-  }, []);
 
   useEffect(() => {
     if (eovList.length > 0 && lang) {
-      fetchAndFilterEovsTranslated(lang, eovList);
+      fetchAndFilterEovsTranslated(lang, eovList, setTranslatedEovList);
     }
   }, [lang, eovList, fetchAndFilterEovsTranslated]);
-
-  // Function to process projects and add them to the project list
-  const processProjects = (item, projList) => {
-    if (item.project && Array.isArray(item.project)) {
-      const isAlreadyPresent = item.project.every((project) =>
-        projList.has(project),
-      );
-      if (isAlreadyPresent) {
-        return;
-      }
-      item.project.forEach((project) => projList.add(project));
-    }
-  };
-
-  // Function to process projects and add them to the project list
-  const processEovs = (item, eovList) => {
-    if (item.eov && Array.isArray(item.eov)) {
-      const isAlreadyPresent = item.eov.every((eov) => eovList.has(eov));
-      if (isAlreadyPresent) {
-        return;
-      }
-      item.eov.forEach((eov) => eovList.add(eov));
-    }
-  };
-
-  // Function to process organization and add it to the organization list
-  const processOrganization = (item, orgList, lang) => {
-    if (item.organization && item.organization.title_translated) {
-      if (orgList.has(item.organization.title_translated[lang])) {
-        return;
-      }
-      orgList.add(item.organization.title_translated[lang]);
-    }
-  };
-
-  function fetchDataSetInfo(id) {
-    fetch(`${catalogueUrl}/api/3/action/package_show?id=${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setDatasetInfo(data.result);
-      })
-      .catch((error) => {
-        console.error("Error loading dataset info:", error);
-      });
-  }
-
-  // Function to fill organization and project lists
-  const fillOrganizationAndProjectLists = (items) => {
-    let orgList = new Set();
-    let projList = new Set();
-    let eovList = new Set();
-    items.forEach((item) => {
-      processOrganization(item, orgList, lang);
-      processProjects(item, projList);
-      processEovs(item, eovList);
-    });
-
-    setOrganizationList(Array.from(orgList));
-    setProjectList(Array.from(projList));
-    setEovList(Array.from(eovList));
-  };
 
   // Import the useDrawer hook to get drawer state and methods
   const { isDrawerOpen, openDrawer } = useDrawer();
@@ -301,7 +157,7 @@ function AppContent({ lang, setLang }) {
   const handleListItemClick = useCallback(
     (selectedItem) => {
       setBounds(selectedItem.spatial);
-      fetchDataSetInfo(selectedItem.id);
+      fetchDataSetInfo(selectedItem.id,setDatasetInfo, catalogueUrl);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
 
@@ -313,19 +169,6 @@ function AppContent({ lang, setLang }) {
   const onInfoClick = useCallback(() => {
     setShowModal(true);
   }, []);
-
-  function updateURLWithSelectedItem(selectedItemId) {
-    console.log("UDPATE URL SELECTED ID : : ");
-    if (typeof window !== "undefined" && selectedItemId) {
-      // Keep current search params, just update the fragment/hash
-      const { pathname, search } = window.location;
-      window.history.replaceState(
-        null,
-        "",
-        `${pathname}${search}#${selectedItemId}`,
-      );
-    }
-  }
 
   return (
     <>
@@ -389,124 +232,6 @@ function useDrawer() {
     throw new Error("useDrawer must be used within a DrawerProvider");
   }
   return context;
-}
-
-function filterItemsByBadges(items, badges, selectedDateFilterOption) {
-  if (!items || items.length === 0) return [];
-  // If no badges, return all items
-  if (!badges || Object.keys(badges).length === 0) return items;
-  return items.filter((item) => {
-    return Object.entries(badges).every(([filterType, value]) => {
-      if (value.length === 0) {
-        return true; // If no value, skip this filter
-      }
-      if (filterType === "search") {
-        const searchVal = value.toLowerCase();
-        return (
-          (item.title_translated &&
-            Object.values(item.title_translated).some((t) =>
-              t.toLowerCase().includes(searchVal),
-            )) ||
-          (item.notes_translated &&
-            Object.values(item.notes_translated).some((n) =>
-              n.toLowerCase().includes(searchVal),
-            ))
-        );
-      } else if (
-        filterType === "organization" ||
-        filterType === "projects" ||
-        filterType === "eov"
-      ) {
-        return filterByOrganizationProjectsEov(item, filterType, value);
-      } else if (filterType === "filter_date") {
-        return manageDateFilterOptions(item, selectedDateFilterOption, value);
-      }
-      return true;
-    });
-  });
-}
-
-// Function to filter items by organization, projects, or eov
-function filterByOrganizationProjectsEov(item, filterType, selected_values) {
-  const selectedValues = selected_values.map((arr) => arr[0]);
-  if (filterType === "organization") {
-    if (
-      !Array.isArray(selected_values) ||
-      !Array.isArray(Object.values(item.organization.title_translated))
-    )
-      return false;
-
-    return Object.values(item.organization.title_translated).some((org) =>
-      selectedValues.includes(org),
-    );
-  } else if (filterType === "projects") {
-    if (!Array.isArray(selected_values) || !Array.isArray(item.project))
-      return false;
-    // Return true if at least one eov of the item is in the selection
-    return item.project.some((project) => selectedValues.includes(project));
-  } else if (filterType === "eov") {
-    if (!Array.isArray(selected_values) || !Array.isArray(item.eov))
-      return false;
-
-    // Return true if at least one eov of the item is in the selection
-    return item.eov.some((eov) => selectedValues.includes(eov));
-  }
-  return true;
-}
-
-function manageDateFilterOptions(item, selectedDateFilterOption, value) {
-  // Split value on '%20TO%20' to get an array of date strings
-  const dateArr = value.split("%20TO%20");
-
-  if (selectedDateFilterOption.startsWith("metadata")) {
-    return compareMetadataDates(item, dateArr, selectedDateFilterOption);
-  } else if (selectedDateFilterOption.startsWith("temporal")) {
-    return compareTemporalDates(
-      item,
-      dateArr,
-      selectedDateFilterOption.split("-")[2],
-    );
-  } else {
-    console.warn(
-      "Unknown date filter option selected:",
-      selectedDateFilterOption,
-    );
-    return true; // Default to true if no valid option is selected
-  }
-}
-
-function compareTemporalDates(item, dateArr, varName) {
-  // Compare two date strings in 'YYYY-MM-DD' format
-  const startDate = dateArr[0] ? new Date(dateArr[0]) : null;
-  const endDate = dateArr[1] ? new Date(dateArr[1]) : null;
-  if (!item.temporal_extent || !item.temporal_extent[`${varName}`]) return true;
-  const itemDate = new Date(item.temporal_extent[`${varName}`]);
-  if (startDate && endDate) {
-    return itemDate >= startDate && itemDate <= endDate;
-  }
-  return true;
-}
-//
-function compareMetadataDates(item, dateArr, varName) {
-  // Compare two date strings in 'YYYY-MM-DD' format
-  const startDate = dateArr[0] ? new Date(dateArr[0]) : null;
-  const endDate = dateArr[1] ? new Date(dateArr[1]) : null;
-  if (!item[`${varName}`]) return true;
-  const itemDate = new Date(item[`${varName}`]);
-  if (startDate && endDate) {
-    let compare = itemDate >= startDate && itemDate <= endDate;
-    console.log("COMPARE ::  ", compare);
-    console.log(
-      "Start date : : ",
-      startDate,
-      " Item date :: ",
-      item[`${varName}`],
-      " End date : : ",
-      endDate,
-    );
-    return compare;
-  }
-  return true;
 }
 
 function RootLayout({ children }) {
