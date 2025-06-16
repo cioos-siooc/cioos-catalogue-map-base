@@ -14,11 +14,11 @@ import { getLocale } from "@/app/get-locale";
 import { IoFilterOutline } from "react-icons/io5";
 import SidebarButton from "./SidebarButton";
 import { SelectReactComponent } from "./SelectReact";
+import { updateURLWithBadges } from "@/components/UrlParametrization";
 
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value, t) {
   // Expects value like '2025-05-16T00:00:00Z%20TO%202025-05-17T00:00:00Z'
-  console.log("::: ", value);
   if (!value) return "";
   const match = value.match(/(\d{4}-\d{2}-\d{2})T.*TO.*(\d{4}-\d{2}-\d{2})T/);
   if (match) {
@@ -356,6 +356,7 @@ export default function FilterSection({
       if (filterType === "filter_date") {
         setSelectedOption("");
       }
+      // Update the URL with the new badges
       return updatedBadges;
     });
   };
