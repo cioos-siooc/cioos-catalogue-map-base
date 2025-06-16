@@ -10,11 +10,19 @@ import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
 import dynamic from "next/dynamic";
 import React from "react";
-import { manageURLParametersOnLoad, updateURLWithSelectedItem, initURLUpdateProcess } 
-from "@/components/UrlParametrization";
-import { filterItemsByBadges,fetchAndFilterEovsTranslated } from "@/components/FilterManagement";
-import { fillOrganizationAndProjectLists,fetchDataSetInfo } from "@/components/FetchItemsListManagement";
-
+import {
+  manageURLParametersOnLoad,
+  updateURLWithSelectedItem,
+  initURLUpdateProcess,
+} from "@/components/UrlParametrization";
+import {
+  filterItemsByBadges,
+  fetchAndFilterEovsTranslated,
+} from "@/components/FilterManagement";
+import {
+  fillOrganizationAndProjectLists,
+  fetchDataSetInfo,
+} from "@/components/FetchItemsListManagement";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -77,10 +85,15 @@ function AppContent({ lang, setLang }) {
       localStorage.setItem("preferredLanguage", lang);
     }
     if (allItems.length > 0) {
-      fillOrganizationAndProjectLists(allItems,setOrganizationList, setProjectList, setEovList, lang);
+      fillOrganizationAndProjectLists(
+        allItems,
+        setOrganizationList,
+        setProjectList,
+        setEovList,
+        lang,
+      );
     }
   }, [lang]);
-
 
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
@@ -90,7 +103,13 @@ function AppContent({ lang, setLang }) {
       .then((data) => {
         setAllItems(data);
         setTotalResultsCount(data.length);
-        fillOrganizationAndProjectLists(data,setOrganizationList,setProjectList,setEovList,lang);
+        fillOrganizationAndProjectLists(
+          data,
+          setOrganizationList,
+          setProjectList,
+          setEovList,
+          lang,
+        );
         // Filtering will be handled in badges effect
       })
       .then(() => setLoading(false))
@@ -138,14 +157,13 @@ function AppContent({ lang, setLang }) {
       Array.isArray(allItems) &&
       allItems.length > 0
     ) {
-
       const fragment = window.location.hash.replace(/^#/, "");
       manageURLParametersOnLoad(setBadges);
       if (fragment) {
         const selectedItem = allItems.find((item) => item.id === fragment);
         if (selectedItem) {
           setBounds(selectedItem.spatial);
-          fetchDataSetInfo(selectedItem.id,setDatasetInfo, catalogueUrl);
+          fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
           updateURLWithSelectedItem(selectedItem.id);
           openDrawer();
         }
@@ -157,8 +175,6 @@ function AppContent({ lang, setLang }) {
   useEffect(() => {
     initURLUpdateProcess(badges);
   }, [badges]);
-
-
 
   useEffect(() => {
     if (eovList.length > 0 && lang) {
@@ -173,7 +189,7 @@ function AppContent({ lang, setLang }) {
   const handleListItemClick = useCallback(
     (selectedItem) => {
       setBounds(selectedItem.spatial);
-      fetchDataSetInfo(selectedItem.id,setDatasetInfo, catalogueUrl);
+      fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
 
