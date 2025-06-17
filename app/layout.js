@@ -10,11 +10,19 @@ import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
 import dynamic from "next/dynamic";
 import React from "react";
-import { manageURLParametersOnLoad, updateURLWithSelectedItem, initURLUpdateProcess } 
-from "@/components/UrlParametrization";
-import { filterItemsByBadges,fetchAndFilterEovsTranslated } from "@/components/FilterManagement";
-import { fillOrganizationAndProjectLists,fetchDataSetInfo } from "@/components/FetchItemsListManagement";
-
+import {
+  manageURLParametersOnLoad,
+  updateURLWithSelectedItem,
+  initURLUpdateProcess,
+} from "@/components/UrlParametrization";
+import {
+  filterItemsByBadges,
+  fetchAndFilterEovsTranslated,
+} from "@/components/FilterManagement";
+import {
+  fillOrganizationAndProjectLists,
+  fetchDataSetInfo,
+} from "@/components/FetchItemsListManagement";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,12 +65,19 @@ function AppContent({ lang, setLang }) {
   const [allItems, setAllItems] = useState([]); // Store the full list
   const [badges, setBadges] = useState({}); // Store current filters
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  // if window is greater than 600px, set isSidebarOpen to true
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth > 600) {
+      setIsSidebarOpen(true);
+    }
+  }, []);
 
   const catalogueUrl = config.catalogue_url;
 
@@ -79,10 +94,15 @@ function AppContent({ lang, setLang }) {
       localStorage.setItem("preferredLanguage", lang);
     }
     if (allItems.length > 0) {
-      fillOrganizationAndProjectLists(allItems,setOrganizationList, setProjectList, setEovList, lang);
+      fillOrganizationAndProjectLists(
+        allItems,
+        setOrganizationList,
+        setProjectList,
+        setEovList,
+        lang,
+      );
     }
   }, [lang]);
-
 
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
@@ -92,7 +112,13 @@ function AppContent({ lang, setLang }) {
       .then((data) => {
         setAllItems(data);
         setTotalResultsCount(data.length);
-        fillOrganizationAndProjectLists(data,setOrganizationList,setProjectList,setEovList,lang);
+        fillOrganizationAndProjectLists(
+          data,
+          setOrganizationList,
+          setProjectList,
+          setEovList,
+          lang,
+        );
         // Filtering will be handled in badges effect
       })
       .then(() => setLoading(false))
@@ -140,14 +166,13 @@ function AppContent({ lang, setLang }) {
       Array.isArray(allItems) &&
       allItems.length > 0
     ) {
-
       const fragment = window.location.hash.replace(/^#/, "");
       manageURLParametersOnLoad(setBadges);
       if (fragment) {
         const selectedItem = allItems.find((item) => item.id === fragment);
         if (selectedItem) {
           setBounds(selectedItem.spatial);
-          fetchDataSetInfo(selectedItem.id,setDatasetInfo, catalogueUrl);
+          fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
           updateURLWithSelectedItem(selectedItem.id);
           openDrawer();
         }
@@ -159,8 +184,6 @@ function AppContent({ lang, setLang }) {
   useEffect(() => {
     initURLUpdateProcess(badges);
   }, [badges]);
-
- 
 
   useEffect(() => {
     if (eovList.length > 0 && lang) {
@@ -175,7 +198,7 @@ function AppContent({ lang, setLang }) {
   const handleListItemClick = useCallback(
     (selectedItem) => {
       setBounds(selectedItem.spatial);
-      fetchDataSetInfo(selectedItem.id,setDatasetInfo, catalogueUrl);
+      fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
 
@@ -216,7 +239,7 @@ useEffect(() => {
     <>
       <div className="flex h-screen relative overflow-hidden">
         <div
-          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} z-30`}
+          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full w-0"} z-30`}
         >
           <Sidebar
             filteredItems={filteredItems}
@@ -247,7 +270,7 @@ useEffect(() => {
           />
         </div>
         <main
-          className={`flex-1 relative ${isSidebarOpen ? "ml-90" : ""} transform transition-transform duration-300 ease-in-out z-20`}
+          className={`flex-1 relative transform transition-transform duration-300 ease-in-out z-20`}
         >
           <MapComponent
             bounds={bounds}
