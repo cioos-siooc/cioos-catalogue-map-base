@@ -1,6 +1,7 @@
 import SelectReact from "react-select";
 import makeAnimated from "react-select/animated";
 import { getLocale } from "@/app/get-locale";
+import colors from "tailwindcss/colors";
 
 export function SelectReactComponent({
   filter_type,
@@ -56,54 +57,37 @@ export function SelectReactComponent({
             backgroundColor:
               typeof window !== "undefined" &&
               window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "#0f172a" // Tailwind dark:bg-primary-900
-                : "#fff", // Light mode: white
+                ? colors.slate[900]
+                : colors.white,
             color:
               typeof window !== "undefined" &&
               window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "#f3f4f6" // Tailwind gray-100
-                : "#000000", // Light mode: black
+                ? colors.gray[100]
+                : colors.black,
           }),
           option: (base, state) => ({
             ...base,
             backgroundColor: state.isFocused
               ? typeof window !== "undefined" &&
                 window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "#1e293b" // Tailwind dark:bg-primary-700
-                : "#dbeafe" // Tailwind bg-primary-100
+                ? colors.slate[700]
+                : colors.blue[100]
               : typeof window !== "undefined" &&
                   window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "#0f172a" // Tailwind dark:bg-primary-900
-                : "#fff", // Light mode: white
+                ? colors.slate[900]
+                : colors.white,
             color:
               typeof window !== "undefined" &&
               window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "#f3f4f6" // Tailwind gray-100
-                : "#000000", // Light mode: black
-          }),
-          multiValue: (base) => ({
-            ...base,
-            backgroundColor:
-              typeof window !== "undefined" &&
-              window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "#0f172a" // Tailwind dark:bg-primary-900
-                : "#bfdbfe", // Tailwind bg-primary-200
-            color: "#ffffff", // Tailwind text-gray-500
-          }),
-          multiValueLabel: (base) => ({
-            ...base,
-            color:
-              typeof window !== "undefined" &&
-              window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "#ffffff" // Tailwind dark:bg-primary-900
-                : "#000000", // Tailwind bg-primary-200
+                ? colors.gray[100]
+                : colors.black,
           }),
           multiValueRemove: (base) => ({
             ...base,
-            color: "#6b7280",
+            color: colors.gray[600],
             ":hover": {
-              backgroundColor: "#1e293b", // Tailwind dark:bg-primary-700
-              color: "#9ca3af", // Tailwind dark:text-gray-400
+              backgroundColor: colors.slate[700],
+              color: colors.gray[400],
             },
           }),
         }}
