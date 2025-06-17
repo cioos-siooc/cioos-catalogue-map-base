@@ -5,9 +5,7 @@ import colors from "tailwindcss/colors";
 
 export function SelectReactComponent({
   filter_type,
-  orgList,
-  projList,
-  eovList,
+  options,
   setQuery,
   query,
   lang,
@@ -20,16 +18,7 @@ export function SelectReactComponent({
       <SelectReact
         id={`${t[filter_type]?.toLowerCase?.() || filter_type}-select`}
         isMulti
-        options={(filter_type === "organization"
-          ? orgList
-          : filter_type === "projects"
-            ? projList
-            : eovList
-        ).map((item) =>
-          filter_type === "eov"
-            ? { value: item[0], label: item[1] }
-            : { value: item, label: item },
-        )}
+        options={options}
         value={query.map((val) => ({
           value: val[0],
           label: val[1],

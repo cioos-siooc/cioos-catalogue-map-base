@@ -209,14 +209,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
   );
 }
 
-export function FilterItems({
-  filter_type,
-  lang,
-  setBadges,
-  orgList,
-  projList,
-  eovList,
-}) {
+export function FilterItems({ filter_type, lang, setBadges, options }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState([]);
   const t = getLocale(lang);
@@ -273,9 +266,7 @@ export function FilterItems({
         <ModalBody>
           <SelectReactComponent
             filter_type={filter_type}
-            orgList={orgList}
-            projList={projList}
-            eovList={eovList}
+            options={options}
             setQuery={setQuery}
             query={query}
             lang={lang}
@@ -377,25 +368,19 @@ export default function FilterSection({
             filter_type="organization"
             lang={lang}
             setBadges={setBadges}
-            orgList={orgList}
-            projList={projList}
-            eovList={eovList}
+            options={orgList.map((org) => ({ label: org, value: org }))} // Convert to array of tuples
           />
           <FilterItems
             filter_type="projects"
             lang={lang}
             setBadges={setBadges}
-            orgList={orgList}
-            projList={projList}
-            eovList={eovList}
+            options={projList.map((proj) => ({ label: proj, value: proj }))} // Convert to array of tuples
           />
           <FilterItems
             filter_type="eov"
             lang={lang}
             setBadges={setBadges}
-            orgList={orgList}
-            projList={projList}
-            eovList={eovList}
+            options={eovList.map((eov) => ({ label: eov[0], value: eov[1] }))} // Convert to array of tuples
           />
           <TimeFilter
             lang={lang}
