@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import config from "./config.js";
 import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
@@ -27,6 +27,8 @@ const geistMono = Geist_Mono({
 });
 
 const basePath = process.env.BASE_PATH || "";
+
+
 
 // Import map with dynamic import (no ssr) and memoization
 const MapComponent = dynamic(() => import("@/components/Map"), {
@@ -158,7 +160,7 @@ function AppContent({ lang, setLang }) {
     initURLUpdateProcess(badges);
   }, [badges]);
 
-
+ 
 
   useEffect(() => {
     if (eovList.length > 0 && lang) {
@@ -181,6 +183,30 @@ function AppContent({ lang, setLang }) {
     },
     [openDrawer],
   );
+
+  // Add this function to remove the hash fragment from the URL
+function removeURLFragment() {
+  console.log("Removing URL fragment");
+  if (typeof window !== "undefined" && window.location.hash) {
+    history.replaceState(
+      null,
+      document.title,
+      window.location.pathname + window.location.search
+    );
+  }
+}
+
+const prevDrawerOpen = useRef(isDrawerOpen); 
+
+useEffect(() => {
+  // Detect transition from open to closed
+  console.log("Drawer state changed:", isDrawerOpen);
+  if (prevDrawerOpen.current && !isDrawerOpen) {
+    removeURLFragment();
+    
+  }
+  prevDrawerOpen.current = isDrawerOpen;
+}, [isDrawerOpen]);
 
   const onInfoClick = useCallback(() => {
     setShowModal(true);
@@ -231,7 +257,7 @@ function AppContent({ lang, setLang }) {
           />
         </main>
         {isDrawerOpen && dataSetInfo && (
-          <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
+          <DatasetDetails dataSetInfo={dataSetInfo} lang={lang}/>
         )}
         <div className="absolute bottom-0 left-0 z-25 flex items-center w-90 bg-primary-50 dark:bg-primary-800 pt-2 justify-center rounded-tr-xl opacity-50">
           <Logo logos={config.bottom_logo} lang={lang} default_width={220} />

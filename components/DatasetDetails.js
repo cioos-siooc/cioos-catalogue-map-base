@@ -57,7 +57,7 @@ function markdownToHtml(markdown) {
     .replace(/\n$/gim, "<br>");
 }
 
-export function DatasetDetails({ dataSetInfo, lang }) {
+export function DatasetDetails({ dataSetInfo, lang}) {
   const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
 
