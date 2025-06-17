@@ -9,12 +9,12 @@ import {
   Select,
   Datepicker,
 } from "flowbite-react";
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState } from "react";
 import { getLocale } from "@/app/get-locale";
 import { IoFilterOutline } from "react-icons/io5";
 import SidebarButton from "./SidebarButton";
 import { SelectReactComponent } from "./SelectReact";
-import { updateURLWithBadges } from "@/components/UrlParametrization";
+import { IoMdCloseCircle } from "react-icons/io";
 
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value, t) {
@@ -75,29 +75,6 @@ export function SearchFilter({ lang, setBadges }) {
       </Modal>
     </>
   );
-}
-
-export function OptionItems(filter_type, orgList, projList, eovList) {
-  if (filter_type === "organization") {
-    return orgList.map((org) => (
-      <option key={org} value={org}>
-        {org}
-      </option>
-    ));
-  } else if (filter_type === "projects") {
-    return projList.map((proj) => (
-      <option key={proj} value={proj}>
-        {proj}
-      </option>
-    ));
-  } else if (filter_type === "eov") {
-    return eovList.map((eov) => (
-      <option key={eov} value={eov}>
-        {eov}
-      </option>
-    ));
-  }
-  return null;
 }
 
 function TimeFilter({ lang, setBadges, setSelectedOption }) {
@@ -250,20 +227,43 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
     }
   };
 
+  const removeBadge = (filterType) => {
+    setBadges((prevBadges) => {
+      console.log("Removing badge for filter type:", filterType);
+      const updatedBadges = { ...prevBadges };
+      delete updatedBadges[filterType];
+      // Reset selected option if the filter type is "filter_date"
+      if (filterType === "filter_date") {
+        setSelectedOption("");
+      }
+      // Update the URL with the new badges
+      return updatedBadges;
+    });
+  };
+
   return (
     <>
       <Button
         pill
         size="xs"
-        className="relative"
+        className="gap-1 hover:cursor-pointer"
         onClick={() => setOpenModal(true)}
       >
-        <div>{t[filter_type]}</div>
-        {count > 0 && (
-          <span className="w-4 h-4 ml-1 text-xs border-0 bg-accent-500 text-black rounded-full">
-            {count}
-          </span>
-        )}
+        {(count > 0 && (
+          <>
+            <span className="w-4 h-4 text-xs border-0 bg-accent-500 text-black rounded-full">
+              {count}
+            </span>
+            <div>{t[filter_type]}</div>
+            <a
+              className="text-md hover:text-accent-500"
+              onClick={() => removeBadge(filter_type)}
+              title={t.remove_filter}
+            >
+              <IoMdCloseCircle />
+            </a>
+          </>
+        )) || <div>{t[filter_type]}</div>}
       </Button>
       <Modal
         dismissible
@@ -289,52 +289,6 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
   );
 }
 
-// Convert getBadge to a React component so hooks can be used
-function Badge({ filterType, value, lang, removeBadge }) {
-  const t = getLocale(lang);
-  const badgeRef = useRef(null);
-  const [topOffset, setTopOffset] = useState(4);
-
-  useLayoutEffect(() => {
-    if (badgeRef.current) {
-      const height = badgeRef.current.offsetHeight;
-      setTopOffset(Math.max(4, Math.round(height * 0.15)));
-    }
-  }, [value]);
-  // Ensure the badge is not empty before rendering
-  if (value.length === 0) return null;
-
-  return (
-    <div
-      key={filterType}
-      value={value}
-      ref={badgeRef}
-      className="relative max-w-full w-auto flex flex-wrap items-center bg-blue-100 text-black hover:text-black text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
-    >
-      <button
-        className="absolute right-3 hover:text-white rounded-full p-1 transition duration-200"
-        style={{ top: `${topOffset}px`, lineHeight: 1 }}
-        onClick={() => removeBadge(filterType)}
-        aria-label="Remove filter"
-      >
-        &times;
-      </button>
-      <span className="pl-6 pr-6">
-        {filterType === "filter_date" ? (
-          `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value, t)}`
-        ) : Array.isArray(value) ? (
-          <>
-            {t[filterType]} : <span className="inline md:hidden block" />
-            {value.map((item) => item[1]).join(", ")}
-          </>
-        ) : (
-          `${t[filterType]} : ${value}`
-        )}
-      </span>
-    </div>
-  );
-}
-
 export default function FilterSection({
   lang,
   badges,
@@ -349,19 +303,6 @@ export default function FilterSection({
 
   const toggleAccordion = () => {
     setIsAccordionOpen(!isAccordionOpen);
-  };
-
-  const removeBadge = (filterType) => {
-    setBadges((prevBadges) => {
-      const updatedBadges = { ...prevBadges };
-      delete updatedBadges[filterType];
-      // Reset selected option if the filter type is "filter_date"
-      if (filterType === "filter_date") {
-        setSelectedOption("");
-      }
-      // Update the URL with the new badges
-      return updatedBadges;
-    });
   };
 
   return (
@@ -399,19 +340,6 @@ export default function FilterSection({
             setBadges={setBadges}
             setSelectedOption={setSelectedOption}
           />
-        </div>
-
-        {/* Render Badges */}
-        <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
-          {Object.entries(badges).map(([filterType, value]) => (
-            <Badge
-              key={filterType}
-              filterType={filterType}
-              value={value}
-              lang={lang}
-              removeBadge={removeBadge}
-            />
-          ))}
         </div>
       </div>
     </>
