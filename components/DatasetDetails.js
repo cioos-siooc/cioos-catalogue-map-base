@@ -57,7 +57,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
   }
 
   // Convert and sanitize Markdown content
-  const sanitizedHtml = DOMPurify.sanitize(
+  const describtion_html = DOMPurify.sanitize(
     marked(dataSetInfo?.notes_translated[lang]),
   );
   const citation = parseCitation(dataSetInfo?.citation[lang]);
@@ -129,7 +129,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
         <div
           className="relative flex-grow overflow-y-auto mt-4 mb-4 text-sm prose"
           id="dataset-description"
-          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          dangerouslySetInnerHTML={{ __html: describtion_html }}
         ></div>
         <Citation dataSetInfo={dataSetInfo} lang={lang} />
       </DrawerItems>
