@@ -50,7 +50,7 @@ const FitBounds = ({ bounds }) => {
 
       map.flyToBounds(polygon.getBounds(), {
         animate: true,
-        padding: [50, 50],
+        padding: [150, 250],
         maxZoom: 10,
         duration: 0.3,
       });
@@ -158,13 +158,17 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
     <MapContainer
       className="h-full w-full"
       center={config.map.center}
-      zoom={typeof window !== "undefined" && window.innerWidth < 600 ? config.map.zoom_mobile : config.map.zoom} // More zoomed out for mobile
+      zoom={
+        typeof window !== "undefined" && window.innerWidth < 600
+          ? config.map.zoom_mobile
+          : config.map.zoom
+      } // More zoomed out for mobile
       zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
       key={filteredItems.length}
     >
-      <ZoomControl position="topright"/>
+      <ZoomControl position="topright" />
       <LayersControl position="bottomright">
         <BaseLayers basemaps={config.basemaps} lang={lang} />
         {bounds && <FitBounds bounds={bounds} />}
