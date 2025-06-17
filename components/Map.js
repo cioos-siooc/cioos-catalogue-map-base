@@ -50,7 +50,7 @@ const FitBounds = ({ bounds }) => {
 
       map.flyToBounds(polygon.getBounds(), {
         animate: true,
-        padding: [50, 50],
+        padding: [150, 250],
         maxZoom: 10,
         duration: 0.3,
       });
@@ -69,13 +69,15 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
     point = turf.pointOnFeature(record.spatial);
   }
 
-  const handleMarkerClick = () => {
+  const handleMarkerClick = (e) => {
     console.log("Marker clicked:", record.id);
+    removeLayer(e);
     handleListItemClick(record);
     openDrawer();
   };
 
   const handleMouseOver = (e) => {
+    removeLayer(e);
     const map = e.target._map;
     const polygon = L.geoJSON(record.spatial, {
       style: {
@@ -92,12 +94,16 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
 
   const handleMouseOut = (e) => {
     // Remove the polygon layer when the mouse leaves the marker
+    removeLayer(e);
+  };
+  // Function to remove the polygon layer when the marker is removed
+  function removeLayer(e) {
     const map = e.target._map;
     if (e.target._hoverPolygon) {
       map.removeLayer(e.target._hoverPolygon);
       e.target._hoverPolygon = null;
     }
-  };
+  }
 
   return (
     <Marker
@@ -152,11 +158,16 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
     <MapContainer
       className="h-full w-full"
       center={config.map.center}
-      zoom={config.map.zoom}
+      zoom={
+        typeof window !== "undefined" && window.innerWidth < 600
+          ? config.map.zoom_mobile
+          : config.map.zoom
+      } // More zoomed out for mobile
       zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
       key={filteredItems.length}
+      attributionControl={false}
     >
       <ZoomControl position="topright" />
       <LayersControl position="bottomright">
