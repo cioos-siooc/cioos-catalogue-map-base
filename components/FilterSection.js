@@ -212,6 +212,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
 export function FilterItems({ filter_type, lang, setBadges, options }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState([]);
+  const [count, setCount] = useState(0);
   const t = getLocale(lang);
 
   function onCloseModal() {
@@ -221,6 +222,7 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
       setOpenModal(false);
       return;
     }
+    setCount(query.length);
     setBadges((prevBadges) => ({
       ...prevBadges,
       [filter_type]: query,
@@ -250,8 +252,18 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
 
   return (
     <>
-      <Button pill size="xs" onClick={() => setOpenModal(true)}>
-        {t[filter_type]}
+      <Button
+        pill
+        size="xs"
+        className="relative"
+        onClick={() => setOpenModal(true)}
+      >
+        <div>{t[filter_type]}</div>
+        {count > 0 && (
+          <span className="w-4 h-4 ml-1 text-xs border-0 bg-accent-500 text-black rounded-full">
+            {count}
+          </span>
+        )}
       </Button>
       <Modal
         dismissible
