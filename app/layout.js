@@ -63,12 +63,19 @@ function AppContent({ lang, setLang }) {
   const [allItems, setAllItems] = useState([]); // Store the full list
   const [badges, setBadges] = useState({}); // Store current filters
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  // if window is greater than 600px, set isSidebarOpen to true
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth > 600) {
+      setIsSidebarOpen(true);
+    }
+  }, []);
 
   const catalogueUrl = config.catalogue_url;
 
