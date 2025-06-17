@@ -167,6 +167,7 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
       key={filteredItems.length}
+      attributionControl={false}
     >
       <ZoomControl position="topright" />
       <LayersControl position="bottomright">

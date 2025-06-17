@@ -28,12 +28,6 @@
   }
 }
 
-@media (max-width: 375px) {
-  .leaflet-bottom.leaflet-right .leaflet-control-layers {
-    margin-bottom: 85px !important;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
