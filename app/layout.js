@@ -179,20 +179,26 @@ function AppContent({ lang, setLang }) {
       }
     }
   }, [allItems]);
+    
+  // Import the useDrawer hook to get drawer state and methods
+  const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();
 
   // This effect updates the URL only when badges change
   useEffect(() => {
     initURLUpdateProcess(badges);
-  }, [badges]);
+
+      // Close the drawer each time badges change
+    /*if (isDrawerOpen) {
+      closeDrawer();
+    }*/
+
+  }, [badges,isDrawerOpen, closeDrawer]);
 
   useEffect(() => {
     if (eovList.length > 0 && lang) {
       fetchAndFilterEovsTranslated(lang, eovList, setTranslatedEovList);
     }
   }, [lang, eovList, fetchAndFilterEovsTranslated]);
-
-  // Import the useDrawer hook to get drawer state and methods
-  const { isDrawerOpen, openDrawer } = useDrawer();
 
   // Memoize callbacks to prevent re-renders
   const handleListItemClick = useCallback(
@@ -219,7 +225,8 @@ function removeURLFragment() {
   }
 }
 
-const prevDrawerOpen = useRef(isDrawerOpen); 
+const prevDrawerOpen = useRef(isDrawerOpen);
+const mapRef = useRef(); 
 
 useEffect(() => {
   // Detect transition from open to closed
@@ -228,6 +235,13 @@ useEffect(() => {
     removeURLFragment();
     
   }
+    // Drawer just closed
+
+  if (mapRef.current && typeof mapRef.current.clearMapLayers === "function") {
+    console.log("MAP REF ::: ", mapRef.current);
+    mapRef.current.clearMapLayers();
+  }
+  setBounds(null); // Reset bounds when drawer closes
   prevDrawerOpen.current = isDrawerOpen;
 }, [isDrawerOpen]);
 
@@ -277,6 +291,7 @@ useEffect(() => {
             filteredItems={filteredItems}
             handleListItemClick={handleListItemClick}
             lang={lang}
+            ref={mapRef}
           />
         </main>
         {isDrawerOpen && dataSetInfo && (

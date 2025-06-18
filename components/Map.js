@@ -14,7 +14,7 @@ import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import * as turf from "@turf/turf";
 import { DrawerContext } from "../app/context/DrawerContext";
-import { useContext, useState, useEffect, useRef, memo } from "react";
+import { useContext, useState, useEffect, forwardRef, useRef, memo, useImperativeHandle } from "react";
 import L from "leaflet";
 import config from "@/app/config";
 import { getLocale } from "@/app/get-locale";
@@ -30,6 +30,7 @@ const getPrimaryColor = () => {
 };
 
 const clearMapLayers = (map) => {
+  console.log("Clearing map layers", map);
   map.eachLayer((layer) => {
     if (layer instanceof L.Polygon || layer instanceof L.Marker) {
       map.removeLayer(layer);
@@ -42,6 +43,7 @@ const FitBounds = ({ bounds }) => {
   const map = useMap();
 
   useEffect(() => {
+    console.log("Fitting map to bounds:", bounds);
     if (bounds) {
       clearMapLayers(map);
       const polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(
@@ -150,9 +152,22 @@ const BaseLayers = ({ basemaps, lang }) => (
 );
 
 // Main Map component
-function Map({ bounds, filteredItems, handleListItemClick, lang }) {
+const Map = forwardRef(function Map({ bounds, filteredItems, handleListItemClick, lang },ref) {
   const { openDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
+
+  const mapRef = useRef();
+
+    // Expose clearMapLayers to parent via ref
+  useImperativeHandle(ref, () => ({
+    
+    clearMapLayers: () => {
+      if (mapRef.current) {
+        console.log("Map ref is set");
+        clearMapLayers(mapRef.current);
+      }
+    },
+  }));
 
   return (
     <MapContainer
@@ -168,6 +183,7 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
       boundsOptions={{ padding: [1, 1] }}
       key={filteredItems.length}
       attributionControl={false}
+      ref={mapRef}
     >
       <ZoomControl position="topright" />
       <LayersControl position="bottomright">
@@ -188,7 +204,8 @@ function Map({ bounds, filteredItems, handleListItemClick, lang }) {
         </Overlay>
       </LayersControl>
     </MapContainer>
-  );
+);
 }
+);
 
 export default Map;
