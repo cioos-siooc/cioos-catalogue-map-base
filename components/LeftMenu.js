@@ -138,15 +138,13 @@ export function Sidebar({
           </div>
         }
       />
-      <ul className="flex-grow overflow-y-auto p-2 space-y-2 rounded-md">
-        <ItemsList
-          itemsList={filteredItems}
-          onItemClick={onLeftMenuItemClick}
-          onItemDoubleClick={onLeftMenuItemDoubleClick}
-          lang={lang}
-          loading={loading}
-        />
-      </ul>
+      <ItemsList
+        itemsList={filteredItems}
+        onItemClick={onLeftMenuItemClick}
+        onItemDoubleClick={onLeftMenuItemDoubleClick}
+        lang={lang}
+        loading={loading}
+      />
       <div className="flex items-center justify-center mt-2">
         <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
       </div>
