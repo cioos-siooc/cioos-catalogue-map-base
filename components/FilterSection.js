@@ -9,12 +9,13 @@ import {
   Select,
   Datepicker,
 } from "flowbite-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getLocale } from "@/app/get-locale";
 import { IoFilterOutline } from "react-icons/io5";
 import SidebarButton from "./SidebarButton";
 import { SelectReactComponent } from "./SelectReact";
 import { IoMdCloseCircle } from "react-icons/io";
+import { updateURLWithBadges } from "@/components/UrlParametrization";
 
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value, t) {
@@ -199,58 +200,46 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
 export function FilterItems({ filter_type, lang, setBadges, options }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState([]);
-  const [count, setCount] = useState(0);
   const t = getLocale(lang);
+
+  // Keep count in sync with query length
+  const count = query.length;
 
   function onCloseModal() {
     if (query.length === 0) {
-      // If no query is selected, close the modal without adding a badge
-      console.log("No query entered, closing modal", query);
       setOpenModal(false);
+      setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: [] }));
       return;
     }
-    setCount(query.length);
-    setBadges((prevBadges) => ({
-      ...prevBadges,
-      [filter_type]: query,
-    }));
+    setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: query }));
     setOpenModal(false);
   }
+
   const handleKeyDown = (e) => {
     if (e.key === "Escape") {
       setOpenModal(false);
     }
-
     if (e.key === "Enter") {
       if (query.length === 0) {
-        console.log("No query entered");
+        setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: [] }));
         return;
       }
-      console.log("Enter pressed! Searching for:", query);
-      // Close modal and add badge
-      setBadges((prevBadges) => ({
-        ...prevBadges,
-        [filter_type]: query,
-      }));
-
+      setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: query }));
       setOpenModal(false);
     }
   };
 
-  const removeBadge = (filterType, setQuery) => {
+  // Remove badge and clear query/count
+  const removeBadge = (filterType) => {
     setBadges((prevBadges) => {
-      console.log("Removing badge for filter type:", filterType);
       const updatedBadges = { ...prevBadges };
       delete updatedBadges[filterType];
-      setQuery([]);
-      setCount(0);
-      // Reset selected option if the filter type is "filter_date"
-      if (filterType === "filter_date") {
-        setSelectedOption("");
-      }
-      // Update the URL with the new badges
       return updatedBadges;
     });
+    setQuery([]);
+    if (filterType === "filter_date") {
+      setSelectedOption && setSelectedOption("");
+    }
   };
 
   return (
@@ -261,7 +250,7 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
         className="gap-1 bg-primary-500 hover:cursor-pointer"
         onClick={() => setOpenModal(true)}
       >
-        {(count > 0 && (
+        {count > 0 && (
           <>
             <span className="w-4 h-4 text-xs border-0 bg-accent-500 text-black rounded-full">
               {count}
@@ -273,14 +262,15 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
               className="text-md hover:text-accent-500 bg-transparent border-0 p-0 m-0 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
-                removeBadge(filter_type, setQuery);
+                removeBadge(filter_type);
               }}
               aria-label={t.remove_filter}
             >
               <IoMdCloseCircle />
             </span>
           </>
-        )) || <div>{t[filter_type]}</div>}
+        )}
+        {count === 0 && <div>{t[filter_type]}</div>}
       </Button>
       <Modal
         dismissible
@@ -299,6 +289,7 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
             setQuery={setQuery}
             query={query}
             lang={lang}
+            handleKeyDown={handleKeyDown}
           />
         </ModalBody>
       </Modal>
@@ -321,6 +312,10 @@ export default function FilterSection({
   const toggleAccordion = () => {
     setIsAccordionOpen(!isAccordionOpen);
   };
+
+  useEffect(() => {
+    updateURLWithBadges(badges);
+  }, [badges]);
 
   return (
     <>
