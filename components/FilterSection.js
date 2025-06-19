@@ -54,12 +54,15 @@ export function SearchFilter({ lang, setBadges }) {
   return (
     <>
       <Button
-        className="bg-primary-500 hover:cursor-pointer"
+        className="bg-primary-500 hover:cursor-pointer px-3"
         pill
         size="xs"
         onClick={() => setOpenModal(true)}
       >
         {t.search}
+        {query && query.trim() !== "" && (
+          <span className="h-4 text-xs">: {query}</span>
+        )}
       </Button>
       <Modal
         dismissible
@@ -76,7 +79,7 @@ export function SearchFilter({ lang, setBadges }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="rounded-lg border-0 text-lg  peer-focus:text-black peer-focus:dark:text-white text-black dark:text-white"
+          className="rounded-lg border-0 text-lg text-black dark:text-white focus:text-black focus:dark:text-white"
         />
       </Modal>
     </>
