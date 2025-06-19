@@ -91,6 +91,16 @@ basemaps:
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
     attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
 
+
+# Pages Configuration
+# ==========================
+# This section defines the pages that will be available in the application.
+# Each page can have a label, an icon, and content in different languages.
+# Content can be provided as a markdown file or directly as text.
+#  - markdown_content: The path to a markdown file that contains the content
+#     for the page. Path should be relative to the public directory.
+#  - content: Direct text content for the page, which can also be localized.
+
 pages:
   - label:
       en: "About"
