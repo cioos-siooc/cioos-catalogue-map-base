@@ -1,6 +1,6 @@
 "use client";
 
-import { Modal, ModalBody, ModalFooter } from "flowbite-react";
+import { Modal, ModalBody, ModalHeader } from "flowbite-react";
 import { useState } from "react";
 import { MdInfoOutline } from "react-icons/md";
 import SidebarButton from "@/components/SidebarButton";
@@ -34,6 +34,7 @@ export default function ModalAPropos({ lang }) {
               show={openKey === idx}
               onClose={() => setOpenKey(null)}
             >
+              <ModalHeader>{page.label[lang]}</ModalHeader>
               <ModalBody>{page.content[lang]}</ModalBody>
             </Modal>
           </div>
