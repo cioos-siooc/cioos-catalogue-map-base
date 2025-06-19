@@ -3,6 +3,7 @@ const yaml = require("js-yaml");
 const fs = require("fs");
 const chroma = require("chroma-js");
 const path = require("path");
+const { execSync } = require("child_process");
 
 // Load configuration from YAML
 const config = yaml.load(fs.readFileSync("./config.yaml", "utf8"));
@@ -41,6 +42,14 @@ generateTheme();
 // Determine base path from GitHub repository (if any)
 const githubRepository = process.env.GITHUB_REPOSITORY;
 const basePath = githubRepository ? `/${githubRepository.split("/")[1]}` : "";
+
+// Run markdown page existence check before build
+try {
+  execSync("node ./scripts/checkMarkdownPages.js", { stdio: "inherit" });
+} catch (e) {
+  console.error("Build failed: missing markdown_content files.");
+  process.exit(1);
+}
 
 // Export Next.js configuration
 module.exports = withFlowbiteReact({
