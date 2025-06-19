@@ -9,16 +9,17 @@ import {
   Select,
   Datepicker,
 } from "flowbite-react";
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 import { getLocale } from "@/app/get-locale";
 import { IoFilterOutline } from "react-icons/io5";
 import SidebarButton from "./SidebarButton";
 import { SelectReactComponent } from "./SelectReact";
+import { FiDelete } from "react-icons/fi";
+import { updateURLWithBadges } from "@/components/UrlParametrization";
 
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value, t) {
   // Expects value like '2025-05-16T00:00:00Z%20TO%202025-05-17T00:00:00Z'
-  console.log("::: ", value);
   if (!value) return "";
   const match = value.match(/(\d{4}-\d{2}-\d{2})T.*TO.*(\d{4}-\d{2}-\d{2})T/);
   if (match) {
@@ -52,8 +53,16 @@ export function SearchFilter({ lang, setBadges }) {
 
   return (
     <>
-      <Button pill size="xs" onClick={() => setOpenModal(true)}>
+      <Button
+        className="bg-primary-500 hover:cursor-pointer px-3"
+        pill
+        size="xs"
+        onClick={() => setOpenModal(true)}
+      >
         {t.search}
+        {query && query.trim() !== "" && (
+          <span className="h-4 text-xs">: {query}</span>
+        )}
       </Button>
       <Modal
         dismissible
@@ -70,34 +79,11 @@ export function SearchFilter({ lang, setBadges }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="rounded-lg border-0 text-lg  peer-focus:text-black peer-focus:dark:text-white text-black dark:text-white"
+          className="rounded-lg border-0 text-lg text-black dark:text-white focus:text-black focus:dark:text-white"
         />
       </Modal>
     </>
   );
-}
-
-export function OptionItems(filter_type, orgList, projList, eovList) {
-  if (filter_type === "organization") {
-    return orgList.map((org) => (
-      <option key={org} value={org}>
-        {org}
-      </option>
-    ));
-  } else if (filter_type === "projects") {
-    return projList.map((proj) => (
-      <option key={proj} value={proj}>
-        {proj}
-      </option>
-    ));
-  } else if (filter_type === "eov") {
-    return eovList.map((eov) => (
-      <option key={eov} value={eov}>
-        {eov}
-      </option>
-    ));
-  }
-  return null;
 }
 
 function TimeFilter({ lang, setBadges, setSelectedOption }) {
@@ -133,7 +119,12 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
 
   return (
     <>
-      <Button pill size="xs" onClick={() => setOpenModal(true)}>
+      <Button
+        className="bg-primary-500 hover:cursor-pointer"
+        pill
+        size="xs"
+        onClick={() => setOpenModal(true)}
+      >
         {t.time}
       </Button>
       <Modal
@@ -209,56 +200,83 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
   );
 }
 
-export function FilterItems({
-  filter_type,
-  lang,
-  setBadges,
-  orgList,
-  projList,
-  eovList,
-}) {
+export function FilterItems({ filter_type, lang, setBadges, options }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState([]);
   const t = getLocale(lang);
 
+  // Keep count in sync with query length
+  const count = query.length;
+
   function onCloseModal() {
     if (query.length === 0) {
-      // If no query is selected, close the modal without adding a badge
-      console.log("No query entered, closing modal", query);
       setOpenModal(false);
+      setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: [] }));
       return;
     }
-    setBadges((prevBadges) => ({
-      ...prevBadges,
-      [filter_type]: query,
-    }));
+    setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: query }));
     setOpenModal(false);
   }
+
   const handleKeyDown = (e) => {
     if (e.key === "Escape") {
       setOpenModal(false);
     }
-
     if (e.key === "Enter") {
       if (query.length === 0) {
-        console.log("No query entered");
+        setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: [] }));
         return;
       }
-      console.log("Enter pressed! Searching for:", query);
-      // Close modal and add badge
-      setBadges((prevBadges) => ({
-        ...prevBadges,
-        [filter_type]: query,
-      }));
-
+      setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: query }));
       setOpenModal(false);
+    }
+  };
+
+  // Remove badge and clear query/count
+  const removeBadge = (filterType) => {
+    setBadges((prevBadges) => {
+      const updatedBadges = { ...prevBadges };
+      delete updatedBadges[filterType];
+      return updatedBadges;
+    });
+    setQuery([]);
+    if (filterType === "filter_date") {
+      setSelectedOption && setSelectedOption("");
     }
   };
 
   return (
     <>
-      <Button pill size="xs" onClick={() => setOpenModal(true)}>
-        {t[filter_type]}
+      <Button
+        pill
+        size="xs"
+        className="gap-1 bg-primary-500 hover:cursor-pointer"
+        onClick={() => setOpenModal(true)}
+      >
+        {count > 0 && (
+          <>
+            <span className="w-4 h-4 text-xs border-0 bg-accent-500 text-black rounded-full">
+              {count}
+            </span>
+            <div>{t[filter_type]}</div>
+            <span
+              role="button"
+              tabIndex={0}
+              className="pl-1 text-lg hover:text-accent-500 bg-transparent border-0 p-0 m-0 cursor-pointer relative group"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeBadge(filter_type);
+              }}
+              aria-label={t.remove_filter}
+            >
+              <FiDelete />
+              <span className="absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
+                {t.remove_filter}
+              </span>
+            </span>
+          </>
+        )}
+        {count === 0 && <div>{t[filter_type]}</div>}
       </Button>
       <Modal
         dismissible
@@ -273,62 +291,15 @@ export function FilterItems({
         <ModalBody>
           <SelectReactComponent
             filter_type={filter_type}
-            orgList={orgList}
-            projList={projList}
-            eovList={eovList}
+            options={options}
             setQuery={setQuery}
             query={query}
             lang={lang}
+            handleKeyDown={handleKeyDown}
           />
         </ModalBody>
       </Modal>
     </>
-  );
-}
-
-// Convert getBadge to a React component so hooks can be used
-function Badge({ filterType, value, lang, removeBadge }) {
-  const t = getLocale(lang);
-  const badgeRef = useRef(null);
-  const [topOffset, setTopOffset] = useState(4);
-
-  useLayoutEffect(() => {
-    if (badgeRef.current) {
-      const height = badgeRef.current.offsetHeight;
-      setTopOffset(Math.max(4, Math.round(height * 0.15)));
-    }
-  }, [value]);
-  // Ensure the badge is not empty before rendering
-  if (value.length === 0) return null;
-
-  return (
-    <div
-      key={filterType}
-      value={value}
-      ref={badgeRef}
-      className="relative max-w-full w-auto flex flex-wrap items-center bg-blue-100 text-black hover:text-black text-sm font-medium px-3 py-1 rounded-full shadow-md hover:bg-blue-200 transition duration-200"
-    >
-      <button
-        className="absolute right-3 hover:text-white rounded-full p-1 transition duration-200"
-        style={{ top: `${topOffset}px`, lineHeight: 1 }}
-        onClick={() => removeBadge(filterType)}
-        aria-label="Remove filter"
-      >
-        &times;
-      </button>
-      <span className="pl-6 pr-6">
-        {filterType === "filter_date" ? (
-          `${t[filterType].toLowerCase()}: ${formatDateRangeWithoutTime(value, t)}`
-        ) : Array.isArray(value) ? (
-          <>
-            {t[filterType]} : <span className="inline md:hidden block" />
-            {value.map((item) => item[1]).join(", ")}
-          </>
-        ) : (
-          `${t[filterType]} : ${value}`
-        )}
-      </span>
-    </div>
   );
 }
 
@@ -348,17 +319,9 @@ export default function FilterSection({
     setIsAccordionOpen(!isAccordionOpen);
   };
 
-  const removeBadge = (filterType) => {
-    setBadges((prevBadges) => {
-      const updatedBadges = { ...prevBadges };
-      delete updatedBadges[filterType];
-      // Reset selected option if the filter type is "filter_date"
-      if (filterType === "filter_date") {
-        setSelectedOption("");
-      }
-      return updatedBadges;
-    });
-  };
+  useEffect(() => {
+    updateURLWithBadges(badges);
+  }, [badges]);
 
   return (
     <>
@@ -376,44 +339,25 @@ export default function FilterSection({
             filter_type="organization"
             lang={lang}
             setBadges={setBadges}
-            orgList={orgList}
-            projList={projList}
-            eovList={eovList}
+            options={orgList.map((org) => ({ label: org, value: org }))} // Convert to array of tuples
           />
           <FilterItems
             filter_type="projects"
             lang={lang}
             setBadges={setBadges}
-            orgList={orgList}
-            projList={projList}
-            eovList={eovList}
+            options={projList.map((proj) => ({ label: proj, value: proj }))} // Convert to array of tuples
           />
           <FilterItems
             filter_type="eov"
             lang={lang}
             setBadges={setBadges}
-            orgList={orgList}
-            projList={projList}
-            eovList={eovList}
+            options={eovList.map((eov) => ({ label: eov[0], value: eov[1] }))} // Convert to array of tuples
           />
           <TimeFilter
             lang={lang}
             setBadges={setBadges}
             setSelectedOption={setSelectedOption}
           />
-        </div>
-
-        {/* Render Badges */}
-        <div className="m-1 pb-2 flex flex-wrap gap-1 justify-center">
-          {Object.entries(badges).map(([filterType, value]) => (
-            <Badge
-              key={filterType}
-              filterType={filterType}
-              value={value}
-              lang={lang}
-              removeBadge={removeBadge}
-            />
-          ))}
         </div>
       </div>
     </>

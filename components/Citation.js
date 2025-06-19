@@ -32,7 +32,12 @@ export function Citation({ dataSetInfo, lang }) {
       // Create a new Cite instance with your bibliographic data
       if (dataSetInfo && dataSetInfo.citation) {
         const parsed_citation = parseCitation(dataSetInfo.citation[lang]);
-        setCitationURL(parsed_citation.URL);
+        if (!parsed_citation) {
+          console.error("Failed to parse citation data");
+          setCitationHtml(null);
+          return;
+        }
+        setCitationURL(parsed_citation?.URL);
         const cite = new Cite(parsed_citation);
         // Format as a bibliography entry in APA style and output in HTML
         const formatted = cite.format("bibliography", {
@@ -83,9 +88,7 @@ export function Citation({ dataSetInfo, lang }) {
             {t.citation} <GoLinkExternal />
           </div>
         </a>
-      ) : (
-        <p>Loading citation...</p>
-      )}
+      ) : null}
     </>
   );
 }

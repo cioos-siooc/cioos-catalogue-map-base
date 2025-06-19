@@ -3,8 +3,9 @@ catalogue_url: https://catalogue.ogsl.ca
 base_query: ""
 
 map:
-  center: [66.485, -62.48]
+  center: [50, -70]
   zoom: 5
+  zoom_mobile: 6
 
 default_language: en
 title:

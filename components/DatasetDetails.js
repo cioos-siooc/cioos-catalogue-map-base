@@ -10,6 +10,7 @@ import config from "@/app/config.js";
 import DOMPurify from "dompurify";
 import { IoMdClose } from "react-icons/io";
 import { GoLinkExternal } from "react-icons/go";
+import { marked } from "marked";
 
 /**
  * Converts Markdown to HTML (basic implementation).
@@ -44,19 +45,6 @@ function Item({ label, value, href, className = "" }) {
   );
 }
 
-function markdownToHtml(markdown) {
-  if (!markdown) return "";
-  return markdown
-    .replace(/^### (.*$)/gim, "<h3>$1</h3>")
-    .replace(/^## (.*$)/gim, "<h2>$1</h2>")
-    .replace(/^# (.*$)/gim, "<h1>$1</h1>")
-    .replace(/^\> (.*$)/gim, "<blockquote>$1</blockquote>")
-    .replace(/\*\*(.*)\*\*/gim, "<b>$1</b>")
-    .replace(/\*(.*)\*/gim, "<i>$1</i>")
-    .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
-    .replace(/\n$/gim, "<br>");
-}
-
 export function DatasetDetails({ dataSetInfo, lang }) {
   const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
@@ -69,8 +57,8 @@ export function DatasetDetails({ dataSetInfo, lang }) {
   }
 
   // Convert and sanitize Markdown content
-  const sanitizedHtml = DOMPurify.sanitize(
-    markdownToHtml(dataSetInfo?.notes_translated[lang]),
+  const describtion_html = DOMPurify.sanitize(
+    marked(dataSetInfo?.notes_translated[lang]),
   );
   const citation = parseCitation(dataSetInfo?.citation[lang]);
 
@@ -141,7 +129,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
         <div
           className="relative flex-grow overflow-y-auto mt-4 mb-4 text-sm prose"
           id="dataset-description"
-          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+          dangerouslySetInnerHTML={{ __html: describtion_html }}
         ></div>
         <Citation dataSetInfo={dataSetInfo} lang={lang} />
       </DrawerItems>
