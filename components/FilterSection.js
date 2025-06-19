@@ -52,7 +52,12 @@ export function SearchFilter({ lang, setBadges }) {
 
   return (
     <>
-      <Button pill size="xs" onClick={() => setOpenModal(true)}>
+      <Button
+        className="bg-primary-500 hover:cursor-pointer"
+        pill
+        size="xs"
+        onClick={() => setOpenModal(true)}
+      >
         {t.search}
       </Button>
       <Modal
@@ -110,7 +115,12 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
 
   return (
     <>
-      <Button pill size="xs" onClick={() => setOpenModal(true)}>
+      <Button
+        className="bg-primary-500 hover:cursor-pointer"
+        pill
+        size="xs"
+        onClick={() => setOpenModal(true)}
+      >
         {t.time}
       </Button>
       <Modal
@@ -246,7 +256,7 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
       <Button
         pill
         size="xs"
-        className="gap-1 hover:cursor-pointer"
+        className="gap-1 bg-primary-500 hover:cursor-pointer"
         onClick={() => setOpenModal(true)}
       >
         {(count > 0 && (
