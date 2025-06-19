@@ -14,7 +14,7 @@ import { getLocale } from "@/app/get-locale";
 import { IoFilterOutline } from "react-icons/io5";
 import SidebarButton from "./SidebarButton";
 import { SelectReactComponent } from "./SelectReact";
-import { IoMdCloseCircle } from "react-icons/io";
+import { FiDelete } from "react-icons/fi";
 import { updateURLWithBadges } from "@/components/UrlParametrization";
 
 // Helper function to format a date range string by removing the time
@@ -259,14 +259,14 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
             <span
               role="button"
               tabIndex={0}
-              className="text-md hover:text-accent-500 bg-transparent border-0 p-0 m-0 cursor-pointer"
+              className="pl-1 text-lg hover:text-accent-500 bg-transparent border-0 p-0 m-0 cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 removeBadge(filter_type);
               }}
               aria-label={t.remove_filter}
             >
-              <IoMdCloseCircle />
+              <FiDelete />
             </span>
           </>
         )}
