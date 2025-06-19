@@ -259,7 +259,7 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
             <span
               role="button"
               tabIndex={0}
-              className="pl-1 text-lg hover:text-accent-500 bg-transparent border-0 p-0 m-0 cursor-pointer"
+              className="pl-1 text-lg hover:text-accent-500 bg-transparent border-0 p-0 m-0 cursor-pointer relative group"
               onClick={(e) => {
                 e.stopPropagation();
                 removeBadge(filter_type);
@@ -267,6 +267,9 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
               aria-label={t.remove_filter}
             >
               <FiDelete />
+              <span className="absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
+                {t.remove_filter}
+              </span>
             </span>
           </>
         )}
