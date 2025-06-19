@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import ItemsList from "@/components/ItemsList";
-import ModalAPropos from "@/components/ModalAPropos";
+import ModalAPropos from "@/app/ModalAPropos";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";

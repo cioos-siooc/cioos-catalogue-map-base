@@ -3,8 +3,10 @@
 import { Modal, ModalBody, ModalFooter } from "flowbite-react";
 import { useState } from "react";
 import { MdInfoOutline } from "react-icons/md";
-import SidebarButton from "./SidebarButton";
-import config from "@/app/config.js";
+import SidebarButton from "@/components/SidebarButton";
+import config from "./config.js";
+
+console.log("Loaded config:", config);
 
 export default function ModalAPropos({ lang }) {
   // Track which modal is open by index (null = none open)
@@ -13,15 +15,18 @@ export default function ModalAPropos({ lang }) {
   // Defensive: ensure config.pages is an array
   const pages = Array.isArray(config.pages) ? config.pages : [];
 
+  if (!pages.length) {
+    return <div className="text-red-500">No info pages found in config.</div>;
+  }
+
   return (
     <>
       {pages.map((page, idx) => {
-        // Defensive: check label/content exist and are objects
         return (
           <div key={idx}>
             <SidebarButton
               logo={<MdInfoOutline />}
-              label={pages.label[lang]}
+              label={page.label[lang]}
               onClick={() => setOpenKey(idx)}
             />
             <Modal
@@ -29,7 +34,7 @@ export default function ModalAPropos({ lang }) {
               show={openKey === idx}
               onClose={() => setOpenKey(null)}
             >
-              <ModalBody>{pages.content[lang]}</ModalBody>
+              <ModalBody>{page.content[lang]}</ModalBody>
             </Modal>
           </div>
         );

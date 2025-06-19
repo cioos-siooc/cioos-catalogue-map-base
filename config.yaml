@@ -90,3 +90,12 @@ basemaps:
     key: "satellite"
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
     attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+
+pages:
+  - label:
+      en: "About"
+      fr: "À propos"
+    icon: "info"
+    content:
+      en: "This is a web application that allows users to visualize and explore the catalogue of SLGO."
+      fr: "Ceci est une application Web qui permet aux utilisateurs de visualiser et d'explorer le catalogue de l'OGSL."
