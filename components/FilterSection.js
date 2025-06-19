@@ -237,11 +237,13 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
     }
   };
 
-  const removeBadge = (filterType) => {
+  const removeBadge = (filterType, setQuery) => {
     setBadges((prevBadges) => {
       console.log("Removing badge for filter type:", filterType);
       const updatedBadges = { ...prevBadges };
       delete updatedBadges[filterType];
+      setQuery([]);
+      setCount(0);
       // Reset selected option if the filter type is "filter_date"
       if (filterType === "filter_date") {
         setSelectedOption("");
@@ -265,13 +267,18 @@ export function FilterItems({ filter_type, lang, setBadges, options }) {
               {count}
             </span>
             <div>{t[filter_type]}</div>
-            <a
-              className="text-md hover:text-accent-500"
-              onClick={() => removeBadge(filter_type)}
-              title={t.remove_filter}
+            <span
+              role="button"
+              tabIndex={0}
+              className="text-md hover:text-accent-500 bg-transparent border-0 p-0 m-0 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeBadge(filter_type, setQuery);
+              }}
+              aria-label={t.remove_filter}
             >
               <IoMdCloseCircle />
-            </a>
+            </span>
           </>
         )) || <div>{t[filter_type]}</div>}
       </Button>
