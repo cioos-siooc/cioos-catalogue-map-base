@@ -24,6 +24,18 @@ export function fetchDataSetInfo(id,setDatasetInfo, catalogueUrl) {
           console.error("Error loading dataset info:", error);
         });
     }
+
+  // Use callback for fetching data
+  export function fetchDataSetSpatial(idDocument) {
+    fetch(basePath + "/packages.json")
+      .then((res) => res.json())
+      .then((data) => {
+
+
+      })
+      .then(() => setLoading(false))
+      .catch((error) => console.error("Error loading packages:", error));
+  }
   
   
   // Function to process projects and add them to the project list

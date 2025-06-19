@@ -171,28 +171,39 @@ function AppContent({ lang, setLang }) {
       if (fragment) {
         const selectedItem = allItems.find((item) => item.id === fragment);
         if (selectedItem) {
-          setBounds(selectedItem.spatial);
+          console.log("Selected item from URL: : BOUNDS :: ", selectedItem.spatial);
+          
           fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
           updateURLWithSelectedItem(selectedItem.id);
           openDrawer();
+          setBounds(selectedItem.spatial);
         }
       }
     }
-  }, [allItems]);
+  }, [allItems, bounds]);
     
   // Import the useDrawer hook to get drawer state and methods
   const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();
-
+  const prevBadgesLength = useRef(badges ? Object.keys(badges).length : 0);
   // This effect updates the URL only when badges change
   useEffect(() => {
     initURLUpdateProcess(badges);
-
+    console.log('Badges previous length:', prevBadgesLength.current);
+    const currentLength = badges ? Object.keys(badges).length : 0;
+    console.log('Badges current length:', currentLength);
+    console.log('IS DRAWER OPEN :', isDrawerOpen);
+    if (currentLength < prevBadgesLength.current) {
+      // Badges list decreased in size, run your logic here
+      console.log('Badges decreased:', badges);
       // Close the drawer each time badges change
-    /*if (isDrawerOpen) {
-      closeDrawer();
-    }*/
+      if (isDrawerOpen) {
+        closeDrawer();
+      }
+    }
+    prevBadgesLength.current = currentLength;
 
-  }, [badges,isDrawerOpen, closeDrawer]);
+
+  }, [badges]);
 
   useEffect(() => {
     if (eovList.length > 0 && lang) {
@@ -207,8 +218,6 @@ function AppContent({ lang, setLang }) {
       fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
-
-      console.log("URL UPDATED HASH : ", window.location.hash);
     },
     [openDrawer],
   );
@@ -233,10 +242,12 @@ useEffect(() => {
   console.log("Drawer state changed:", isDrawerOpen);
   if (prevDrawerOpen.current && !isDrawerOpen) {
     removeURLFragment();
-    
+    // Recenter map to config center when drawer closes
+    if (mapRef.current && typeof mapRef.current.setView === "function") {
+      mapRef.current.setView(config.map.center, config.map.zoom);
+    }
   }
-    // Drawer just closed
-
+  // Drawer just closed
   if (mapRef.current && typeof mapRef.current.clearMapLayers === "function") {
     console.log("MAP REF ::: ", mapRef.current);
     mapRef.current.clearMapLayers();
