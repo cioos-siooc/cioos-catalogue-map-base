@@ -5,8 +5,6 @@ import SidebarButton from "@/components/SidebarButton";
 import config from "./config.js";
 import { marked } from "marked";
 
-console.log("Loaded config:", config);
-
 export default function ModalAPropos({ lang }) {
   const [openKey, setOpenKey] = useState(null);
   const [htmlMap, setHtmlMap] = useState({});
