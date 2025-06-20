@@ -90,3 +90,25 @@ basemaps:
     key: "satellite"
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
     attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+
+# Pages Configuration
+# ==========================
+# This section defines the pages that will be available in the application.
+# Each page can have a label, an icon, and content in different languages.
+# Content can be provided as a markdown file or directly as text.
+#  - markdown_content: The path to a markdown file that contains the content
+#     for the page. Path should be relative to the public directory.
+#  - content: Direct text content for the page, which can also be localized.
+# markdown_content takes precedence over content.
+
+pages:
+  - label:
+      en: "About"
+      fr: "À propos"
+    icon: "info"
+    markdown_content:
+      en: "/about.md"
+      fr: "/a-propos.md"
+    content:
+      en: "This is a web application that allows users to visualize and explore the catalogue of SLGO."
+      fr: "Ceci est une application Web qui permet aux utilisateurs de visualiser et d'explorer le catalogue de l'OGSL."
