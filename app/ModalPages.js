@@ -5,7 +5,7 @@ import SidebarButton from "@/components/SidebarButton";
 import config from "./config.js";
 import { marked } from "marked";
 
-export default function ModalAPropos({ lang }) {
+export default function ModalPages({ lang }) {
   const [openKey, setOpenKey] = useState(null);
   const [htmlMap, setHtmlMap] = useState({});
 
