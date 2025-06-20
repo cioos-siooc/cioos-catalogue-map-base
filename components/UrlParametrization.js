@@ -22,10 +22,11 @@ export function manageURLParametersOnLoad(setBadges) {
 
 
  export function updateURLWithSelectedItem(selectedItemId) {
-    console.log("UDPATE URL SELECTED ID : : ");
+    
     if (typeof window !== "undefined" && selectedItemId) {
       // Keep current search params, just update the fragment/hash
       const { pathname, search } = window.location;
+      console.log("UDPATE URL SELECTED ID : : ", pathname, search, selectedItemId);
       window.history.replaceState(
         null,
         "",
