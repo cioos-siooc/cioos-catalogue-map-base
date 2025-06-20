@@ -1,0 +1,5 @@
+# À propos de la Carte Catalogue de l’OGSL
+
+La Carte Catalogue de l’OGSL est une application web conçue pour aider les utilisateurs à explorer et visualiser les jeux de données océanographiques du catalogue de l’OGSL (Observatoire global du Saint-Laurent). L’interface cartographique interactive permet de filtrer, rechercher et visualiser des données géospatiales liées à diverses variables océaniques, telles que la température de l’eau, le phytoplancton, et bien plus. En cliquant sur les marqueurs de la carte, les utilisateurs peuvent accéder à des informations détaillées sur chaque jeu de données, incluant des descriptions, les producteurs de données, ainsi que des liens directs vers le catalogue OGSL et les fichiers téléchargeables.
+
+Cet outil s’adresse aux chercheurs, décideurs et au grand public intéressés par la découverte et l’accès aux données océaniques de la région du Saint-Laurent. L’application prend en charge plusieurs langues et offre une expérience conviviale pour naviguer dans des données scientifiques complexes.
