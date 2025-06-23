@@ -187,7 +187,7 @@ function AppContent({ lang, setLang }) {
   const prevBadgesLength = useRef(badges ? Object.keys(badges).length : 0);
   // This effect updates the URL only when badges change
   useEffect(() => {
-    initURLUpdateProcess(badges);
+    initURLUpdateProcess(badges,loading);
     console.log('Badges previous length:', prevBadgesLength.current);
     const currentLength = badges ? Object.keys(badges).length : 0;
     console.log('Badges current length:', currentLength);

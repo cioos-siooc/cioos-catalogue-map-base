@@ -2,6 +2,7 @@
 export function manageURLParametersOnLoad(setBadges) {
   // Check if the URL has parameters and update the state accordingly
   const urlParams = new URLSearchParams(window.location.search);
+  console.log("URL parameters on load:", urlParams.toString(), " :: ", window.location);
   // Loop through all entries and set badges for each
   urlParams.forEach((value, key) => {
     // For multi-value params (like organization, projects, eov), get all values as array of [value, value]
@@ -35,13 +36,14 @@ export function manageURLParametersOnLoad(setBadges) {
   }
 
 
-export function initURLUpdateProcess(badges) {
-      const urlParams = new URLSearchParams(window.location.search);
-      updateURL(urlParams, badges);
-      // Update the URL without reloading the page
-      console.log("Updating URL with parameters : : ", urlParams.toString());
-  
+export function initURLUpdateProcess(badges, loading) {
+      console.log(" Loading ::::: ", loading);
       if(hasHashInURL()) return; // If there's a hash in the URL, don't update the search params
+      const urlParams = new URLSearchParams(window.location.search);
+      console.log("Updating URL with parameters : : ", urlParams.toString());
+
+      updateURL(urlParams, badges,loading);
+      // Update the URL without reloading the page
       window.history.replaceState(
         null,
         "",
@@ -55,14 +57,18 @@ function hasHashInURL() {
 
   // Function to update URL parameters based on the current state
   // This function will be called whenever eovList, projectList, or organizationList changes
-function updateURL(urlParams, badges) {
+function updateURL(urlParams, badges, loading) {
+    
     // Remove all previous filter params
-    urlParams.delete("eov");
-    urlParams.delete("projects");
-    urlParams.delete("organization");
-    urlParams.delete("search");
-    urlParams.delete("filter_date");
-
+    // If loading is true, keep the eov, projects, organization, search, and filter_date params
+    // If loading is false, remove them, we must update the URL with the current badges
+    if( !loading) {
+      urlParams.delete("eov");
+      urlParams.delete("projects");
+      urlParams.delete("organization");
+      urlParams.delete("search");
+      urlParams.delete("filter_date");
+    }
     // For each badge, update the URL params accordingly
     Object.entries(badges).forEach(([filter_type, filter_value]) => {
       if (!filter_value || filter_value.length === 0) {
