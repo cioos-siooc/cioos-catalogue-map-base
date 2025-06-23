@@ -180,7 +180,7 @@ function AppContent({ lang, setLang }) {
         }
       }
     }
-  }, [allItems, bounds]);
+  }, [allItems]);
     
   // Import the useDrawer hook to get drawer state and methods
   const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();

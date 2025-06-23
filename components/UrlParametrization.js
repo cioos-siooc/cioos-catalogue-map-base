@@ -26,7 +26,6 @@ export function manageURLParametersOnLoad(setBadges) {
     if (typeof window !== "undefined" && selectedItemId) {
       // Keep current search params, just update the fragment/hash
       const { pathname, search } = window.location;
-      console.log("UDPATE URL SELECTED ID : : ", pathname, search, selectedItemId);
       window.history.replaceState(
         null,
         "",
@@ -42,9 +41,7 @@ export function initURLUpdateProcess(badges) {
       // Update the URL without reloading the page
       console.log("Updating URL with parameters : : ", urlParams.toString());
   
-      console.log(" URL content ::: ", window.location.hash);
       if(hasHashInURL()) return; // If there's a hash in the URL, don't update the search params
-      console.log("Updating URL without hash");
       window.history.replaceState(
         null,
         "",
@@ -93,10 +90,9 @@ function updateURL(urlParams, badges) {
   }
 
 export function updateURLWithBadges(badges) {
-  if (typeof window === "undefined") return;
+  if (!badges || Object.keys(badges).length === 0) return;
     const url = new URL(window.location.href);
     url.search = ""; // Clear all search params
-    console.log("Updated URL complete :", url);
     Object.entries(badges).forEach(([key, value]) => {
         if (Array.isArray(value)) {
         value.forEach((v) => {
@@ -108,5 +104,5 @@ export function updateURLWithBadges(badges) {
         }
     });
     console.log("Updated URL with badges:", url.toString());
-  window.history.replaceState({}, "", url.toString());
+    window.history.replaceState({}, "", url.toString());
 }
