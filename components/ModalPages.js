@@ -2,10 +2,10 @@ import { Modal, ModalBody, ModalHeader } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { MdInfoOutline } from "react-icons/md";
 import SidebarButton from "@/components/SidebarButton";
-import config from "./config.js";
+import config from "@/app/config.js";
 import { marked } from "marked";
 
-export default function ModalAPropos({ lang }) {
+export default function ModalPages({ lang }) {
   const [openKey, setOpenKey] = useState(null);
   const [htmlMap, setHtmlMap] = useState({});
 

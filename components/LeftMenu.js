@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import ItemsList from "@/components/ItemsList";
-import ModalAPropos from "@/app/Pages";
+import ModalPages from "@/components/ModalPages";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
@@ -113,7 +113,7 @@ export function Sidebar({
         toggleSidebar={toggleSidebar}
         isSidebarOpen={isSidebarOpen}
       />
-      <ModalAPropos lang={lang} />
+      <ModalPages lang={lang} />
       <FilterSection
         lang={lang}
         badges={badges}
