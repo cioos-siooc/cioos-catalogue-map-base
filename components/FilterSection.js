@@ -351,7 +351,7 @@ export default function FilterSection({
             filter_type="eov"
             lang={lang}
             setBadges={setBadges}
-            options={eovList.map((eov) => ({ label: eov[0], value: eov[1] }))} // Convert to array of tuples
+            options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))} // Convert to array of tuples
           />
           <TimeFilter
             lang={lang}
