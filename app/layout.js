@@ -64,6 +64,7 @@ function AppContent({ lang, setLang }) {
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
+  const [initialized, setInitialized] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -167,7 +168,12 @@ function AppContent({ lang, setLang }) {
       allItems.length > 0
     ) {
       const fragment = window.location.hash.replace(/^#/, "");
-      manageURLParameters({ badges, selectedItemId: fragment, isDrawerOpen });
+      manageURLParameters({
+        badges,
+        selectedItemId: fragment,
+        isDrawerOpen,
+        initialized,
+      });
       if (fragment) {
         const selectedItem = allItems.find((item) => item.id === fragment);
         if (selectedItem) {
@@ -181,7 +187,7 @@ function AppContent({ lang, setLang }) {
 
   // This effect updates the URL only when badges change
   useEffect(() => {
-    manageURLParametersOnLoad(setBadges);
+    manageURLParametersOnLoad(setBadges, initialized, setInitialized);
   }, [setBadges]);
 
   useEffect(() => {
@@ -195,7 +201,7 @@ function AppContent({ lang, setLang }) {
     (selectedItem) => {
       setBounds(selectedItem.spatial);
       fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
-      updateURLWithSelectedItem(selectedItem.id);
+      manageURLParameters(selectedItem.id);
       openDrawer();
 
       console.log("URL UPDATED HASH : ", window.location.hash);

@@ -1,6 +1,12 @@
 // Manage URL parameters on initial load
-export function manageURLParametersOnLoad(setBadges) {
+export function manageURLParametersOnLoad(
+  setBadges,
+  initialized,
+  setInitialized,
+) {
   // Check if the URL has parameters and update the state accordingly
+  if (initialized) return; // Prevent re-initialization
+
   const urlParams = new URLSearchParams(window.location.search);
   // Loop through all entries and set badges for each
   urlParams.forEach((value, key) => {
@@ -17,10 +23,18 @@ export function manageURLParametersOnLoad(setBadges) {
       [key]: badgeValue,
     }));
   });
+
+  setInitialized(true);
 }
 
-export function manageURLParameters({ badges, selectedItemId, isDrawerOpen }) {
+export function manageURLParameters({
+  badges,
+  selectedItemId,
+  isDrawerOpen,
+  initialized,
+}) {
   if (typeof window === "undefined") return;
+  if (!initialized) return; // Prevent re-initialization
 
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
