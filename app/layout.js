@@ -11,9 +11,8 @@ import Logo from "@/components/Logo";
 import dynamic from "next/dynamic";
 import React from "react";
 import {
+  manageURLParameters,
   manageURLParametersOnLoad,
-  updateURLWithSelectedItem,
-  initURLUpdateProcess,
 } from "@/components/UrlParametrization";
 import {
   filterItemsByBadges,
@@ -158,6 +157,9 @@ function AppContent({ lang, setLang }) {
     setTranslatedEovList(filtered);
   }, []);
 
+  // Import the useDrawer hook to get drawer state and methods
+  const { isDrawerOpen, openDrawer } = useDrawer();
+
   useEffect(() => {
     if (
       typeof window !== "undefined" &&
@@ -165,32 +167,28 @@ function AppContent({ lang, setLang }) {
       allItems.length > 0
     ) {
       const fragment = window.location.hash.replace(/^#/, "");
-      manageURLParametersOnLoad(setBadges);
+      manageURLParameters({ badges, selectedItemId: fragment, isDrawerOpen });
       if (fragment) {
         const selectedItem = allItems.find((item) => item.id === fragment);
         if (selectedItem) {
           setBounds(selectedItem.spatial);
           fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
-          updateURLWithSelectedItem(selectedItem.id);
           openDrawer();
         }
       }
     }
-  }, [allItems]);
+  }, [allItems, badges, isDrawerOpen]);
 
   // This effect updates the URL only when badges change
   useEffect(() => {
-    initURLUpdateProcess(badges);
-  }, [badges]);
+    manageURLParametersOnLoad(setBadges);
+  }, [setBadges]);
 
   useEffect(() => {
     if (eovList.length > 0 && lang) {
       fetchAndFilterEovsTranslated(lang, eovList, setTranslatedEovList);
     }
   }, [lang, eovList, fetchAndFilterEovsTranslated]);
-
-  // Import the useDrawer hook to get drawer state and methods
-  const { isDrawerOpen, openDrawer } = useDrawer();
 
   // Memoize callbacks to prevent re-renders
   const handleListItemClick = useCallback(

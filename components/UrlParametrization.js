@@ -19,93 +19,45 @@ export function manageURLParametersOnLoad(setBadges) {
   });
 }
 
-
-
- export function updateURLWithSelectedItem(selectedItemId) {
-    console.log("UDPATE URL SELECTED ID : : ");
-    if (typeof window !== "undefined" && selectedItemId) {
-      // Keep current search params, just update the fragment/hash
-      const { pathname, search } = window.location;
-      window.history.replaceState(
-        null,
-        "",
-        `${pathname}${search}#${selectedItemId}`,
-      );
-    }
-  }
-
-
-export function initURLUpdateProcess(badges) {
-      const urlParams = new URLSearchParams(window.location.search);
-      updateURL(urlParams, badges);
-      // Update the URL without reloading the page
-      console.log("Updating URL with parameters : : ", urlParams.toString());
-  
-      console.log(" URL content ::: ", window.location.hash);
-      if(hasHashInURL()) return; // If there's a hash in the URL, don't update the search params
-      console.log("Updating URL without hash");
-      window.history.replaceState(
-        null,
-        "",
-        `${window.location.pathname}?${urlParams.toString()}`,
-      );
-    }
-
-function hasHashInURL() {
-    return typeof window !== "undefined" && window.location.hash !== "";
-}
-
-  // Function to update URL parameters based on the current state
-  // This function will be called whenever eovList, projectList, or organizationList changes
-function updateURL(urlParams, badges) {
-    // Remove all previous filter params
-    urlParams.delete("eov");
-    urlParams.delete("projects");
-    urlParams.delete("organization");
-    urlParams.delete("search");
-    urlParams.delete("filter_date");
-
-    // For each badge, update the URL params accordingly
-    Object.entries(badges).forEach(([filter_type, filter_value]) => {
-      if (!filter_value || filter_value.length === 0) {
-        urlParams.delete(filter_type);
-        return;
-      }
-      // For array values (like organization, projects, eov)
-      if (Array.isArray(filter_value)) {
-        // If value is an array of arrays (e.g. [["val", "label"], ...])
-        if (Array.isArray(filter_value[0])) {
-          // Add each value as a separate param (for multi-select)
-          filter_value.forEach((v) => {
-            urlParams.append(filter_type, v[0]);
-          });
-        } else {
-          // Otherwise, join as comma-separated
-          urlParams.set(filter_type, filter_value.join(","));
-        }
-      } else {
-        // For string values (like search, filter_date)
-        urlParams.set(filter_type, filter_value);
-      }
-    });
-    console.log("Updated URL method ::::: ", urlParams.toString());
-  }
-
-export function updateURLWithBadges(badges) {
+export function manageURLParameters({ badges, selectedItemId, isDrawerOpen }) {
   if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    url.search = ""; // Clear all search params
-    console.log("Updated URL complete :", url);
-    Object.entries(badges).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-        value.forEach((v) => {
-            // For array of arrays (e.g. [["a","A"],["b","B"]]), use v[0]
-            url.searchParams.append(key, Array.isArray(v) ? v[0] : v);
-        });
-        } else {
-        url.searchParams.set(key, value);
-        }
-    });
-    console.log("Updated URL with badges:", url.toString());
+
+  const url = new URL(window.location.href);
+  const params = new URLSearchParams(url.search);
+
+  // Clear existing filter-related parameters
+  ["eov", "projects", "organization", "search", "filter_date"].forEach(
+    (key) => {
+      params.delete(key);
+    },
+  );
+
+  // Add badges to the URL parameters
+  Object.entries(badges).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach((v) => {
+        params.append(key, Array.isArray(v) ? v[0] : v);
+      });
+    } else {
+      params.set(key, value);
+    }
+  });
+
+  // Update the hash if a selected item exists
+  if (selectedItemId) {
+    url.hash = selectedItemId;
+  } else {
+    url.hash = "";
+  }
+
+  // Add a parameter to indicate if the drawer is open
+  if (isDrawerOpen) {
+    params.set("drawer", "open");
+  } else {
+    params.delete("drawer");
+  }
+
+  // Update the URL without reloading the page
+  url.search = params.toString();
   window.history.replaceState({}, "", url.toString());
 }

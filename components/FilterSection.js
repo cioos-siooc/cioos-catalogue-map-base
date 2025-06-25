@@ -15,7 +15,7 @@ import { IoFilterOutline } from "react-icons/io5";
 import SidebarButton from "./SidebarButton";
 import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
-import { updateURLWithBadges } from "@/components/UrlParametrization";
+import { manageURLParameters } from "@/components/UrlParametrization";
 
 // Helper function to format a date range string by removing the time
 function formatDateRangeWithoutTime(value, t) {
@@ -320,7 +320,7 @@ export default function FilterSection({
   };
 
   useEffect(() => {
-    updateURLWithBadges(badges);
+    manageURLParameters({ badges });
   }, [badges]);
 
   return (
@@ -339,19 +339,19 @@ export default function FilterSection({
             filter_type="organization"
             lang={lang}
             setBadges={setBadges}
-            options={orgList.map((org) => ({ label: org, value: org }))} // Convert to array of tuples
+            options={orgList.map((org) => ({ label: org, value: org }))}
           />
           <FilterItems
             filter_type="projects"
             lang={lang}
             setBadges={setBadges}
-            options={projList.map((proj) => ({ label: proj, value: proj }))} // Convert to array of tuples
+            options={projList.map((proj) => ({ label: proj, value: proj }))}
           />
           <FilterItems
             filter_type="eov"
             lang={lang}
             setBadges={setBadges}
-            options={eovList.map((eov) => ({ label: eov[0], value: eov[1] }))} // Convert to array of tuples
+            options={eovList.map((eov) => ({ label: eov[0], value: eov[1] }))}
           />
           <TimeFilter
             lang={lang}
