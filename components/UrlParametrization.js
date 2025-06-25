@@ -9,20 +9,28 @@ export function manageURLParametersOnLoad(
 
   const urlParams = new URLSearchParams(window.location.search);
   // Loop through all entries and set badges for each
-  urlParams.forEach((value, key) => {
-    // For multi-value params (like organization, projects, eov), get all values as array of [value, value]
-    let badgeValue;
-    if (["organization", "projects", "eov"].includes(key)) {
-      const allValues = urlParams.getAll(key);
-      badgeValue = allValues.map((v) => [v, v]);
-    } else {
-      badgeValue = value;
+  // Collect all values for organization, projects, and eov as arrays
+  const multiValueKeys = ["organization", "projects", "eov"];
+  const badgesToSet = {};
+
+  multiValueKeys.forEach((key) => {
+    const values = urlParams.getAll(key);
+    if (values.length > 0) {
+      badgesToSet[key] = values.map((v) => [v, v]);
     }
-    setBadges((prevBadges) => ({
-      ...prevBadges,
-      [key]: badgeValue,
-    }));
   });
+
+  // Handle all other keys as single values
+  urlParams.forEach((value, key) => {
+    if (!multiValueKeys.includes(key)) {
+      badgesToSet[key] = value;
+    }
+  });
+
+  setBadges((prevBadges) => ({
+    ...prevBadges,
+    ...badgesToSet,
+  }));
 
   setInitialized(true);
 }
@@ -57,18 +65,12 @@ export function manageURLParameters({
     }
   });
 
-  // Update the hash if a selected item exists
-  if (selectedItemId) {
+  // Add a parameter to indicate if the drawer is open
+  console.log("isDrawerOpen:", isDrawerOpen, "selectedItemId:", selectedItemId);
+  if (selectedItemId && isDrawerOpen) {
     url.hash = selectedItemId;
   } else {
     url.hash = "";
-  }
-
-  // Add a parameter to indicate if the drawer is open
-  if (isDrawerOpen) {
-    params.set("drawer", "open");
-  } else {
-    params.delete("drawer");
   }
 
   // Update the URL without reloading the page

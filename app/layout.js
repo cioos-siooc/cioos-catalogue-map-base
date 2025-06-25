@@ -201,10 +201,13 @@ function AppContent({ lang, setLang }) {
     (selectedItem) => {
       setBounds(selectedItem.spatial);
       fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
-      manageURLParameters(selectedItem.id);
       openDrawer();
-
-      console.log("URL UPDATED HASH : ", window.location.hash);
+      manageURLParameters({
+        badges,
+        selectedItemId: selectedItem.id,
+        isDrawerOpen: isDrawerOpen,
+        initialized: initialized,
+      });
     },
     [openDrawer],
   );
