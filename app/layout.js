@@ -174,7 +174,8 @@ function AppContent({ lang, setLang }) {
           fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
           updateURLWithSelectedItem(selectedItem.id);
           openDrawer();
-          setBounds(selectedItem.spatial);
+          console.log("SET BOUNDS:", selectedItem.spatial ? {...selectedItem.spatial} : null);
+          setBounds(selectedItem.spatial ? {...selectedItem.spatial} : null);
         }
       }
     }

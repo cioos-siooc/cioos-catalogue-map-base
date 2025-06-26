@@ -40,8 +40,9 @@ const clearMapLayers = (map) => {
 // Map components
 const FitBounds = ({ bounds }) => {
   const map = useMap();
-
+  console.log("Before bounds:", bounds);
   useEffect(() => {
+    console.log("FitBounds effect triggered with bounds:", bounds);
     if (bounds) {
       clearMapLayers(map);
       const polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(
