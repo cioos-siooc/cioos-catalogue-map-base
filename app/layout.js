@@ -67,6 +67,7 @@ function AppContent({ lang, setLang }) {
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
+  const [boundsKey, setBoundsKey] = useState(0);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -170,12 +171,8 @@ function AppContent({ lang, setLang }) {
       manageURLParametersOnLoad(setBadges);
       if (fragment) {
         const selectedItem = allItems.find((item) => item.id === fragment);
-        if (selectedItem) {         
-          fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
-          updateURLWithSelectedItem(selectedItem.id);
-          openDrawer();
-          console.log("SET BOUNDS:", selectedItem.spatial ? {...selectedItem.spatial} : null);
-          setBounds(selectedItem.spatial ? {...selectedItem.spatial} : null);
+        if (selectedItem) {      
+          handleListItemClick(selectedItem);
         }
       }
     }
@@ -209,12 +206,14 @@ function AppContent({ lang, setLang }) {
   // Memoize callbacks to prevent re-renders
   const handleListItemClick = useCallback(
     (selectedItem) => {
-      setBounds(selectedItem.spatial);
+      console.log("Setting bounds to:", selectedItem.spatial, "Ref:", selectedItem.spatial === bounds);
+      setBounds(selectedItem.spatial ? JSON.parse(JSON.stringify(selectedItem.spatial)) : null);
+      setBoundsKey(prev => prev + 1); // force update
       fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
     },
-    [openDrawer],
+    [openDrawer, catalogueUrl],
   );
 
   // Add this function to remove the hash fragment from the URL
@@ -235,6 +234,7 @@ const mapRef = useRef();
 useEffect(() => {
   // Detect transition from open to closed
   console.log("Drawer state changed:", isDrawerOpen);
+  console.log("LOADING :: ", loading);
   if (prevDrawerOpen.current && !isDrawerOpen) {
     removeURLFragment();
     // Recenter map to config center when drawer closes
@@ -298,6 +298,7 @@ useEffect(() => {
             handleListItemClick={handleListItemClick}
             lang={lang}
             ref={mapRef}
+            boundsKey={boundsKey}
           />
         </main>
         {isDrawerOpen && dataSetInfo && (

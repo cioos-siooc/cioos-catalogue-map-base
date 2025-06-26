@@ -14,7 +14,7 @@ import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import * as turf from "@turf/turf";
 import { DrawerContext } from "../app/context/DrawerContext";
-import { useContext, useState, useEffect, forwardRef, useRef, memo, useImperativeHandle } from "react";
+import { useContext, useLayoutEffect, useEffect, forwardRef, useRef, memo, useImperativeHandle } from "react";
 import L from "leaflet";
 import config from "@/app/config";
 import { getLocale } from "@/app/get-locale";
@@ -39,9 +39,11 @@ const clearMapLayers = (map) => {
 
 // Map components
 const FitBounds = ({ bounds }) => {
-  const map = useMap();
   console.log("Before bounds:", bounds);
-  useEffect(() => {
+  const map = useMap();
+
+  useLayoutEffect(() => {
+    
     console.log("FitBounds effect triggered with bounds:", bounds);
     if (bounds) {
       clearMapLayers(map);
@@ -150,7 +152,7 @@ const BaseLayers = ({ basemaps, lang }) => (
 );
 
 // Main Map component
-const Map = forwardRef(function Map({ bounds, filteredItems, handleListItemClick, lang },ref) {
+const Map = forwardRef(function Map({ bounds, filteredItems, handleListItemClick, lang, boundsKey },ref) {
   const { openDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
 
@@ -175,18 +177,18 @@ const Map = forwardRef(function Map({ bounds, filteredItems, handleListItemClick
         typeof window !== "undefined" && window.innerWidth < 600
           ? config.map.zoom_mobile
           : config.map.zoom
-      } // More zoomed out for mobile
+      }
       zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
-      key={filteredItems.length}
+      key={boundsKey}
       attributionControl={false}
       ref={mapRef}
     >
       <ZoomControl position="topright" />
       <LayersControl position="bottomright">
         <BaseLayers basemaps={config.basemaps} lang={lang} />
-        {bounds && <FitBounds bounds={bounds} />}
+        {bounds && <FitBounds key={boundsKey} bounds={bounds} />}
         <Overlay checked name={t.dataset_markers}>
           <MarkerClusterGroup>
             {filteredItems.map((item) => (
