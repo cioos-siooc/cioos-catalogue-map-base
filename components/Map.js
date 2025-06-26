@@ -42,7 +42,6 @@ const FitBounds = ({ bounds }) => {
   const map = useMap();
 
   useEffect(() => {
-    console.log("Fitting map to bounds:", bounds);
     if (bounds) {
       clearMapLayers(map);
       const polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(
@@ -71,7 +70,6 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
   }
 
   const handleMarkerClick = (e) => {
-    console.log("Marker clicked:", record.id);
     removeLayer(e);
     handleListItemClick(record);
     openDrawer();

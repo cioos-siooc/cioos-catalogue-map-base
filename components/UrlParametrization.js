@@ -2,7 +2,6 @@
 export function manageURLParametersOnLoad(setBadges) {
   // Check if the URL has parameters and update the state accordingly
   const urlParams = new URLSearchParams(window.location.search);
-  console.log("URL parameters on load:", urlParams.toString(), " :: ", window.location);
   // Loop through all entries and set badges for each
   urlParams.forEach((value, key) => {
     // For multi-value params (like organization, projects, eov), get all values as array of [value, value]
@@ -37,10 +36,9 @@ export function manageURLParametersOnLoad(setBadges) {
 
 
 export function initURLUpdateProcess(badges, loading) {
-      console.log(" Loading ::::: ", loading);
       if(hasHashInURL()) return; // If there's a hash in the URL, don't update the search params
       const urlParams = new URLSearchParams(window.location.search);
-      console.log("Updating URL with parameters : : ", urlParams.toString());
+
 
       updateURL(urlParams, badges,loading);
       // Update the URL without reloading the page
@@ -62,6 +60,7 @@ function updateURL(urlParams, badges, loading) {
     // Remove all previous filter params
     // If loading is true, keep the eov, projects, organization, search, and filter_date params
     // If loading is false, remove them, we must update the URL with the current badges
+    
     if( !loading) {
       urlParams.delete("eov");
       urlParams.delete("projects");
@@ -92,7 +91,6 @@ function updateURL(urlParams, badges, loading) {
         urlParams.set(filter_type, filter_value);
       }
     });
-    console.log("Updated URL method ::::: ", urlParams.toString());
   }
 
 export function updateURLWithBadges(badges) {
@@ -109,6 +107,5 @@ export function updateURLWithBadges(badges) {
         url.searchParams.set(key, value);
         }
     });
-    console.log("Updated URL with badges:", url.toString());
     window.history.replaceState({}, "", url.toString());
 }

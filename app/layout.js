@@ -170,9 +170,7 @@ function AppContent({ lang, setLang }) {
       manageURLParametersOnLoad(setBadges);
       if (fragment) {
         const selectedItem = allItems.find((item) => item.id === fragment);
-        if (selectedItem) {
-          console.log("Selected item from URL: : BOUNDS :: ", selectedItem.spatial);
-          
+        if (selectedItem) {         
           fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
           updateURLWithSelectedItem(selectedItem.id);
           openDrawer();
@@ -188,14 +186,9 @@ function AppContent({ lang, setLang }) {
   // This effect updates the URL only when badges change
   useEffect(() => {
     initURLUpdateProcess(badges,loading);
-    console.log('Badges previous length:', prevBadgesLength.current);
     const currentLength = badges ? Object.keys(badges).length : 0;
-    console.log('Badges current length:', currentLength);
-    console.log('IS DRAWER OPEN :', isDrawerOpen);
-    console.log('LOADING : ', loading);
     if (currentLength < prevBadgesLength.current) {
       // Badges list decreased in size, run your logic here
-      console.log('Badges decreased:', badges);
       // Close the drawer each time badges change
       if (isDrawerOpen) {
         closeDrawer();

@@ -41,7 +41,6 @@ export function SearchFilter({ lang, setBadges }) {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      console.log("Enter pressed! Searching for:", query);
       // Close modal and add badge
       setBadges((prevBadges) => ({
         ...prevBadges,
@@ -100,7 +99,6 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
     // TODO: add first drowdown value inside the badge
 
     const strDates = `${formatDateRangeWithoutTime(startDate.toISOString(), t)}%20TO%20${formatDateRangeWithoutTime(endDate.toISOString(), t)}`;
-    console.log("DATESSSSS :: ", strDates);
     setBadges((prevBadges) => ({
       ...prevBadges,
       filter_date: strDates,
@@ -208,17 +206,18 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges}) {
   
   
   useEffect(() => {
-
+    // Initialize query from badges if available to load existing filters in URL
     const selectedValues = badges[filter_type] ? badges[filter_type].map((arr) => arr[1]) : [];
 
     const badgeLabels = selectedValues.map(badgeValue => {
       // Find the corresponding label in options
       const found = options.find(opt => opt.value === badgeValue);
-      return found ? [found.value, found.label] : [];
+      return found ? [found.value, found.label] : null;
     }).filter(label => label !== null);
 
+    
     if (badgeLabels.length > 0) {
-      setQuery(badgeLabels)
+      setQuery(badgeLabels);
     }
 
   }, [filter_type, options]);
@@ -338,6 +337,7 @@ export default function FilterSection({
   };
 
   useEffect(() => {
+    // Update URL with badges whenever badges change
     updateURLWithBadges(badges);
   }, [badges]);
 
