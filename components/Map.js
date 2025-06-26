@@ -30,7 +30,6 @@ const getPrimaryColor = () => {
 };
 
 const clearMapLayers = (map) => {
-  console.log("Clearing map layers", map);
   map.eachLayer((layer) => {
     if (layer instanceof L.Polygon || layer instanceof L.Marker) {
       map.removeLayer(layer);

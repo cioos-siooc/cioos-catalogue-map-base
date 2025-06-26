@@ -200,10 +200,28 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
   );
 }
 
-export function FilterItems({ filter_type, lang, setBadges, options }) {
+export function FilterItems({ filter_type, lang, setBadges, options, badges}) {
   const [openModal, setOpenModal] = useState(false);
-  const [query, setQuery] = useState([]);
+  
   const t = getLocale(lang);
+  const [query, setQuery] = useState([]);
+  
+  
+  useEffect(() => {
+
+    const selectedValues = badges[filter_type] ? badges[filter_type].map((arr) => arr[1]) : [];
+
+    const badgeLabels = selectedValues.map(badgeValue => {
+      // Find the corresponding label in options
+      const found = options.find(opt => opt.value === badgeValue);
+      return found ? [found.value, found.label] : [];
+    }).filter(label => label !== null);
+
+    if (badgeLabels.length > 0) {
+      setQuery(badgeLabels)
+    }
+
+  }, [filter_type, options]);
 
   // Keep count in sync with query length
   const count = query.length;
@@ -340,18 +358,21 @@ export default function FilterSection({
             lang={lang}
             setBadges={setBadges}
             options={orgList.map((org) => ({ label: org, value: org }))} // Convert to array of tuples
+            badges={badges}
           />
           <FilterItems
             filter_type="projects"
             lang={lang}
             setBadges={setBadges}
             options={projList.map((proj) => ({ label: proj, value: proj }))} // Convert to array of tuples
+            badges={badges}
           />
           <FilterItems
             filter_type="eov"
             lang={lang}
             setBadges={setBadges}
             options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))} // Convert to array of tuples
+            badges={badges}
           />
           <TimeFilter
             lang={lang}

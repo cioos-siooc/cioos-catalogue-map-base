@@ -192,6 +192,7 @@ function AppContent({ lang, setLang }) {
     const currentLength = badges ? Object.keys(badges).length : 0;
     console.log('Badges current length:', currentLength);
     console.log('IS DRAWER OPEN :', isDrawerOpen);
+    console.log('LOADING : ', loading);
     if (currentLength < prevBadgesLength.current) {
       // Badges list decreased in size, run your logic here
       console.log('Badges decreased:', badges);
