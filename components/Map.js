@@ -152,7 +152,7 @@ const BaseLayers = ({ basemaps, lang }) => (
 );
 
 // Main Map component
-const Map = forwardRef(function Map({ bounds, filteredItems, handleListItemClick, lang, boundsKey },ref) {
+const Map = forwardRef(function Map({ bounds, filteredItems, handleListItemClick, lang },ref) {
   const { openDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
 
@@ -181,14 +181,13 @@ const Map = forwardRef(function Map({ bounds, filteredItems, handleListItemClick
       zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
-      key={boundsKey}
       attributionControl={false}
       ref={mapRef}
     >
       <ZoomControl position="topright" />
       <LayersControl position="bottomright">
         <BaseLayers basemaps={config.basemaps} lang={lang} />
-        {bounds && <FitBounds key={boundsKey} bounds={bounds} />}
+        {bounds && <FitBounds key={bounds} bounds={bounds} />}
         <Overlay checked name={t.dataset_markers}>
           <MarkerClusterGroup>
             {filteredItems.map((item) => (
