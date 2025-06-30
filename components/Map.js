@@ -38,30 +38,34 @@ const clearMapLayers = (map) => {
 };
 
 // Map components
-const FitBounds = ({ bounds }) => {
+const FitBounds = ({bounds}) => {
   console.log("Before bounds:", bounds);
   const map = useMap();
 
   useLayoutEffect(() => {
-    
-    console.log("FitBounds effect triggered with bounds:", bounds);
-    if (bounds) {
-      clearMapLayers(map);
-      const polygon = L.geoJSON(bounds, { color: getPrimaryColor() }).addTo(
-        map,
-      );
-
-      map.flyToBounds(polygon.getBounds(), {
-        animate: true,
-        padding: [150, 250],
-        maxZoom: 10,
-        duration: 0.3,
-      });
-    }
+    fitBounds(bounds, map);
   }, [bounds, map]); // Run effect when bounds or map changes
 
   return null;
 };
+
+function fitBounds(newBounds,map) {
+
+  console.log("FitBounds effect triggered with bounds:", newBounds);
+  if (newBounds) {
+    clearMapLayers(map);
+    const polygon = L.geoJSON(newBounds, { color: getPrimaryColor() }).addTo(
+      map,
+    );
+    map.flyToBounds(polygon.getBounds(), {
+      animate: true,
+      padding: [150, 250],
+      maxZoom: 10,
+      duration: 0.3,
+    });
+  }
+
+}
 
 // Dataset marker component
 const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
@@ -152,59 +156,77 @@ const BaseLayers = ({ basemaps, lang }) => (
 );
 
 // Main Map component
-const Map = forwardRef(function Map({ bounds, filteredItems, handleListItemClick, lang },ref) {
-  const { openDrawer } = useContext(DrawerContext);
-  const t = getLocale(lang);
+const Map = forwardRef(
+  function Map({ bounds, filteredItems, handleListItemClick, lang },ref) {
+    const { openDrawer } = useContext(DrawerContext);
+    const t = getLocale(lang);
 
-  const mapRef = useRef();
+    const mapRef = useRef();
+      // Expose clearMapLayers to parent via ref
+    useImperativeHandle(ref, () => ({
+      
+      clearMapLayers: () => {
+        if (mapRef.current) {
+          clearMapLayers(mapRef.current);
+        }
+      },
+      recenterToDefault: () => {
+        if (mapRef.current) {
+          mapRef.current.setView(config.map.center, config.map.zoom);
+        }
+      },
+      updateBounds: (newBounds) => {
+  
+        if (mapRef.current) {
+          fitBounds(newBounds, mapRef.current);
 
-    // Expose clearMapLayers to parent via ref
-  useImperativeHandle(ref, () => ({
-    
-    clearMapLayers: () => {
-      if (mapRef.current) {
-        console.log("Map ref is set");
-        clearMapLayers(mapRef.current);
+        }
       }
-    },
-  }));
+    }));
 
-  return (
-    <MapContainer
-      className="h-full w-full"
-      center={config.map.center}
-      zoom={
-        typeof window !== "undefined" && window.innerWidth < 600
-          ? config.map.zoom_mobile
-          : config.map.zoom
-      }
-      zoomControl={false}
-      scrollWheelZoom={true}
-      boundsOptions={{ padding: [1, 1] }}
-      attributionControl={false}
-      ref={mapRef}
-    >
-      <ZoomControl position="topright" />
-      <LayersControl position="bottomright">
-        <BaseLayers basemaps={config.basemaps} lang={lang} />
-        {bounds && <FitBounds key={bounds} bounds={bounds} />}
-        <Overlay checked name={t.dataset_markers}>
-          <MarkerClusterGroup>
-            {filteredItems.map((item) => (
-              <DatasetMarker
-                key={item.id}
-                record={item}
-                handleListItemClick={handleListItemClick}
-                lang={lang}
-                openDrawer={openDrawer}
-              />
-            ))}
-          </MarkerClusterGroup>
-        </Overlay>
-      </LayersControl>
-    </MapContainer>
-);
-}
+    return (
+      <MapContainer
+        className="h-full w-full"
+        center={config.map.center}
+        zoom={
+          typeof window !== "undefined" && window.innerWidth < 600
+            ? config.map.zoom_mobile
+            : config.map.zoom
+        }
+        zoomControl={false}
+        scrollWheelZoom={true}
+        boundsOptions={{ padding: [1, 1] }}
+        attributionControl={false}
+        ref={mapRef}
+        whenReady={(mapInstance) => {
+          mapRef.current = mapInstance; 
+          console.log("This function will fire once the map is created", mapRef.current)
+        }}
+        whenCreated={(map) => {
+          console.log("The underlying leaflet map instance:", map)
+        }}
+      >
+        <ZoomControl position="topright" />
+        <LayersControl position="bottomright">
+          <BaseLayers basemaps={config.basemaps} lang={lang} />
+          {bounds && <FitBounds key={bounds} bounds={bounds} />}
+          <Overlay checked name={t.dataset_markers}>
+            <MarkerClusterGroup>
+              {filteredItems.map((item) => (
+                <DatasetMarker
+                  key={item.id}
+                  record={item}
+                  handleListItemClick={handleListItemClick}
+                  lang={lang}
+                  openDrawer={openDrawer}
+                />
+              ))}
+            </MarkerClusterGroup>
+          </Overlay>
+        </LayersControl>
+      </MapContainer>
+    );
+  }
 );
 
 export default Map;

@@ -67,10 +67,12 @@ function AppContent({ lang, setLang }) {
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
+  const [datasetSpatial, setDatasetSpatial] = useState(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  const mapRef = useRef(); 
 
   // if window is greater than 600px, set isSidebarOpen to true
   useEffect(() => {
@@ -160,22 +162,51 @@ function AppContent({ lang, setLang }) {
     setTranslatedEovList(filtered);
   }, []);
 
-  useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      Array.isArray(allItems) &&
-      allItems.length > 0
-    ) {
+ /* useEffect(() => {
+    if (allItems.length > 0) {
+
       const fragment = window.location.hash.replace(/^#/, "");
       manageURLParametersOnLoad(setBadges);
       if (fragment) {
         const selectedItem = allItems.find((item) => item.id === fragment);
-        if (selectedItem) {      
+        if (selectedItem) {  
+          console.log("SELECT ::: ", selectedItem);
           handleListItemClick(selectedItem);
         }
       }
     }
-  }, [allItems]);
+  }, [allItems]);*/
+
+
+// This effect runs on initial load to manage URL parameters and set initial state
+useEffect(() => {
+  if (allItems.length > 0) {
+    let selectedId = null;
+    if (typeof window !== "undefined") {
+      manageURLParametersOnLoad(setBadges);
+      selectedId = window.location.hash.replace(/^#/, "");
+    }
+    if (selectedId) {
+      const selectedItem = allItems.find(item => item.id === selectedId);
+      if (selectedItem && selectedItem.spatial) {
+        setDatasetSpatial(selectedItem.spatial);
+        handleListItemClick(selectedItem);
+      }
+    }
+  }
+}, [allItems]);
+
+// This effect updates the map bounds when datasetSpatial changes
+// It ensures that the map is updated only when the mapRef is ready
+useEffect(() => {
+  if (mapRef.current) {
+    if (datasetSpatial) {
+      if (typeof mapRef.current.updateBounds === "function") {
+        mapRef.current.updateBounds(datasetSpatial);
+      }
+    }
+  }
+}, [mapRef.current]);
     
   // Import the useDrawer hook to get drawer state and methods
   const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();
@@ -205,7 +236,7 @@ function AppContent({ lang, setLang }) {
   // Memoize callbacks to prevent re-renders
   const handleListItemClick = useCallback(
     (selectedItem) => {
-      setBounds(selectedItem.spatial ? JSON.parse(JSON.stringify(selectedItem.spatial)) : null);
+      setBounds(selectedItem.spatial);
       fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
@@ -226,22 +257,17 @@ function removeURLFragment() {
 }
 
 const prevDrawerOpen = useRef(isDrawerOpen);
-const mapRef = useRef(); 
 
 useEffect(() => {
-  // Detect transition from open to closed
-  console.log("Drawer state changed:", isDrawerOpen);
-  console.log("LOADING :: ", loading);
-  if (prevDrawerOpen.current && !isDrawerOpen) {
+    if (prevDrawerOpen.current && !isDrawerOpen) {
     removeURLFragment();
-    // Recenter map to config center when drawer closes
-    if (mapRef.current && typeof mapRef.current.setView === "function") {
-      mapRef.current.setView(config.map.center, config.map.zoom);
+    // Recenter the map to default center and zoom when drawer closes
+    if (mapRef.current && typeof mapRef.current.recenterToDefault === "function") {
+      mapRef.current.recenterToDefault();
     }
   }
-  // Drawer just closed
+  // Drawer just closed, recenter map to config center when drawer closes
   if (mapRef.current && typeof mapRef.current.clearMapLayers === "function") {
-    console.log("MAP REF ::: ", mapRef.current);
     mapRef.current.clearMapLayers();
   }
   setBounds(null); // Reset bounds when drawer closes
