@@ -191,6 +191,7 @@ useEffect(() => {
       if (selectedItem && selectedItem.spatial) {
         setDatasetSpatial(selectedItem.spatial);
         handleListItemClick(selectedItem);
+
       }
     }
   }
@@ -202,7 +203,7 @@ useEffect(() => {
   if (mapRef.current) {
     if (datasetSpatial) {
       if (typeof mapRef.current.updateBounds === "function") {
-        mapRef.current.updateBounds(datasetSpatial);
+        mapRef.current.updateBounds(datasetSpatial,setDatasetSpatial);
       }
     }
   }

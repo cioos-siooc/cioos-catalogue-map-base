@@ -175,11 +175,14 @@ const Map = forwardRef(
           mapRef.current.setView(config.map.center, config.map.zoom);
         }
       },
-      updateBounds: (newBounds) => {
-  
+      updateBounds: (newBounds,setDatasetSpatial) => {
+        console.log("UPDATE BOUND : ", newBounds);
         if (mapRef.current) {
           fitBounds(newBounds, mapRef.current);
-
+          // Clear previous dataset spatial if any
+          if (setDatasetSpatial) {
+            setDatasetSpatial(null);
+          }
         }
       }
     }));
