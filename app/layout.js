@@ -36,13 +36,11 @@ const geistMono = Geist_Mono({
 
 const basePath = process.env.BASE_PATH || "";
 
-
-
 // Import map with dynamic import (no ssr) and memoization
 const MapComponent = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
-    <div className="h-full w-full flex items-center justify-center bg-primary-200">
+    <div className="bg-primary-200 flex h-full w-full items-center justify-center">
       <p className="text-primary-500">Loading map...</p>
     </div>
   ),
@@ -72,7 +70,7 @@ function AppContent({ lang, setLang }) {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-  const mapRef = useRef(); 
+  const mapRef = useRef();
 
   // if window is greater than 600px, set isSidebarOpen to true
   useEffect(() => {
@@ -162,7 +160,7 @@ function AppContent({ lang, setLang }) {
     setTranslatedEovList(filtered);
   }, []);
 
- /* useEffect(() => {
+  /* useEffect(() => {
     if (allItems.length > 0) {
 
       const fragment = window.location.hash.replace(/^#/, "");
@@ -177,44 +175,42 @@ function AppContent({ lang, setLang }) {
     }
   }, [allItems]);*/
 
-
-// This effect runs on initial load to manage URL parameters and set initial state
-useEffect(() => {
-  if (allItems.length > 0) {
-    let selectedId = null;
-    if (typeof window !== "undefined") {
-      manageURLParametersOnLoad(setBadges);
-      selectedId = window.location.hash.replace(/^#/, "");
-    }
-    if (selectedId) {
-      const selectedItem = allItems.find(item => item.id === selectedId);
-      if (selectedItem && selectedItem.spatial) {
-        setDatasetSpatial(selectedItem.spatial);
-        handleListItemClick(selectedItem);
-
+  // This effect runs on initial load to manage URL parameters and set initial state
+  useEffect(() => {
+    if (allItems.length > 0) {
+      let selectedId = null;
+      if (typeof window !== "undefined") {
+        manageURLParametersOnLoad(setBadges);
+        selectedId = window.location.hash.replace(/^#/, "");
+      }
+      if (selectedId) {
+        const selectedItem = allItems.find((item) => item.id === selectedId);
+        if (selectedItem && selectedItem.spatial) {
+          setDatasetSpatial(selectedItem.spatial);
+          handleListItemClick(selectedItem);
+        }
       }
     }
-  }
-}, [allItems]);
+  }, [allItems]);
 
-// This effect updates the map bounds when datasetSpatial changes
-// It ensures that the map is updated only when the mapRef is ready
-useEffect(() => {
-  if (mapRef.current) {
-    if (datasetSpatial) {
-      if (typeof mapRef.current.updateBounds === "function") {
-        mapRef.current.updateBounds(datasetSpatial,setDatasetSpatial);
+  // This effect updates the map bounds when datasetSpatial changes
+  // It ensures that the map is updated only when the mapRef is ready
+  useEffect(() => {
+    if (mapRef.current) {
+      if (datasetSpatial) {
+        if (typeof mapRef.current.updateBounds === "function") {
+          mapRef.current.updateBounds(datasetSpatial, setDatasetSpatial);
+        }
       }
     }
-  }
-}, [mapRef.current]);
-    
+  }, [mapRef.current]);
+
   // Import the useDrawer hook to get drawer state and methods
   const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();
   const prevBadgesLength = useRef(badges ? Object.keys(badges).length : 0);
   // This effect updates the URL only when badges change
   useEffect(() => {
-    initURLUpdateProcess(badges,loading);
+    initURLUpdateProcess(badges, loading);
     const currentLength = badges ? Object.keys(badges).length : 0;
     if (currentLength < prevBadgesLength.current) {
       // Badges list decreased in size, run your logic here
@@ -224,8 +220,6 @@ useEffect(() => {
       }
     }
     prevBadgesLength.current = currentLength;
-
-
   }, [badges]);
 
   useEffect(() => {
@@ -246,34 +240,37 @@ useEffect(() => {
   );
 
   // Add this function to remove the hash fragment from the URL
-function removeURLFragment() {
-  console.log("Removing URL fragment");
-  if (typeof window !== "undefined" && window.location.hash) {
-    history.replaceState(
-      null,
-      document.title,
-      window.location.pathname + window.location.search
-    );
-  }
-}
-
-const prevDrawerOpen = useRef(isDrawerOpen);
-
-useEffect(() => {
-    if (prevDrawerOpen.current && !isDrawerOpen) {
-    removeURLFragment();
-    // Recenter the map to default center and zoom when drawer closes
-    if (mapRef.current && typeof mapRef.current.recenterToDefault === "function") {
-      mapRef.current.recenterToDefault();
+  function removeURLFragment() {
+    console.log("Removing URL fragment");
+    if (typeof window !== "undefined" && window.location.hash) {
+      history.replaceState(
+        null,
+        document.title,
+        window.location.pathname + window.location.search,
+      );
     }
   }
-  // Drawer just closed, recenter map to config center when drawer closes
-  if (mapRef.current && typeof mapRef.current.clearMapLayers === "function") {
-    mapRef.current.clearMapLayers();
-  }
-  setBounds(null); // Reset bounds when drawer closes
-  prevDrawerOpen.current = isDrawerOpen;
-}, [isDrawerOpen]);
+
+  const prevDrawerOpen = useRef(isDrawerOpen);
+
+  useEffect(() => {
+    if (prevDrawerOpen.current && !isDrawerOpen) {
+      removeURLFragment();
+      // Recenter the map to default center and zoom when drawer closes
+      if (
+        mapRef.current &&
+        typeof mapRef.current.recenterToDefault === "function"
+      ) {
+        mapRef.current.recenterToDefault();
+      }
+    }
+    // Drawer just closed, recenter map to config center when drawer closes
+    if (mapRef.current && typeof mapRef.current.clearMapLayers === "function") {
+      mapRef.current.clearMapLayers();
+    }
+    setBounds(null); // Reset bounds when drawer closes
+    prevDrawerOpen.current = isDrawerOpen;
+  }, [isDrawerOpen]);
 
   const onInfoClick = useCallback(() => {
     setShowModal(true);
@@ -281,9 +278,9 @@ useEffect(() => {
 
   return (
     <>
-      <div className="flex h-screen relative overflow-hidden">
+      <div className="relative flex h-screen overflow-hidden">
         <div
-          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full w-0"} z-30`}
+          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full"} z-30`}
         >
           <Sidebar
             filteredItems={filteredItems}
@@ -314,7 +311,7 @@ useEffect(() => {
           />
         </div>
         <main
-          className={`flex-1 relative transform transition-transform duration-300 ease-in-out z-20`}
+          className={`relative z-20 flex-1 transform transition-transform duration-300 ease-in-out`}
         >
           <MapComponent
             bounds={bounds}
@@ -325,9 +322,9 @@ useEffect(() => {
           />
         </main>
         {isDrawerOpen && dataSetInfo && (
-          <DatasetDetails dataSetInfo={dataSetInfo} lang={lang}/>
+          <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
-        <div className="absolute bottom-0 left-0 z-25 flex items-center w-90 bg-primary-50 dark:bg-primary-800 pt-2 justify-center rounded-tr-xl opacity-50">
+        <div className="bg-primary-50 dark:bg-primary-800 absolute bottom-0 left-0 z-25 flex w-90 items-center justify-center rounded-tr-xl pt-2 opacity-50">
           <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
         </div>
       </div>

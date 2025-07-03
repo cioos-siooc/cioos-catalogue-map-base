@@ -23,7 +23,7 @@ async function fetchAllPackages() {
         ? `${config.fallback_catalogue_url}/api/3/action/package_search?q=${config.base_query}&rows=${rows}&start=${start}`
         : null;
 
-       let response;
+      let response;
       let attempt = 0;
       let urlToFetch = fetchURL;
       while (attempt < maxRetries) {
