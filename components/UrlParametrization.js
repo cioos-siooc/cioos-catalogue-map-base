@@ -22,7 +22,7 @@ export function manageURLParametersOnLoad(setBadges) {
 
 
  export function updateURLWithSelectedItem(selectedItemId) {
-    console.log("UDPATE URL SELECTED ID : : ");
+    
     if (typeof window !== "undefined" && selectedItemId) {
       // Keep current search params, just update the fragment/hash
       const { pathname, search } = window.location;
@@ -35,15 +35,13 @@ export function manageURLParametersOnLoad(setBadges) {
   }
 
 
-export function initURLUpdateProcess(badges) {
-      const urlParams = new URLSearchParams(window.location.search);
-      updateURL(urlParams, badges);
-      // Update the URL without reloading the page
-      console.log("Updating URL with parameters : : ", urlParams.toString());
-  
-      console.log(" URL content ::: ", window.location.hash);
+export function initURLUpdateProcess(badges, loading) {
       if(hasHashInURL()) return; // If there's a hash in the URL, don't update the search params
-      console.log("Updating URL without hash");
+      const urlParams = new URLSearchParams(window.location.search);
+
+
+      updateURL(urlParams, badges,loading);
+      // Update the URL without reloading the page
       window.history.replaceState(
         null,
         "",
@@ -57,14 +55,19 @@ function hasHashInURL() {
 
   // Function to update URL parameters based on the current state
   // This function will be called whenever eovList, projectList, or organizationList changes
-function updateURL(urlParams, badges) {
+function updateURL(urlParams, badges, loading) {
+    
     // Remove all previous filter params
-    urlParams.delete("eov");
-    urlParams.delete("projects");
-    urlParams.delete("organization");
-    urlParams.delete("search");
-    urlParams.delete("filter_date");
-
+    // If loading is true, keep the eov, projects, organization, search, and filter_date params
+    // If loading is false, remove them, we must update the URL with the current badges
+    
+    if( !loading) {
+      urlParams.delete("eov");
+      urlParams.delete("projects");
+      urlParams.delete("organization");
+      urlParams.delete("search");
+      urlParams.delete("filter_date");
+    }
     // For each badge, update the URL params accordingly
     Object.entries(badges).forEach(([filter_type, filter_value]) => {
       if (!filter_value || filter_value.length === 0) {
@@ -88,14 +91,12 @@ function updateURL(urlParams, badges) {
         urlParams.set(filter_type, filter_value);
       }
     });
-    console.log("Updated URL method ::::: ", urlParams.toString());
   }
 
 export function updateURLWithBadges(badges) {
-  if (typeof window === "undefined") return;
+  if (!badges || Object.keys(badges).length === 0) return;
     const url = new URL(window.location.href);
     url.search = ""; // Clear all search params
-    console.log("Updated URL complete :", url);
     Object.entries(badges).forEach(([key, value]) => {
         if (Array.isArray(value)) {
         value.forEach((v) => {
@@ -106,6 +107,5 @@ export function updateURLWithBadges(badges) {
         url.searchParams.set(key, value);
         }
     });
-    console.log("Updated URL with badges:", url.toString());
-  window.history.replaceState({}, "", url.toString());
+    window.history.replaceState({}, "", url.toString());
 }

@@ -121,15 +121,6 @@ function compareMetadataDates(item, dateArr, varName) {
   const itemDate = new Date(item[`${varName}`]);
   if (startDate && endDate) {
     let compare = itemDate >= startDate && itemDate <= endDate;
-    console.log("COMPARE ::  ", compare);
-    console.log(
-      "Start date : : ",
-      startDate,
-      " Item date :: ",
-      item[`${varName}`],
-      " End date : : ",
-      endDate,
-    );
     return compare;
   }
   return true;
