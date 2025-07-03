@@ -30,13 +30,13 @@ function Item({ label, value, href, className = "" }) {
           className={`hover:underline ${className}`}
         >
           {value}
-          <span className="inline-flex items-baseline ml-1 opacity-0 group-hover:opacity-100 transition-opacity w-2 h-2">
+          <span className="ml-1 inline-flex h-2 w-2 items-baseline opacity-0 transition-opacity group-hover:opacity-100">
             <GoLinkExternal />
           </span>
         </a>
       ) : (
         <span
-          className={`hover:underline flex flex-row gap-1 items-center ${className}`}
+          className={`flex flex-row items-center gap-1 hover:underline ${className}`}
         >
           {value}
         </span>
@@ -45,8 +45,7 @@ function Item({ label, value, href, className = "" }) {
   );
 }
 
-
-export function DatasetDetails({ dataSetInfo, lang}) {
+export function DatasetDetails({ dataSetInfo, lang }) {
   const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
 
@@ -69,9 +68,9 @@ export function DatasetDetails({ dataSetInfo, lang}) {
       onClose={closeDrawer}
       position="right"
       backdrop={false}
-      className="bg-primary-50/50 dark:text-white dark:bg-primary-800/50 backdrop-blur-sm h-screen w-screen md:w-96"
+      className="bg-primary-50/50 dark:bg-primary-800/50 h-screen w-screen backdrop-blur-sm md:w-96 dark:text-white"
     >
-      <DrawerItems className="flex-grow overflow-y-auto flex flex-col h-full">
+      <DrawerItems className="flex h-full flex-grow flex-col overflow-y-auto">
         <button
           className="absolute top-0 right-0 p-4"
           onClick={closeDrawer}
@@ -83,7 +82,7 @@ export function DatasetDetails({ dataSetInfo, lang}) {
         <div id="top" className="flex-shrink-0">
           {dataSetInfo && dataSetInfo.organization ? (
             <Image
-              className="rounded-sm w-auto max-h-40 max-w-[300px] bg-white p-1"
+              className="max-h-40 w-auto max-w-[300px] rounded-sm bg-white p-1"
               src={add_base_url(
                 dataSetInfo?.organization?.image_url_translated[lang],
               )}
@@ -94,7 +93,7 @@ export function DatasetDetails({ dataSetInfo, lang}) {
           ) : (
             <p>No image available</p>
           )}
-          <div className="flex flex-col gap-1 mt-4">
+          <div className="mt-4 flex flex-col gap-1">
             <Item
               value={dataSetInfo?.title_translated[lang]}
               href={citation?.URL}
@@ -107,7 +106,7 @@ export function DatasetDetails({ dataSetInfo, lang}) {
                   dataSetInfo?.organization?.external_home_url,
                 )}
               />
-              <hr className="border-gray-800 dark:border-gray-200 my-1  " />
+              <hr className="my-1 border-gray-800 dark:border-gray-200" />
               <Item
                 label={t.source}
                 value={citation?.URL.replace(/^https?:\/\//, "").split("/")[0]}
@@ -128,7 +127,7 @@ export function DatasetDetails({ dataSetInfo, lang}) {
         </div>
 
         <div
-          className="relative flex-grow overflow-y-auto mt-4 mb-4 text-sm prose"
+          className="prose relative mt-4 mb-4 flex-grow overflow-y-auto text-sm"
           id="dataset-description"
           dangerouslySetInnerHTML={{ __html: describtion_html }}
         ></div>

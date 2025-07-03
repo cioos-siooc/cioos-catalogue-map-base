@@ -1,4 +1,3 @@
-
 export function filterItemsByBadges(items, badges, selectedDateFilterOption) {
   if (!items || items.length === 0) return [];
   // If no badges, return all items
@@ -84,7 +83,11 @@ function manageDateFilterOptions(item, selectedDateFilterOption, value) {
 }
 
 // Fonction pour charger et filtrer les EOVs traduits
-export const fetchAndFilterEovsTranslated = (lang, eovList, setTranslatedEovList) => {
+export const fetchAndFilterEovsTranslated = (
+  lang,
+  eovList,
+  setTranslatedEovList,
+) => {
   fetch("/eovs.json")
     .then((res) => res.json())
     .then((data) => {

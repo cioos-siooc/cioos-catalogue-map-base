@@ -53,7 +53,7 @@ export function SearchFilter({ lang, setBadges }) {
   return (
     <>
       <Button
-        className="bg-primary-500 hover:cursor-pointer px-3"
+        className="bg-primary-500 px-3 hover:cursor-pointer"
         pill
         size="xs"
         onClick={() => setOpenModal(true)}
@@ -78,7 +78,7 @@ export function SearchFilter({ lang, setBadges }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="rounded-lg border-0 text-lg text-black dark:text-white focus:text-black focus:dark:text-white"
+          className="rounded-lg border-0 text-lg text-black focus:text-black dark:text-white focus:dark:text-white"
         />
       </Modal>
     </>
@@ -135,17 +135,17 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
         <ModalHeader>
           {t.filter_by} {t.time}
         </ModalHeader>
-        <ModalBody className="overflow-visible flex flex-col gap-2 p-4">
+        <ModalBody className="flex flex-col gap-2 overflow-visible p-4">
           <div className="flex flex-row items-center gap-4">
             {/* Select component */}
 
             {/* Datepickers with labels above */}
-            <div className="flex flex-col w-full">
-              <div className="flex flex-row w-full gap-2">
+            <div className="flex w-full flex-col">
+              <div className="flex w-full flex-row gap-2">
                 <div>
                   <span>{t.timefield}</span>
                   <Select
-                    className="p-2 w-[220px] min-w-[180px]"
+                    className="w-[220px] min-w-[180px] p-2"
                     id="date-filter-type"
                     onChange={(e) => setSelectedOption(e.target.value)}
                   >
@@ -163,7 +163,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                 <div>
                   <span>{t.from}</span>
                   <Datepicker
-                    className="p-2 w-[calc(50%+20px)] min-w-[180px]"
+                    className="w-[calc(50%+20px)] min-w-[180px] p-2"
                     language={`${lang}-CA`}
                     onChange={handleStartDateChange}
                     value={startDate}
@@ -177,7 +177,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                 <div>
                   <span>{t.to}</span>
                   <Datepicker
-                    className="p-2 w-[calc(50%+20px)] min-w-[180px]"
+                    className="w-[calc(50%+20px)] min-w-[180px] p-2"
                     language={`${lang}-CA`}
                     onChange={handleEndDateChange}
                     value={endDate}
@@ -198,28 +198,29 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
   );
 }
 
-export function FilterItems({ filter_type, lang, setBadges, options, badges}) {
+export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
   const [openModal, setOpenModal] = useState(false);
-  
+
   const t = getLocale(lang);
   const [query, setQuery] = useState([]);
-  
-  
+
   useEffect(() => {
     // Initialize query from badges if available to load existing filters in URL
-    const selectedValues = badges[filter_type] ? badges[filter_type].map((arr) => arr[1]) : [];
+    const selectedValues = badges[filter_type]
+      ? badges[filter_type].map((arr) => arr[1])
+      : [];
 
-    const badgeLabels = selectedValues.map(badgeValue => {
-      // Find the corresponding label in options
-      const found = options.find(opt => opt.value === badgeValue);
-      return found ? [found.value, found.label] : null;
-    }).filter(label => label !== null);
+    const badgeLabels = selectedValues
+      .map((badgeValue) => {
+        // Find the corresponding label in options
+        const found = options.find((opt) => opt.value === badgeValue);
+        return found ? [found.value, found.label] : null;
+      })
+      .filter((label) => label !== null);
 
-    
     if (badgeLabels.length > 0) {
       setQuery(badgeLabels);
     }
-
   }, [filter_type, options]);
 
   // Keep count in sync with query length
@@ -267,19 +268,19 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges}) {
       <Button
         pill
         size="xs"
-        className="gap-1 bg-primary-500 hover:cursor-pointer"
+        className="bg-primary-500 gap-1 hover:cursor-pointer"
         onClick={() => setOpenModal(true)}
       >
         {count > 0 && (
           <>
-            <span className="w-4 h-4 text-xs border-0 bg-accent-500 text-black rounded-full">
+            <span className="bg-accent-500 h-4 w-4 rounded-full border-0 text-xs text-black">
               {count}
             </span>
             <div>{t[filter_type]}</div>
             <span
               role="button"
               tabIndex={0}
-              className="pl-1 text-lg hover:text-accent-500 bg-transparent border-0 p-0 m-0 cursor-pointer relative group"
+              className="hover:text-accent-500 group relative m-0 cursor-pointer border-0 bg-transparent p-0 pl-1 text-lg"
               onClick={(e) => {
                 e.stopPropagation();
                 removeBadge(filter_type);
@@ -287,7 +288,7 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges}) {
               aria-label={t.remove_filter}
             >
               <FiDelete />
-              <span className="absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap shadow-lg">
+              <span className="absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs whitespace-nowrap text-white shadow-lg group-hover:block">
                 {t.remove_filter}
               </span>
             </span>
@@ -349,9 +350,9 @@ export default function FilterSection({
         onClick={toggleAccordion}
       />
       <div
-        className={`transition-all duration-300 ${isAccordionOpen ? "pt-1" : "max-h-0 hidden"}`}
+        className={`transition-all duration-300 ${isAccordionOpen ? "pt-1" : "hidden max-h-0"}`}
       >
-        <div className="flex flex-row items-center gap-1 flex-wrap justify-center">
+        <div className="flex flex-row flex-wrap items-center justify-center gap-1">
           <SearchFilter lang={lang} setBadges={setBadges} />
           <FilterItems
             filter_type="organization"
