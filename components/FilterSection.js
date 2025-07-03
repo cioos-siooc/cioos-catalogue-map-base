@@ -41,7 +41,6 @@ export function SearchFilter({ lang, setBadges }) {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      console.log("Enter pressed! Searching for:", query);
       // Close modal and add badge
       setBadges((prevBadges) => ({
         ...prevBadges,
@@ -100,7 +99,6 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
     // TODO: add first drowdown value inside the badge
 
     const strDates = `${formatDateRangeWithoutTime(startDate.toISOString(), t)}%20TO%20${formatDateRangeWithoutTime(endDate.toISOString(), t)}`;
-    console.log("DATESSSSS :: ", strDates);
     setBadges((prevBadges) => ({
       ...prevBadges,
       filter_date: strDates,
@@ -200,10 +198,29 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
   );
 }
 
-export function FilterItems({ filter_type, lang, setBadges, options }) {
+export function FilterItems({ filter_type, lang, setBadges, options, badges}) {
   const [openModal, setOpenModal] = useState(false);
-  const [query, setQuery] = useState([]);
+  
   const t = getLocale(lang);
+  const [query, setQuery] = useState([]);
+  
+  
+  useEffect(() => {
+    // Initialize query from badges if available to load existing filters in URL
+    const selectedValues = badges[filter_type] ? badges[filter_type].map((arr) => arr[1]) : [];
+
+    const badgeLabels = selectedValues.map(badgeValue => {
+      // Find the corresponding label in options
+      const found = options.find(opt => opt.value === badgeValue);
+      return found ? [found.value, found.label] : null;
+    }).filter(label => label !== null);
+
+    
+    if (badgeLabels.length > 0) {
+      setQuery(badgeLabels);
+    }
+
+  }, [filter_type, options]);
 
   // Keep count in sync with query length
   const count = query.length;
@@ -320,6 +337,7 @@ export default function FilterSection({
   };
 
   useEffect(() => {
+    // Update URL with badges whenever badges change
     updateURLWithBadges(badges);
   }, [badges]);
 
@@ -340,18 +358,21 @@ export default function FilterSection({
             lang={lang}
             setBadges={setBadges}
             options={orgList.map((org) => ({ label: org, value: org }))} // Convert to array of tuples
+            badges={badges}
           />
           <FilterItems
             filter_type="projects"
             lang={lang}
             setBadges={setBadges}
             options={projList.map((proj) => ({ label: proj, value: proj }))} // Convert to array of tuples
+            badges={badges}
           />
           <FilterItems
             filter_type="eov"
             lang={lang}
             setBadges={setBadges}
-            options={eovList.map((eov) => ({ label: eov[0], value: eov[1] }))} // Convert to array of tuples
+            options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))} // Convert to array of tuples
+            badges={badges}
           />
           <TimeFilter
             lang={lang}
