@@ -221,7 +221,7 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
     if (badgeLabels.length > 0) {
       setQuery(badgeLabels);
     }
-  }, [filter_type, options]);
+  }, [filter_type, options,badges]);
 
   // Keep count in sync with query length
   const count = query.length;

@@ -35,7 +35,7 @@ export default function ModalPages({ lang }) {
         [openKey]: page.content?.[lang] || "",
       }));
     }
-  }, [openKey, lang]);
+  }, [openKey, lang, pages]);
 
   return (
     <>
