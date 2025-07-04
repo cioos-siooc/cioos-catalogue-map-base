@@ -71,6 +71,7 @@ function AppContent({ lang, setLang }) {
     setIsSidebarOpen(!isSidebarOpen);
   };
   const mapRef = useRef();
+  const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();
 
   // if window is greater than 600px, set isSidebarOpen to true
   useEffect(() => {
@@ -78,8 +79,6 @@ function AppContent({ lang, setLang }) {
       setIsSidebarOpen(true);
     }
   }, []);
-
-  const catalogueUrl = config.catalogue_url;
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
@@ -160,17 +159,17 @@ function AppContent({ lang, setLang }) {
     setTranslatedEovList(filtered);
   }, []);
 
-  const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();
+
 
     // Memoize callbacks to prevent re-renders
   const handleListItemClick = useCallback(
     (selectedItem) => {
       setBounds(selectedItem.spatial);
-      fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
+      fetchDataSetInfo(selectedItem.id, setDatasetInfo);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
     },
-    [openDrawer, catalogueUrl],
+    [openDrawer],
   );
 
   // This effect runs on initial load to manage URL parameters and set initial state
@@ -181,6 +180,7 @@ function AppContent({ lang, setLang }) {
         manageURLParametersOnLoad(setBadges);
         selectedId = window.location.hash.replace(/^#/, "");
       }
+      console.log("All items loaded, managing URL parameters NON ::: ", selectedId);
       if (selectedId) {
         const selectedItem = allItems.find((item) => item.id === selectedId);
         if (selectedItem && selectedItem.spatial) {
@@ -189,12 +189,16 @@ function AppContent({ lang, setLang }) {
         }
       }
     }
-  }, [allItems,handleListItemClick]);
+  }, [allItems]);
+
+
 
   // This effect updates the map bounds when datasetSpatial changes
   // It ensures that the map is updated only when the mapRef is ready
   useEffect(() => {
     if (mapRef.current) {
+      console.log("Updating map bounds with datasetSpatial:", datasetSpatial);
+      // Check if datasetSpatial is defined and has valid bounds
       if (datasetSpatial) {
         if (typeof mapRef.current.updateBounds === "function") {
           mapRef.current.updateBounds(datasetSpatial, setDatasetSpatial);
@@ -208,11 +212,13 @@ function AppContent({ lang, setLang }) {
   const prevBadgesLength = useRef(badges ? Object.keys(badges).length : 0);
   // This effect updates the URL only when badges change
   useEffect(() => {
+    console.log("Badges changed, updating URL and checking drawer state");
     initURLUpdateProcess(badges, loading);
     const currentLength = badges ? Object.keys(badges).length : 0;
     if (currentLength < prevBadgesLength.current) {
       // Badges list decreased in size, run your logic here
       // Close the drawer each time badges change
+      console.log("Badges list decreased, closing drawer if open");
       if (isDrawerOpen) {
         closeDrawer();
       }
@@ -243,6 +249,8 @@ function AppContent({ lang, setLang }) {
   const prevDrawerOpen = useRef(isDrawerOpen);
 
   useEffect(() => {
+    console.log("Drawer state changed:", isDrawerOpen);
+
     if (prevDrawerOpen.current && !isDrawerOpen) {
       removeURLFragment();
       // Recenter the map to default center and zoom when drawer closes

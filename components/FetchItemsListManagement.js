@@ -1,3 +1,10 @@
+"use client";
+
+import config  from "@/app/config.js";
+
+const catalogueUrl = config.catalogue_url;
+
+
 // Function to fill organization and project lists
 export const fillOrganizationAndProjectLists = (
   items,
@@ -20,7 +27,7 @@ export const fillOrganizationAndProjectLists = (
   setEovList(Array.from(eovList));
 };
 
-export function fetchDataSetInfo(id, setDatasetInfo, catalogueUrl) {
+export function fetchDataSetInfo(id, setDatasetInfo) {
   fetch(`${catalogueUrl}/api/3/action/package_show?id=${id}`)
     .then((res) => res.json())
     .then((data) => {
