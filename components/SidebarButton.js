@@ -17,7 +17,7 @@ const SidebarButton = ({ logo, label, onClick }) => {
 
 SidebarButton.propTypes = {
   logo: PropTypes.node,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.node.isRequired,
   onClick: PropTypes.func.isRequired,
 };
 SidebarButton.defaultProps = {
