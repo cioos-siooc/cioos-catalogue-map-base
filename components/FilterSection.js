@@ -17,16 +17,11 @@ import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
 import { updateURLWithBadges } from "@/components/UrlParametrization";
 
-// Helper function to format a date range string by removing the time
-function formatDateRangeWithoutTime(value, t) {
-  // Expects value like '2025-05-16T00:00:00Z%20TO%202025-05-17T00:00:00Z'
-  if (!value) return "";
-  const match = value.match(/(\d{4}-\d{2}-\d{2})T.*TO.*(\d{4}-\d{2}-\d{2})T/);
-  if (match) {
-    return `${match[1]} ${t.between_date} ${match[2]}`;
-  }
-  // Fallback: remove time if present, and replace %20TO%20 with ' to '
-  return value; //.replace(/T.*?Z/g, "").replace(/%20TO%20/i, " to ");
+// Helper to format an ISO date to YYYY-MM-DD (machine-friendly)
+function toYMD(iso) {
+  if (!iso) return "";
+  // Expect an ISO string; just take the date part
+  return iso.slice(0, 10);
 }
 
 export function SearchFilter({ lang, setBadges, badges }) {
@@ -139,25 +134,46 @@ export function SearchFilter({ lang, setBadges, badges }) {
   );
 }
 
-function TimeFilter({ lang, setBadges, setSelectedOption }) {
+function TimeFilter({ lang, setBadges, setSelectedOption, badges }) {
   const [openModal, setOpenModal] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  const [selectedType, setSelectedType] = useState("temporal-extent-overlaps");
   const t = getLocale(lang);
 
-  function onCloseModal() {
-    if (!startDate && !endDate) {
-      setOpenModal(false);
-      return;
+  // Sync local UI from badges (URL/app state)
+  useEffect(() => {
+    if (badges?.filter_date_field) {
+      setSelectedType(badges.filter_date_field);
+      setSelectedOption(badges.filter_date_field);
     }
-    // TODO: add first drowdown value inside the badge
+    // If no value from URL/app, keep the default overlaps
+    if (!badges?.filter_date_field) {
+      setSelectedOption("temporal-extent-overlaps");
+    }
+    if (badges?.filter_date) {
+      const [s, e] = String(badges.filter_date).split("%20TO%20");
+      if (s) setStartDate(new Date(s));
+      if (e) setEndDate(new Date(e));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [badges?.filter_date, badges?.filter_date_field]);
 
-    const strDates = `${formatDateRangeWithoutTime(startDate.toISOString(), t)}%20TO%20${formatDateRangeWithoutTime(endDate.toISOString(), t)}`;
-    setBadges((prevBadges) => ({
-      ...prevBadges,
+  // Apply time filter
+  const applyTimeFilter = () => {
+    if (!startDate || !endDate) return;
+    // Persist the selected type to the parent for filtering
+    if (selectedType) setSelectedOption(selectedType);
+    const strDates = `${toYMD(startDate.toISOString())}%20TO%20${toYMD(endDate.toISOString())}`;
+    setBadges((prev) => ({
+      ...prev,
       filter_date: strDates,
+      ...(selectedType ? { filter_date_field: selectedType } : {}),
     }));
+    setOpenModal(false);
+  };
 
+  function onCloseModal() {
     setOpenModal(false);
   }
 
@@ -169,15 +185,48 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
     setEndDate(date);
   };
 
+  // Clear the time badge and local UI state
+  const clearTimeBadge = (e) => {
+    if (e) e.stopPropagation();
+    setBadges((prev) => {
+      const next = { ...prev };
+      delete next.filter_date;
+      delete next.filter_date_field;
+      return next;
+    });
+    setSelectedOption("");
+  };
+
   return (
     <>
       <Button
-        className="bg-primary-500 hover:cursor-pointer"
+        className="bg-primary-500 gap-1 hover:cursor-pointer"
         pill
         size="xs"
         onClick={() => setOpenModal(true)}
       >
-        {t.time}
+        {badges?.filter_date ? (
+          <>
+            <span className="bg-accent-500 h-4 w-4 rounded-full border-0 text-center text-xs leading-4 text-black">
+              1
+            </span>
+            <div>{t.time}</div>
+            <span
+              role="button"
+              tabIndex={0}
+              className="hover:text-accent-500 group relative m-0 cursor-pointer border-0 bg-transparent p-0 pl-1 text-lg"
+              onClick={clearTimeBadge}
+              aria-label={t.remove_filter}
+            >
+              <FiDelete />
+              <span className="absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs whitespace-nowrap text-white shadow-lg group-hover:block">
+                {t.remove_filter}
+              </span>
+            </span>
+          </>
+        ) : (
+          <div>{t.time}</div>
+        )}
       </Button>
       <Modal
         dismissible
@@ -201,17 +250,28 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                   <Select
                     className="w-[220px] min-w-[180px] p-2"
                     id="date-filter-type"
-                    onChange={(e) => setSelectedOption(e.target.value)}
+                    value={selectedType}
+                    onChange={(e) => {
+                      setSelectedType(e.target.value);
+                      setSelectedOption(e.target.value);
+                    }}
                   >
                     <option value="">{t.select}</option>
                     <option value="temporal-extent-begin">
-                      temporal-extent-begin
+                      {t["temporal-extent-begin"]}
                     </option>
                     <option value="temporal-extent-end">
-                      temporal-extent-end
+                      {t["temporal-extent-end"]}
                     </option>
-                    <option value="metadata_created">metadata_created</option>
-                    <option value="metadata_modified">metadata_modified</option>
+                    <option value="temporal-extent-overlaps">
+                      {t["temporal-extent-overlaps"]}
+                    </option>
+                    <option value="metadata_created">
+                      {t["metadata_created"]}
+                    </option>
+                    <option value="metadata_modified">
+                      {t["metadata_modified"]}
+                    </option>
                   </Select>
                 </div>
                 <div>
@@ -226,6 +286,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                     labelTodayButton={t.today}
                     labelClearButton={t.clear}
                     placeholder={t.start_date}
+                    onKeyDown={(e) => e.key === "Enter" && applyTimeFilter()}
                   />
                 </div>
                 <div>
@@ -241,10 +302,19 @@ function TimeFilter({ lang, setBadges, setSelectedOption }) {
                     labelTodayButton={t.today}
                     labelClearButton={t.clear}
                     placeholder={t.end_date}
+                    onKeyDown={(e) => e.key === "Enter" && applyTimeFilter()}
                   />
                 </div>
               </div>
             </div>
+          </div>
+          <div className="mt-4 flex flex-row justify-end gap-2">
+            <Button color="gray" size="sm" onClick={clearTimeBadge}>
+              {t.clear}
+            </Button>
+            <Button color="blue" size="sm" onClick={applyTimeFilter}>
+              {t.apply}
+            </Button>
           </div>
         </ModalBody>
       </Modal>
@@ -433,6 +503,7 @@ export default function FilterSection({
             lang={lang}
             setBadges={setBadges}
             setSelectedOption={setSelectedOption}
+            badges={badges}
           />
         </div>
       </div>

@@ -61,6 +61,7 @@ function updateURL(urlParams, badges, loading) {
     urlParams.delete("organization");
     urlParams.delete("search");
     urlParams.delete("filter_date");
+    urlParams.delete("filter_date_field");
   }
   // For each badge, update the URL params accordingly
   Object.entries(badges).forEach(([filter_type, filter_value]) => {

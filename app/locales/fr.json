@@ -26,5 +26,11 @@
   "between_date": "à",
   "select": "Sélectionnez une option",
   "source": "Source",
-  "remove_filter": "Retirer le filtre"
+  "remove_filter": "Retirer le filtre",
+  "temporal-extent-begin": "Date de début des données",
+  "temporal-extent-end": "Date de fin des données",
+  "temporal-extent-overlaps": "Données disponibles entre les dates",
+  "metadata_created": "Métadonnées créées",
+  "metadata_modified": "Métadonnées modifiées",
+  "apply": "Appliquer"
 }
