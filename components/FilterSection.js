@@ -29,7 +29,7 @@ function formatDateRangeWithoutTime(value, t) {
   return value; //.replace(/T.*?Z/g, "").replace(/%20TO%20/i, " to ");
 }
 
-export function SearchFilter({ lang, setBadges }) {
+export function SearchFilter({ lang, setBadges, badges }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -50,17 +50,59 @@ export function SearchFilter({ lang, setBadges }) {
     }
   };
 
+  // Keep local query in sync with URL/app state when badges.search changes
+  useEffect(() => {
+    if (badges && typeof badges.search === "string") {
+      setQuery(badges.search);
+    } else if (!badges?.search && query !== "") {
+      // If search was removed elsewhere, clear local query
+      setQuery("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [badges?.search]);
+
+  const clearSearchBadge = (e) => {
+    if (e) e.stopPropagation();
+    setBadges((prev) => {
+      const next = { ...prev };
+      delete next.search;
+      return next;
+    });
+    setQuery("");
+  };
+
   return (
     <>
       <Button
-        className="bg-primary-500 px-3 hover:cursor-pointer"
+        className="bg-primary-500 gap-1 px-3 hover:cursor-pointer"
         pill
         size="xs"
         onClick={() => setOpenModal(true)}
       >
-        {t.search}
-        {query && query.trim() !== "" && (
-          <span className="h-4 text-xs">: {query}</span>
+        {badges?.search ? (
+          <>
+            <span className="bg-accent-500 h-4 w-4 rounded-full border-0 text-center text-xs leading-4 text-black">
+              1
+            </span>
+            <div>{t.search}</div>
+            <span className="max-w-[120px] truncate text-xs opacity-90">
+              : {badges.search}
+            </span>
+            <span
+              role="button"
+              tabIndex={0}
+              className="hover:text-accent-500 group relative m-0 cursor-pointer border-0 bg-transparent p-0 pl-1 text-lg"
+              onClick={clearSearchBadge}
+              aria-label={t.remove_filter}
+            >
+              <FiDelete />
+              <span className="absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs whitespace-nowrap text-white shadow-lg group-hover:block">
+                {t.remove_filter}
+              </span>
+            </span>
+          </>
+        ) : (
+          <div>{t.search}</div>
         )}
       </Button>
       <Modal
@@ -71,15 +113,27 @@ export function SearchFilter({ lang, setBadges }) {
         popup
         className="rounded-lg border-0 text-lg"
       >
-        <FloatingLabel
-          id="query-input"
-          variant="filled"
-          label={t.search}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="rounded-lg border-0 text-lg text-black focus:text-black dark:text-white focus:dark:text-white"
-        />
+        <div className="relative">
+          <FloatingLabel
+            id="query-input"
+            variant="filled"
+            label={t.search}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="rounded-lg border-0 pr-10 text-lg text-black focus:text-black dark:text-white focus:dark:text-white"
+          />
+          {query && (
+            <button
+              type="button"
+              className="hover:text-accent-500 absolute top-1/2 right-2 -translate-y-1/2 rounded px-1 py-0.5 text-gray-500"
+              aria-label={t.remove_filter}
+              onClick={() => clearSearchBadge()}
+            >
+              <FiDelete />
+            </button>
+          )}
+        </div>
       </Modal>
     </>
   );
@@ -221,7 +275,7 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
     if (badgeLabels.length > 0) {
       setQuery(badgeLabels);
     }
-  }, [filter_type, options,badges]);
+  }, [filter_type, options, badges]);
 
   // Keep count in sync with query length
   const count = query.length;
@@ -353,7 +407,7 @@ export default function FilterSection({
         className={`transition-all duration-300 ${isAccordionOpen ? "pt-1" : "hidden max-h-0"}`}
       >
         <div className="flex flex-row flex-wrap items-center justify-center gap-1">
-          <SearchFilter lang={lang} setBadges={setBadges} />
+          <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
           <FilterItems
             filter_type="organization"
             lang={lang}
