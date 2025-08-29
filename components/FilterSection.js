@@ -238,83 +238,102 @@ function TimeFilter({ lang, setBadges, setSelectedOption, badges }) {
         <ModalHeader>
           {t.filter_by} {t.time}
         </ModalHeader>
-        <ModalBody className="flex flex-col gap-2 overflow-visible p-4">
-          <div className="flex flex-row items-center gap-4">
-            {/* Select component */}
-
-            {/* Datepickers with labels above */}
-            <div className="flex w-full flex-col">
-              <div className="flex w-full flex-row gap-2">
-                <div>
-                  <span>{t.timefield}</span>
-                  <Select
-                    className="w-[220px] min-w-[180px] p-2"
-                    id="date-filter-type"
-                    value={selectedType}
-                    onChange={(e) => {
-                      setSelectedType(e.target.value);
-                      setSelectedOption(e.target.value);
-                    }}
-                  >
-                    <option value="">{t.select}</option>
-                    <option value="temporal-extent-begin">
-                      {t["temporal-extent-begin"]}
-                    </option>
-                    <option value="temporal-extent-end">
-                      {t["temporal-extent-end"]}
-                    </option>
-                    <option value="temporal-extent-overlaps">
-                      {t["temporal-extent-overlaps"]}
-                    </option>
-                    <option value="metadata_created">
-                      {t["metadata_created"]}
-                    </option>
-                    <option value="metadata_modified">
-                      {t["metadata_modified"]}
-                    </option>
-                  </Select>
-                </div>
-                <div>
-                  <span>{t.from}</span>
-                  <Datepicker
-                    className="w-[calc(50%+20px)] min-w-[180px] p-2"
-                    language={`${lang}-CA`}
-                    onChange={handleStartDateChange}
-                    value={startDate}
-                    selected={startDate}
-                    maxDate={endDate || new Date()}
-                    labelTodayButton={t.today}
-                    labelClearButton={t.clear}
-                    placeholder={t.start_date}
-                    onKeyDown={(e) => e.key === "Enter" && applyTimeFilter()}
-                  />
-                </div>
-                <div>
-                  <span>{t.to}</span>
-                  <Datepicker
-                    className="w-[calc(50%+20px)] min-w-[180px] p-2"
-                    language={`${lang}-CA`}
-                    onChange={handleEndDateChange}
-                    value={endDate}
-                    selected={endDate}
-                    minDate={startDate} // Disable dates before the start date
-                    maxDate={new Date()} // Disable future dates
-                    labelTodayButton={t.today}
-                    labelClearButton={t.clear}
-                    placeholder={t.end_date}
-                    onKeyDown={(e) => e.key === "Enter" && applyTimeFilter()}
-                  />
-                </div>
-              </div>
+        <ModalBody className="flex flex-col gap-4 overflow-visible p-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-col">
+              <label
+                htmlFor="date-filter-type"
+                className="mb-1 text-sm opacity-80"
+              >
+                {t.timefield}
+              </label>
+              <Select
+                className="w-full min-w-[180px] p-2"
+                id="date-filter-type"
+                value={selectedType}
+                onChange={(e) => {
+                  setSelectedType(e.target.value);
+                  setSelectedOption(e.target.value);
+                }}
+              >
+                <option value="">{t.select}</option>
+                <option value="temporal-extent-begin">
+                  {t["temporal-extent-begin"]}
+                </option>
+                <option value="temporal-extent-end">
+                  {t["temporal-extent-end"]}
+                </option>
+                <option value="temporal-extent-overlaps">
+                  {t["temporal-extent-overlaps"]}
+                </option>
+                <option value="metadata_created">
+                  {t["metadata_created"]}
+                </option>
+                <option value="metadata_modified">
+                  {t["metadata_modified"]}
+                </option>
+              </Select>
+            </div>
+            <div className="flex flex-col">
+              <label className="mb-1 text-sm opacity-80">{t.from}</label>
+              <Datepicker
+                className="w-full min-w-[180px] p-2"
+                language={`${lang}-CA`}
+                onChange={handleStartDateChange}
+                value={startDate}
+                selected={startDate}
+                maxDate={endDate || new Date()}
+                labelTodayButton={t.today}
+                labelClearButton={t.clear}
+                placeholder={t.start_date}
+                onKeyDown={(e) => e.key === "Enter" && applyTimeFilter()}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="mb-1 text-sm opacity-80">{t.to}</label>
+              <Datepicker
+                className="w-full min-w-[180px] p-2"
+                language={`${lang}-CA`}
+                onChange={handleEndDateChange}
+                value={endDate}
+                selected={endDate}
+                minDate={startDate}
+                maxDate={new Date()}
+                labelTodayButton={t.today}
+                labelClearButton={t.clear}
+                placeholder={t.end_date}
+                onKeyDown={(e) => e.key === "Enter" && applyTimeFilter()}
+              />
             </div>
           </div>
-          <div className="mt-4 flex flex-row justify-end gap-2">
-            <Button color="gray" size="sm" onClick={clearTimeBadge}>
-              {t.clear}
-            </Button>
-            <Button color="blue" size="sm" onClick={applyTimeFilter}>
-              {t.apply}
-            </Button>
+
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-xs opacity-80">
+              {selectedType && (
+                <span className="bg-primary-100 dark:bg-primary-900 mr-2 inline-block rounded px-2 py-0.5">
+                  {t[selectedType] || selectedType}
+                </span>
+              )}
+              {startDate && endDate && (
+                <span>
+                  {toYMD(startDate.toISOString())} {t.between_date}{" "}
+                  {toYMD(endDate.toISOString())}
+                </span>
+              )}
+            </div>
+            <div className="mt-2 flex gap-2 sm:mt-0">
+              <Button color="gray" size="sm" onClick={clearTimeBadge}>
+                {t.clear}
+              </Button>
+              <Button
+                color="blue"
+                size="sm"
+                onClick={applyTimeFilter}
+                disabled={!startDate || !endDate || !selectedType}
+              >
+                {t.apply}
+              </Button>
+            </div>
           </div>
         </ModalBody>
       </Modal>
