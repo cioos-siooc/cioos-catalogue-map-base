@@ -5,7 +5,8 @@ on:
       - main
       - feat/add-sync-action
     paths:
-      - '.github/sync.yml'
+      - .github/sync.yaml
+      - .github/workflows/sync-template.yaml
       - 'config.yaml'
 
   workflow_dispatch:
