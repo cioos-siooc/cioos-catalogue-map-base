@@ -7,7 +7,6 @@ on:
     paths:
       - .github/sync.yml
       - .github/workflows/sync-template.yaml
-      - 'config.yaml'
 
   workflow_dispatch:
 jobs:
