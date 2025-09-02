@@ -22,6 +22,7 @@ import {
   useRef,
   memo,
   useImperativeHandle,
+  useMemo,
 } from "react";
 import L from "leaflet";
 import config from "@/app/config";
@@ -37,9 +38,10 @@ const getPrimaryColor = () => {
   return primaryColor;
 };
 
+// Only clear polygon/geojson overlays we add imperatively; DO NOT remove markers managed by React
 const clearMapLayers = (map) => {
   map.eachLayer((layer) => {
-    if (layer instanceof L.Polygon || layer instanceof L.Marker) {
+    if (layer instanceof L.Polygon || layer instanceof L.GeoJSON) {
       map.removeLayer(layer);
     }
   });
@@ -170,6 +172,21 @@ const Map = forwardRef(function Map(
   const t = getLocale(lang);
 
   const mapRef = useRef();
+  // Remount key for cluster group to force updates on filter change
+  const clusterKey = useMemo(() => {
+    try {
+      let hash = 0;
+      for (const item of filteredItems) {
+        const id = String(item.id);
+        for (let i = 0; i < id.length; i++) {
+          hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0;
+        }
+      }
+      return `cluster-${filteredItems.length}-${hash}`;
+    } catch {
+      return `cluster-${filteredItems.length}`;
+    }
+  }, [filteredItems]);
   // Expose clearMapLayers to parent via ref
   useImperativeHandle(ref, () => ({
     clearMapLayers: () => {
@@ -224,7 +241,7 @@ const Map = forwardRef(function Map(
         <BaseLayers basemaps={config.basemaps} lang={lang} />
         {bounds && <FitBounds key={bounds} bounds={bounds} />}
         <Overlay checked name={t.dataset_markers}>
-          <MarkerClusterGroup>
+          <MarkerClusterGroup key={clusterKey}>
             {filteredItems.map((item) => (
               <DatasetMarker
                 key={item.id}

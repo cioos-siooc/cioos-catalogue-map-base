@@ -26,7 +26,9 @@ export function filterItemsByBadges(items, badges, selectedDateFilterOption) {
       ) {
         return filterByOrganizationProjectsEov(item, filterType, value);
       } else if (filterType === "filter_date") {
-        return manageDateFilterOptions(item, selectedDateFilterOption, value);
+        const field =
+          selectedDateFilterOption || badges.filter_date_field || "";
+        return manageDateFilterOptions(item, field, value);
       }
       return true;
     });
@@ -62,24 +64,34 @@ function filterByOrganizationProjectsEov(item, filterType, selected_values) {
 }
 
 function manageDateFilterOptions(item, selectedDateFilterOption, value) {
-  // Split value on '%20TO%20' to get an array of date strings
-  const dateArr = value.split("%20TO%20");
+  // Expect value like 'YYYY-MM-DD%20TO%20YYYY-MM-DD'
+  const dateArr = (value || "").split("%20TO%20");
+  const startDate = dateArr[0] ? new Date(dateArr[0]) : null;
+  const endDate = dateArr[1] ? new Date(dateArr[1]) : null;
+
+  if (!selectedDateFilterOption) return true;
 
   if (selectedDateFilterOption.startsWith("metadata")) {
-    return compareMetadataDates(item, dateArr, selectedDateFilterOption);
-  } else if (selectedDateFilterOption.startsWith("temporal")) {
-    return compareTemporalDates(
+    return compareMetadataDates(
       item,
-      dateArr,
-      selectedDateFilterOption.split("-")[2],
-    );
-  } else {
-    console.warn(
-      "Unknown date filter option selected:",
+      [dateArr[0], dateArr[1]],
       selectedDateFilterOption,
     );
-    return true; // Default to true if no valid option is selected
   }
+
+  if (selectedDateFilterOption.startsWith("temporal")) {
+    if (selectedDateFilterOption === "temporal-extent-overlaps") {
+      return compareTemporalOverlaps(item, startDate, endDate);
+    }
+    const varName = selectedDateFilterOption.split("-")[2];
+    return compareTemporalDates(item, [dateArr[0], dateArr[1]], varName);
+  }
+
+  console.warn(
+    "Unknown date filter option selected:",
+    selectedDateFilterOption,
+  );
+  return true;
 }
 
 // Fonction pour charger et filtrer les EOVs traduits
@@ -114,6 +126,29 @@ function compareTemporalDates(item, dateArr, varName) {
     return itemDate >= startDate && itemDate <= endDate;
   }
   return true;
+}
+
+// Overlap if dataset [begin,end] intersects with selected [startDate,endDate]
+function compareTemporalOverlaps(item, startDate, endDate) {
+  if (!item.temporal_extent) return true;
+  const dsBegin =
+    item.temporal_extent["begin"] ||
+    item.temporal_extent["temporal-extent-begin"]; // try both naming schemes
+  const dsEnd =
+    item.temporal_extent["end"] || item.temporal_extent["temporal-extent-end"];
+  if (!dsBegin && !dsEnd) return true;
+
+  const dBegin = dsBegin ? new Date(dsBegin) : null;
+  const dEnd = dsEnd ? new Date(dsEnd) : null;
+
+  if (!startDate || !endDate) return true;
+
+  // Handle open-ended dataset ranges defensively
+  const itemStart = dBegin || new Date(-8640000000000000); // min date
+  const itemEnd = dEnd || new Date(); // assume ongoing if no end
+
+  // Overlap condition: start <= itemEnd && end >= itemStart
+  return startDate <= itemEnd && endDate >= itemStart;
 }
 //
 function compareMetadataDates(item, dateArr, varName) {
