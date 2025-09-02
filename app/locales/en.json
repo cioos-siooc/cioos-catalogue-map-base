@@ -25,8 +25,12 @@
   "about": "About",
   "between_date": "to",
   "select": "Select an option",
-  "about_header": "About the map catalog",
-  "about_text": "The map catalog is a data exploration tool that allows you to display entries from the OGSL Data Catalog on a map, with the ability to filter results by essential ocean variables* such as sea surface temperature or phytoplankton. By clicking on data points and their spatial extent, the sidebar displays dataset information (title, description, data producer, and links to the Catalog page and data files).",
   "source": "Source",
-  "remove_filter": "Remove filter"
+  "remove_filter": "Remove filter",
+  "temporal-extent-begin": "Data start date",
+  "temporal-extent-end": "Data end date",
+  "temporal-extent-overlaps": "Data available between dates",
+  "metadata_created": "Metadata created",
+  "metadata_modified": "Metadata modified",
+  "apply": "Apply"
 }

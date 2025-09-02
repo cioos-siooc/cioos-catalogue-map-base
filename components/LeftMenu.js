@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import ItemsList from "@/components/ItemsList";
-import ModalAPropos from "@/components/ModalAPropos";
+import ModalPages from "@/components/ModalPages";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
@@ -18,14 +18,14 @@ const Title = ({ lang, setLang }) => {
   };
 
   return (
-    <div className="flex flex-row w-full justify-between">
+    <div className="flex w-full flex-row justify-between">
       <div className="flex-col">
         <Logo logos={config.main_logo} lang={lang} default_width={120} />
         <span className="pt-3 text-xl font-semibold">{config.title[lang]}</span>
       </div>
 
       <button
-        className="p-1 uppercase cursor-pointer"
+        className="cursor-pointer p-1 uppercase"
         id="headerTranslation"
         onClick={toggleLanguage}
       >
@@ -39,8 +39,8 @@ export const TopBanner = ({ lang, setLang, toggleSidebar, isSidebarOpen }) => {
   const t = getLocale(lang);
   return (
     <div
-      className={`w-90 mt-1 pt-1 bg-primary-50 dark:bg-primary-800 ${
-        !isSidebarOpen ? "rounded-r-3xl overflow-hidden" : ""
+      className={`bg-primary-50 dark:bg-primary-800 mt-1 w-90 pt-1 ${
+        !isSidebarOpen ? "overflow-hidden rounded-r-3xl" : ""
       }`}
     >
       <div className="flex items-center px-2 py-1">
@@ -49,7 +49,7 @@ export const TopBanner = ({ lang, setLang, toggleSidebar, isSidebarOpen }) => {
       <SidebarButton
         logo={<TfiMenu />}
         label={
-          <div className="flex flex-row gap-4 items-center">
+          <div className="flex flex-row items-center gap-4">
             <div>Menu</div>
             <div>{isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}</div>
           </div>
@@ -99,21 +99,21 @@ export function Sidebar({
       content = `${count} / ${total}`;
     }
     return (
-      <div className="text-xs font-extralight text-white bg-primary-500 px-1.5 py-0.5 rounded-full">
+      <div className="bg-primary-500 rounded-full px-1.5 py-0.5 text-xs font-extralight text-white">
         {content}
       </div>
     );
   };
 
   return (
-    <div className="h-screen bg-primary-50 dark:bg-primary-800 flex flex-col">
+    <div className="bg-primary-50 dark:bg-primary-800 flex h-screen flex-col">
       <TopBanner
         lang={lang}
         setLang={setLang}
         toggleSidebar={toggleSidebar}
         isSidebarOpen={isSidebarOpen}
       />
-      <ModalAPropos lang={lang} />
+      <ModalPages lang={lang} />
       <FilterSection
         lang={lang}
         badges={badges}
@@ -138,7 +138,7 @@ export function Sidebar({
           </div>
         }
       />
-      <ul className="flex-grow overflow-y-auto p-2 space-y-2 rounded-md">
+      <ul className="flex-grow space-y-2 overflow-y-auto rounded-md p-2">
         <ItemsList
           itemsList={filteredItems}
           onItemClick={onLeftMenuItemClick}
@@ -147,7 +147,7 @@ export function Sidebar({
           loading={loading}
         />
       </ul>
-      <div className="flex items-center justify-center mt-2">
+      <div className="mt-2 flex items-center justify-center">
         <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
       </div>
     </div>

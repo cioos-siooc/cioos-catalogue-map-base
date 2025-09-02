@@ -25,8 +25,12 @@
   "about": "À Propos",
   "between_date": "à",
   "select": "Sélectionnez une option",
-  "about_header": "À propos du catalogue cartographique",
-  "about_text": "Le catalogue cartographique est un outil d’exploration de données qui permet d’afficher les entrées du Catalogue de données de l’OGSL sur une carte, avec la possibilité de filtrer les résultats par variable océanique* telles que la température de surface de l’eau ou le phytoplancton. En cliquant sur les points de données et leur étendue géospatiale, le panneau latéral affiche les informations du jeu de données (titre, description, producteur de données et liens vers la page du Catalogue et les fichiers de données).",
   "source": "Source",
-  "remove_filter": "Retirer le filtre"
+  "remove_filter": "Retirer le filtre",
+  "temporal-extent-begin": "Date de début des données",
+  "temporal-extent-end": "Date de fin des données",
+  "temporal-extent-overlaps": "Données disponibles entre les dates",
+  "metadata_created": "Métadonnées créées",
+  "metadata_modified": "Métadonnées modifiées",
+  "apply": "Appliquer"
 }

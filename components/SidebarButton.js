@@ -4,8 +4,8 @@ import PropTypes from "prop-types";
 const SidebarButton = ({ logo, label, onClick }) => {
   return (
     <button
-      className={`flex flex-row items-center w-full px-4 py-2 gap-2 transition-colors duration-200 ${
-        onClick ? "hover:bg-primary-500 hover:text-white cursor-pointer" : ""
+      className={`flex w-full flex-row items-center gap-2 px-4 py-2 transition-colors duration-200 ${
+        onClick ? "hover:bg-primary-500 cursor-pointer hover:text-white" : ""
       }`}
       onClick={onClick}
     >
@@ -17,7 +17,7 @@ const SidebarButton = ({ logo, label, onClick }) => {
 
 SidebarButton.propTypes = {
   logo: PropTypes.node,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.node.isRequired,
   onClick: PropTypes.func.isRequired,
 };
 SidebarButton.defaultProps = {

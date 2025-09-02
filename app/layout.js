@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import config from "./config.js";
 import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
 import Logo from "@/components/Logo";
@@ -40,7 +40,7 @@ const basePath = process.env.BASE_PATH || "";
 const MapComponent = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
-    <div className="h-full w-full flex items-center justify-center bg-primary-200">
+    <div className="bg-primary-200 flex h-full w-full items-center justify-center">
       <p className="text-primary-500">Loading map...</p>
     </div>
   ),
@@ -65,10 +65,13 @@ function AppContent({ lang, setLang }) {
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
+  const [datasetSpatial, setDatasetSpatial] = useState(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  const mapRef = useRef();
+  const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();
 
   // if window is greater than 600px, set isSidebarOpen to true
   useEffect(() => {
@@ -77,15 +80,13 @@ function AppContent({ lang, setLang }) {
     }
   }, []);
 
-  const catalogueUrl = config.catalogue_url;
-
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
     const browserLanguage = navigator.language?.split("-")[0];
     const initialLanguage =
       savedLanguage || browserLanguage || config.default_language;
     setLang(initialLanguage);
-  }, []);
+  }, [setLang]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -100,7 +101,7 @@ function AppContent({ lang, setLang }) {
         lang,
       );
     }
-  }, [lang]);
+  }, [allItems,lang]);
 
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
@@ -121,7 +122,7 @@ function AppContent({ lang, setLang }) {
       })
       .then(() => setLoading(false))
       .catch((error) => console.error("Error loading packages:", error));
-  }, []);
+  }, [lang]);
 
   useEffect(() => {
     fetchData();
@@ -142,32 +143,88 @@ function AppContent({ lang, setLang }) {
     if (selectedDateFilterOption) {
       setSelectedDateFilterOption("");
     }
-  }, [allItems, badges]);
+  }, [allItems, badges,selectedDateFilterOption]);
 
+  // Fonction pour charger et filtrer les EOVs traduits
+  const fetchAndFilterEovsTranslated = useCallback(async (lang, eovList) => {
+    const res = await fetch(basePath + "/eovs.json");
+    const data = await res.json();
+    const eovs = data.eovs;
+
+    const labelkey = `label_${lang}`;
+    const filtered = eovs
+      .filter((eov) => eovList.includes(eov.value)) // comparez par value qui correspond à l'identifiant de l'EOV
+      .map((eov) => [eov.value, eov[labelkey]]);
+
+    setTranslatedEovList(filtered);
+  }, []);
+
+
+
+    // Memoize callbacks to prevent re-renders
+  const handleListItemClick = useCallback(
+    (selectedItem) => {
+      setBounds(selectedItem.spatial);
+      fetchDataSetInfo(selectedItem.id, setDatasetInfo);
+      updateURLWithSelectedItem(selectedItem.id);
+      openDrawer();
+    },
+    [openDrawer],
+  );
+
+  // This effect runs on initial load to manage URL parameters and set initial state
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      Array.isArray(allItems) &&
-      allItems.length > 0
-    ) {
-      const fragment = window.location.hash.replace(/^#/, "");
-      manageURLParametersOnLoad(setBadges);
-      if (fragment) {
-        const selectedItem = allItems.find((item) => item.id === fragment);
-        if (selectedItem) {
-          setBounds(selectedItem.spatial);
-          fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
-          updateURLWithSelectedItem(selectedItem.id);
-          openDrawer();
+    if (allItems.length > 0) {
+      let selectedId = null;
+      if (typeof window !== "undefined") {
+        manageURLParametersOnLoad(setBadges);
+        selectedId = window.location.hash.replace(/^#/, "");
+      }
+      console.log("All items loaded, managing URL parameters NON ::: ", selectedId);
+      if (selectedId) {
+        const selectedItem = allItems.find((item) => item.id === selectedId);
+        if (selectedItem && selectedItem.spatial) {
+          setDatasetSpatial(selectedItem.spatial);
+          handleListItemClick(selectedItem);
         }
       }
     }
   }, [allItems]);
 
+
+
+  // This effect updates the map bounds when datasetSpatial changes
+  // It ensures that the map is updated only when the mapRef is ready
+  useEffect(() => {
+    if (mapRef.current) {
+      console.log("Updating map bounds with datasetSpatial:", datasetSpatial);
+      // Check if datasetSpatial is defined and has valid bounds
+      if (datasetSpatial) {
+        if (typeof mapRef.current.updateBounds === "function") {
+          mapRef.current.updateBounds(datasetSpatial, setDatasetSpatial);
+        }
+      }
+    }
+  }, [datasetSpatial]);
+
+  // Import the useDrawer hook to get drawer state and methods
+
+  const prevBadgesLength = useRef(badges ? Object.keys(badges).length : 0);
   // This effect updates the URL only when badges change
   useEffect(() => {
-    initURLUpdateProcess(badges);
-  }, [badges]);
+    console.log("Badges changed, updating URL and checking drawer state");
+    initURLUpdateProcess(badges, loading);
+    const currentLength = badges ? Object.keys(badges).length : 0;
+    if (currentLength < prevBadgesLength.current) {
+      // Badges list decreased in size, run your logic here
+      // Close the drawer each time badges change
+      console.log("Badges list decreased, closing drawer if open");
+      if (isDrawerOpen) {
+        closeDrawer();
+      }
+    }
+    prevBadgesLength.current = currentLength;
+  }, [badges, loading, isDrawerOpen, closeDrawer]);
 
   useEffect(() => {
     if (eovList.length > 0 && lang) {
@@ -175,21 +232,42 @@ function AppContent({ lang, setLang }) {
     }
   }, [lang, eovList, fetchAndFilterEovsTranslated]);
 
-  // Import the useDrawer hook to get drawer state and methods
-  const { isDrawerOpen, openDrawer } = useDrawer();
 
-  // Memoize callbacks to prevent re-renders
-  const handleListItemClick = useCallback(
-    (selectedItem) => {
-      setBounds(selectedItem.spatial);
-      fetchDataSetInfo(selectedItem.id, setDatasetInfo, catalogueUrl);
-      updateURLWithSelectedItem(selectedItem.id);
-      openDrawer();
 
-      console.log("URL UPDATED HASH : ", window.location.hash);
-    },
-    [openDrawer],
-  );
+  // Add this function to remove the hash fragment from the URL
+  function removeURLFragment() {
+    console.log("Removing URL fragment");
+    if (typeof window !== "undefined" && window.location.hash) {
+      history.replaceState(
+        null,
+        document.title,
+        window.location.pathname + window.location.search,
+      );
+    }
+  }
+
+  const prevDrawerOpen = useRef(isDrawerOpen);
+
+  useEffect(() => {
+    console.log("Drawer state changed:", isDrawerOpen);
+
+    if (prevDrawerOpen.current && !isDrawerOpen) {
+      removeURLFragment();
+      // Recenter the map to default center and zoom when drawer closes
+      if (
+        mapRef.current &&
+        typeof mapRef.current.recenterToDefault === "function"
+      ) {
+        mapRef.current.recenterToDefault();
+      }
+    }
+    // Drawer just closed, recenter map to config center when drawer closes
+    if (mapRef.current && typeof mapRef.current.clearMapLayers === "function") {
+      mapRef.current.clearMapLayers();
+    }
+    setBounds(null); // Reset bounds when drawer closes
+    prevDrawerOpen.current = isDrawerOpen;
+  }, [isDrawerOpen]);
 
   const onInfoClick = useCallback(() => {
     setShowModal(true);
@@ -197,9 +275,9 @@ function AppContent({ lang, setLang }) {
 
   return (
     <>
-      <div className="flex h-screen relative overflow-hidden">
+      <div className="relative flex h-screen overflow-hidden">
         <div
-          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full w-0"} z-30`}
+          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full"} z-30`}
         >
           <Sidebar
             filteredItems={filteredItems}
@@ -230,19 +308,20 @@ function AppContent({ lang, setLang }) {
           />
         </div>
         <main
-          className={`flex-1 relative transform transition-transform duration-300 ease-in-out z-20`}
+          className={`relative z-20 flex-1 transform transition-transform duration-300 ease-in-out`}
         >
           <MapComponent
             bounds={bounds}
             filteredItems={filteredItems}
             handleListItemClick={handleListItemClick}
             lang={lang}
+            ref={mapRef}
           />
         </main>
         {isDrawerOpen && dataSetInfo && (
           <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
-        <div className="absolute bottom-0 left-0 z-25 flex items-center w-90 bg-primary-50 dark:bg-primary-800 pt-2 justify-center rounded-tr-xl opacity-50">
+        <div className="bg-primary-50 dark:bg-primary-800 absolute bottom-0 left-0 z-25 flex w-90 items-center justify-center rounded-tr-xl pt-2 opacity-50">
           <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
         </div>
       </div>
@@ -261,9 +340,18 @@ function useDrawer() {
 
 function RootLayout({ children }) {
   const [lang, setLang] = useState(config.default_language);
+  const meta = config.metadata?.[lang] || {};
+  const favicon = config.favicon || "/favicon.ico";
 
   return (
     <html lang={lang}>
+      <head>
+        <title>{meta.title || "OGSL Catalogue Map"}</title>
+        {meta.description && (
+          <meta name="description" content={meta.description} />
+        )}
+        <link rel="icon" href={favicon} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

@@ -81,10 +81,10 @@ export function Citation({ dataSetInfo, lang }) {
         // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
         <a
           href={citationURL}
-          className="flex-shrink-0 relative text-xs p-2 rounded-md mt-4 bg-primary-50 dark:bg-primary-800"
+          className="bg-primary-50 dark:bg-primary-800 relative mt-4 flex-shrink-0 rounded-md p-2 text-xs"
         >
           <SafeHTML content={citationHtml} />
-          <div className="absolute -top-4 flex flex-row gap-1 text-xs items-center rounded-md">
+          <div className="absolute -top-4 flex flex-row items-center gap-1 rounded-md text-xs">
             {t.citation} <GoLinkExternal />
           </div>
         </a>

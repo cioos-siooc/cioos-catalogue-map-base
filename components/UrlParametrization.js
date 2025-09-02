@@ -19,93 +19,88 @@ export function manageURLParametersOnLoad(setBadges) {
   });
 }
 
-
-
- export function updateURLWithSelectedItem(selectedItemId) {
-    console.log("UDPATE URL SELECTED ID : : ");
-    if (typeof window !== "undefined" && selectedItemId) {
-      // Keep current search params, just update the fragment/hash
-      const { pathname, search } = window.location;
-      window.history.replaceState(
-        null,
-        "",
-        `${pathname}${search}#${selectedItemId}`,
-      );
-    }
+export function updateURLWithSelectedItem(selectedItemId) {
+  if (typeof window !== "undefined" && selectedItemId) {
+    // Keep current search params, just update the fragment/hash
+    const { pathname, search } = window.location;
+    window.history.replaceState(
+      null,
+      "",
+      `${pathname}${search}#${selectedItemId}`,
+    );
   }
-
-
-export function initURLUpdateProcess(badges) {
-      const urlParams = new URLSearchParams(window.location.search);
-      updateURL(urlParams, badges);
-      // Update the URL without reloading the page
-      console.log("Updating URL with parameters : : ", urlParams.toString());
-  
-      console.log(" URL content ::: ", window.location.hash);
-      if(hasHashInURL()) return; // If there's a hash in the URL, don't update the search params
-      console.log("Updating URL without hash");
-      window.history.replaceState(
-        null,
-        "",
-        `${window.location.pathname}?${urlParams.toString()}`,
-      );
-    }
-
-function hasHashInURL() {
-    return typeof window !== "undefined" && window.location.hash !== "";
 }
 
-  // Function to update URL parameters based on the current state
-  // This function will be called whenever eovList, projectList, or organizationList changes
-function updateURL(urlParams, badges) {
-    // Remove all previous filter params
+export function initURLUpdateProcess(badges, loading) {
+  if (hasHashInURL()) return; // If there's a hash in the URL, don't update the search params
+  const urlParams = new URLSearchParams(window.location.search);
+
+  updateURL(urlParams, badges, loading);
+  // Update the URL without reloading the page
+  window.history.replaceState(
+    null,
+    "",
+    `${window.location.pathname}?${urlParams.toString()}`,
+  );
+}
+
+function hasHashInURL() {
+  return typeof window !== "undefined" && window.location.hash !== "";
+}
+
+// Function to update URL parameters based on the current state
+// This function will be called whenever eovList, projectList, or organizationList changes
+function updateURL(urlParams, badges, loading) {
+  // Remove all previous filter params
+  // If loading is true, keep the eov, projects, organization, search, and filter_date params
+  // If loading is false, remove them, we must update the URL with the current badges
+
+  if (!loading) {
     urlParams.delete("eov");
     urlParams.delete("projects");
     urlParams.delete("organization");
     urlParams.delete("search");
     urlParams.delete("filter_date");
-
-    // For each badge, update the URL params accordingly
-    Object.entries(badges).forEach(([filter_type, filter_value]) => {
-      if (!filter_value || filter_value.length === 0) {
-        urlParams.delete(filter_type);
-        return;
-      }
-      // For array values (like organization, projects, eov)
-      if (Array.isArray(filter_value)) {
-        // If value is an array of arrays (e.g. [["val", "label"], ...])
-        if (Array.isArray(filter_value[0])) {
-          // Add each value as a separate param (for multi-select)
-          filter_value.forEach((v) => {
-            urlParams.append(filter_type, v[0]);
-          });
-        } else {
-          // Otherwise, join as comma-separated
-          urlParams.set(filter_type, filter_value.join(","));
-        }
-      } else {
-        // For string values (like search, filter_date)
-        urlParams.set(filter_type, filter_value);
-      }
-    });
-    console.log("Updated URL method ::::: ", urlParams.toString());
+    urlParams.delete("filter_date_field");
   }
+  // For each badge, update the URL params accordingly
+  Object.entries(badges).forEach(([filter_type, filter_value]) => {
+    if (!filter_value || filter_value.length === 0) {
+      urlParams.delete(filter_type);
+      return;
+    }
+    // For array values (like organization, projects, eov)
+    if (Array.isArray(filter_value)) {
+      // If value is an array of arrays (e.g. [["val", "label"], ...])
+      if (Array.isArray(filter_value[0])) {
+        // Add each value as a separate param (for multi-select)
+        filter_value.forEach((v) => {
+          urlParams.append(filter_type, v[0]);
+        });
+      } else {
+        // Otherwise, join as comma-separated
+        urlParams.set(filter_type, filter_value.join(","));
+      }
+    } else {
+      // For string values (like search, filter_date)
+      urlParams.set(filter_type, filter_value);
+    }
+  });
+}
 
 export function updateURLWithBadges(badges) {
-  if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    url.search = ""; // Clear all search params
-    console.log("Updated URL complete :", url);
-    Object.entries(badges).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-        value.forEach((v) => {
-            // For array of arrays (e.g. [["a","A"],["b","B"]]), use v[0]
-            url.searchParams.append(key, Array.isArray(v) ? v[0] : v);
-        });
-        } else {
-        url.searchParams.set(key, value);
-        }
-    });
-    console.log("Updated URL with badges:", url.toString());
+  if (!badges || Object.keys(badges).length === 0) return;
+  const url = new URL(window.location.href);
+  url.search = ""; // Clear all search params
+  Object.entries(badges).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach((v) => {
+        // For array of arrays (e.g. [["a","A"],["b","B"]]), use v[0]
+        url.searchParams.append(key, Array.isArray(v) ? v[0] : v);
+      });
+    } else {
+      url.searchParams.set(key, value);
+    }
+  });
   window.history.replaceState({}, "", url.toString());
 }
