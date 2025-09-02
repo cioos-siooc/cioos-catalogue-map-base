@@ -3,7 +3,7 @@ catalogue_url: https://catalogue.cioos.ca
 base_query: ""
 
 map:
-  center: [50, -90]
+  center: [65, -110]
   zoom: 4
   zoom_mobile: 5
 
