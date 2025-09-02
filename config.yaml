@@ -8,6 +8,8 @@ map:
   zoom_mobile: 5
 
 default_language: en
+
+# Title shown on the navigation bar below the main logo
 title:
   en:
   fr:
