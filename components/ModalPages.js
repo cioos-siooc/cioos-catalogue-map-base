@@ -50,9 +50,12 @@ export default function ModalPages({ lang }) {
             dismissible
             show={openKey === idx}
             onClose={() => setOpenKey(null)}
+            className="bg-primary-50/50 dark:bg-primary-900/50"
           >
-            <ModalHeader>{page.label[lang]}</ModalHeader>
-            <ModalBody>
+            <ModalHeader className="bg-primary-300 dark:bg-primary-700 border-0">
+              {page.label[lang]}
+            </ModalHeader>
+            <ModalBody className="bg-primary-50 dark:bg-primary-800">
               <div
                 className="space-y-6 text-base leading-relaxed"
                 dangerouslySetInnerHTML={{
