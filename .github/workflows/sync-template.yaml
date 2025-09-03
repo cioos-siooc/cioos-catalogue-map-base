@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - feat/add-sync-action
     paths:
       - .github/sync.yml
       - .github/workflows/sync-template.yaml
