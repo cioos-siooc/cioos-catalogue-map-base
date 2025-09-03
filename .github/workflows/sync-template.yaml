@@ -8,6 +8,8 @@ on:
       - .github/sync.yml
       - .github/workflows/sync-template.yaml
       - "config.yaml"
+      - public/about.md
+      - public/a-propos.md
 
   workflow_dispatch:
 jobs:
