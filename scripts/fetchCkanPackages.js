@@ -97,6 +97,8 @@ async function fetchAllPackages() {
     console.log("Filtered packages saved to", outputPath);
   } catch (error) {
     console.error("Error fetching packages:", error);
+    // Exit with non-zero code so `npm run build` fails when this script fails
+    process.exit(1);
   }
 }
 
