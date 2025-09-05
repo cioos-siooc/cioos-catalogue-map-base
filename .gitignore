@@ -43,3 +43,5 @@ yarn-error.log*
 next-env.d.ts
 app/theme.css
 public/packages.json
+public/datasets
+public/organizations

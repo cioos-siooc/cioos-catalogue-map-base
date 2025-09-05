@@ -101,7 +101,7 @@ function AppContent({ lang, setLang }) {
         lang,
       );
     }
-  }, [allItems,lang]);
+  }, [allItems, lang]);
 
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
@@ -143,7 +143,7 @@ function AppContent({ lang, setLang }) {
     if (selectedDateFilterOption) {
       setSelectedDateFilterOption("");
     }
-  }, [allItems, badges,selectedDateFilterOption]);
+  }, [allItems, badges, selectedDateFilterOption]);
 
   // Fonction pour charger et filtrer les EOVs traduits
   const fetchAndFilterEovsTranslated = useCallback(async (lang, eovList) => {
@@ -159,13 +159,12 @@ function AppContent({ lang, setLang }) {
     setTranslatedEovList(filtered);
   }, []);
 
-
-
-    // Memoize callbacks to prevent re-renders
+  // Memoize callbacks to prevent re-renders
   const handleListItemClick = useCallback(
     (selectedItem) => {
       setBounds(selectedItem.spatial);
-      fetchDataSetInfo(selectedItem.id, setDatasetInfo);
+      // Use dataset name for static cache lookup
+      fetchDataSetInfo(selectedItem.name || selectedItem.id, setDatasetInfo);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
     },
@@ -180,7 +179,10 @@ function AppContent({ lang, setLang }) {
         manageURLParametersOnLoad(setBadges);
         selectedId = window.location.hash.replace(/^#/, "");
       }
-      console.log("All items loaded, managing URL parameters NON ::: ", selectedId);
+      console.log(
+        "All items loaded, managing URL parameters NON ::: ",
+        selectedId,
+      );
       if (selectedId) {
         const selectedItem = allItems.find((item) => item.id === selectedId);
         if (selectedItem && selectedItem.spatial) {
@@ -190,8 +192,6 @@ function AppContent({ lang, setLang }) {
       }
     }
   }, [allItems]);
-
-
 
   // This effect updates the map bounds when datasetSpatial changes
   // It ensures that the map is updated only when the mapRef is ready
@@ -231,8 +231,6 @@ function AppContent({ lang, setLang }) {
       fetchAndFilterEovsTranslated(lang, eovList, setTranslatedEovList);
     }
   }, [lang, eovList, fetchAndFilterEovsTranslated]);
-
-
 
   // Add this function to remove the hash fragment from the URL
   function removeURLFragment() {
