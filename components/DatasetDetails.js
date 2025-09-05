@@ -49,11 +49,28 @@ export function DatasetDetails({ dataSetInfo, lang }) {
   const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
 
-  function add_base_url(url) {
-    if (url && !url.startsWith("http")) {
-      return config.catalogue_url + url;
+  function resolveOrgImage(dataset, lang) {
+    const org = dataset?.organization;
+    if (!org) return null;
+    // Prefer locally cached path if available
+    if (org.image_local) {
+      return `/${org.image_local.replace(/^\//, "")}`;
     }
-    return url;
+    // Fallback to translated image URL if provided in the original structure
+    const translated = org?.image_url_translated?.[lang];
+    if (translated && !translated.startsWith("http")) {
+      return config.catalogue_url + translated;
+    }
+    return translated || org.image_url || null;
+  }
+
+  // Reintroduce helper removed earlier, used for external_home_url links
+  function add_base_url(url) {
+    if (!url) return null;
+    if (/^https?:\/\//i.test(url)) return url;
+    const base = config.catalogue_url?.replace(/\/$/, "") || "";
+    const cleaned = String(url).replace(/^\//, "");
+    return `${base}/${cleaned}`;
   }
 
   // Convert and sanitize Markdown content
@@ -81,15 +98,20 @@ export function DatasetDetails({ dataSetInfo, lang }) {
         </button>
         <div id="top" className="flex-shrink-0">
           {dataSetInfo && dataSetInfo.organization ? (
-            <Image
-              className="max-h-40 w-auto max-w-[300px] rounded-sm bg-white p-1"
-              src={add_base_url(
-                dataSetInfo?.organization?.image_url_translated[lang],
-              )}
-              alt="Organization Logo"
-              width={0}
-              height={40}
-            />
+            (() => {
+              const img = resolveOrgImage(dataSetInfo, lang);
+              return img ? (
+                <Image
+                  className="max-h-40 w-auto max-w-[300px] rounded-sm bg-white p-1"
+                  src={img}
+                  alt="Organization Logo"
+                  width={0}
+                  height={40}
+                />
+              ) : (
+                <p>No image available</p>
+              );
+            })()
           ) : (
             <p>No image available</p>
           )}
