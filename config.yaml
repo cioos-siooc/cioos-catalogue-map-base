@@ -131,6 +131,6 @@ pages:
     markdown_content:
       en: "/about.md"
       fr: "/a-propos.md"
-    content:
-      en: "This is a web application that allows users to visualize and explore the catalogue of SLGO."
-      fr: "Ceci est une application Web qui permet aux utilisateurs de visualiser et d'explorer le catalogue de l'OGSL."
+    # content:
+    #   en: "This is a web application that allows users to visualize and explore the catalogue of SLGO."
+    #   fr: "Ceci est une application Web qui permet aux utilisateurs de visualiser et d'explorer le catalogue de l'OGSL."
