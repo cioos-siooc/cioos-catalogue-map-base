@@ -42,6 +42,7 @@ favicon: "/images/favicon.ico"
 # - `className`: A custom CSS class to replace the default class
 #                (default, "h-auto").
 # - `width`: The width of the logo in pixels or percentage.
+# - `link`: Optional — a URL or relative path to open when the logo is clicked. External links open in a new tab.
 
 # main_logo: This logo is typically used as the main branding
 #           element in the application.
@@ -51,21 +52,25 @@ main_logo:
     mode: light
     alt: "CIOOS National"
     className: "h-[75px] w-auto m-3"
+    link: "https://cioos.ca"
   - url: "/Images/cioos-national_FR-01.png"
     lang: fr
     mode: light
     alt: "CIOOS National"
     className: "h-[75px] w-auto m-3"
+    link: "https://siooc.ca/fr"
   - url: "/Images/cioos-national_EN_W.svg"
     lang: en
     mode: dark
     alt: "CIOOS National"
     className: "h-[75px] w-auto m-3"
+    link: "https://cioos.ca"
   - url: "/Images/cioos-national_FR_W.svg"
     lang: fr
     mode: dark
     alt: "CIOOS National"
     className: "h-[75px] w-auto m-3"
+    link: "https://siooc.ca/fr"
 
 # bottom_logo: Specifies the footer or secondary logo,
 #  often used for additional branding or partner logos.
@@ -75,6 +80,7 @@ bottom_logo:
   #   mode: light
   #   alt: "CIOOS National"
   #   className: "max-h-[75px] h-auto m-3"
+  #   link: "/"
   # - url: "/Images/cioos-national_FR-01.png"
   #   lang: fr
   #   mode: light
