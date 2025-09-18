@@ -69,3 +69,10 @@ body {
   background-color: var(--color-accent-400) !important;
   color: var(--color-black) !important;
 }
+
+/* Make sure the Leaflet attribution control is visible above UI overlays */
+.leaflet-control-attribution {
+  z-index: 1000; /* higher than most app overlays */
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #111 !important;
+}

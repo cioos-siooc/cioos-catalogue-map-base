@@ -223,7 +223,7 @@ const Map = forwardRef(function Map(
       zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
-      attributionControl={false}
+      attributionControl={true}
       ref={mapRef}
       whenReady={(mapInstance) => {
         mapRef.current = mapInstance;
