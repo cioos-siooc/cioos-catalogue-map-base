@@ -113,6 +113,14 @@ basemaps:
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
     attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
 
+overlays:
+  - name:
+      fr: "Noms géographiques"
+      en: "Geographic Names"
+    key: "geographic_names"
+    url: "https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}"
+    attribution: "Data &copy; Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS"
+    checked: true
 # Pages Configuration
 # ==========================
 # This section defines the pages that will be available in the application.
