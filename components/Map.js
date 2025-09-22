@@ -182,24 +182,14 @@ const Overlays = ({ overlays, lang }) => {
               name={ov.name && ov.name[lang] ? ov.name[lang] : ov.key}
               checked={ov.checked || false}
             >
-              {ov.url &&
-              typeof ov.url === "string" &&
-              ov.url.includes("VectorTileServer") ? (
-                // For vector overlays, mount an imperatively-managed component
-                <VectorBasemap
-                  url={ov.url}
-                  attribution={ov.attribution}
-                  minZoom={ov.minZoom}
-                  maxZoom={ov.maxZoom}
-                />
-              ) : (
+              {
                 <TileLayer
                   url={ov.url}
                   attribution={ov.attribution}
                   minZoom={ov.minZoom || 0}
                   maxZoom={ov.maxZoom || 18}
                 />
-              )}
+              }
             </Overlay>
           ))
         : null}
