@@ -103,8 +103,10 @@ basemaps:
       en: "Bathymetry"
     key: "bathymetry"
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
-    # Optional label overlay to show cities/places on top of the base tiles
-    label_url: "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+    # Optional per-label control
+    label_minZoom: 2
+    label_maxZoom: 18
+    label_opacity: 0.85
     attribution: "Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri"
     checked: true
     maxZoom: 10

@@ -163,8 +163,23 @@ const BaseLayers = ({ basemaps, lang }) => (
           <TileLayer
             url={layer.label_url}
             attribution={layer.attribution}
-            minZoom={layer.minZoom || 0}
-            maxZoom={layer.maxZoom || 10}
+            minZoom={
+              typeof layer.label_minZoom !== "undefined"
+                ? layer.label_minZoom
+                : layer.minZoom || 0
+            }
+            maxZoom={
+              typeof layer.label_maxZoom !== "undefined"
+                ? layer.label_maxZoom
+                : layer.maxZoom || 18
+            }
+            opacity={
+              typeof layer.label_opacity !== "undefined"
+                ? layer.label_opacity
+                : 0.9
+            }
+            // zIndex ensures labels render above the base tiles but below markers/controls
+            zIndex={650}
           />
         ) : null}
       </BaseLayer>
