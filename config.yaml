@@ -28,7 +28,8 @@ theme:
   primary_color: "#52a79b"
   accent_color: "#fa7268"
 
-favicon: "/images/favicon.ico"
+# Path to the favicon file, relative to the public directory.
+favicon: "./favicon.ico"
 
 # Logo configuration
 # Logos Configuration

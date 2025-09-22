@@ -339,7 +339,6 @@ function useDrawer() {
 function RootLayout({ children }) {
   const [lang, setLang] = useState(config.default_language);
   const meta = config.metadata?.[lang] || {};
-  const favicon = config.favicon || "/favicon.ico";
 
   return (
     <html lang={lang}>
@@ -348,7 +347,6 @@ function RootLayout({ children }) {
         {meta.description && (
           <meta name="description" content={meta.description} />
         )}
-        <link rel="icon" href={favicon} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
