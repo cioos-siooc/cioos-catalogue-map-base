@@ -158,6 +158,15 @@ const BaseLayers = ({ basemaps, lang }) => (
           minZoom={layer.minZoom || 0}
           maxZoom={layer.maxZoom || 10}
         />
+        {/* Optional label overlay (cities, place names) rendered on top of base tiles */}
+        {layer.label_url ? (
+          <TileLayer
+            url={layer.label_url}
+            attribution={layer.attribution}
+            minZoom={layer.minZoom || 0}
+            maxZoom={layer.maxZoom || 10}
+          />
+        ) : null}
       </BaseLayer>
     ))}
   </>
