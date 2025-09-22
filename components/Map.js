@@ -187,7 +187,7 @@ const Overlays = ({ overlays, lang }) => {
                   url={ov.url}
                   attribution={ov.attribution}
                   minZoom={ov.minZoom || 0}
-                  maxZoom={ov.maxZoom || 18}
+                  maxZoom={ov.maxZoom || 10}
                 />
               }
             </Overlay>
