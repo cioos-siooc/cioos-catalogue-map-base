@@ -103,10 +103,6 @@ basemaps:
       en: "Bathymetry"
     key: "bathymetry"
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
-    # Optional per-label control
-    label_minZoom: 2
-    label_maxZoom: 18
-    label_opacity: 0.85
     attribution: "Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri"
     checked: true
     maxZoom: 10
@@ -117,6 +113,14 @@ basemaps:
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
     attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
 
+overlays:
+  - name:
+      fr: "Limites administratives"
+      en: "Administrative Boundaries"
+    key: "admin_boundaries"
+    url: "https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}"
+    attribution: "Data &copy; Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS"
+    checked: true
 # Pages Configuration
 # ==========================
 # This section defines the pages that will be available in the application.

@@ -9,6 +9,7 @@ import {
   Tooltip,
   LayersControl,
   ZoomControl,
+  VectorBasemap,
 } from "react-leaflet";
 import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -159,33 +160,52 @@ const BaseLayers = ({ basemaps, lang }) => (
           maxZoom={layer.maxZoom || 10}
         />
         {/* Optional label overlay (cities, place names) rendered on top of base tiles */}
-        {layer.label_url ? (
-          <TileLayer
-            url={layer.label_url}
-            attribution={layer.attribution}
-            minZoom={
-              typeof layer.label_minZoom !== "undefined"
-                ? layer.label_minZoom
-                : layer.minZoom || 0
-            }
-            maxZoom={
-              typeof layer.label_maxZoom !== "undefined"
-                ? layer.label_maxZoom
-                : layer.maxZoom || 18
-            }
-            opacity={
-              typeof layer.label_opacity !== "undefined"
-                ? layer.label_opacity
-                : 0.9
-            }
-            // zIndex ensures labels render above the base tiles but below markers/controls
-            zIndex={650}
-          />
-        ) : null}
       </BaseLayer>
     ))}
   </>
 );
+
+// Render overlays defined in config.overlays inside LayersControl as Overlay entries
+const Overlays = ({ overlays, lang }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    // No-op for now; vector overlays mount/unmount are handled per-overlay via child components
+  }, [map]);
+
+  return (
+    <>
+      {overlays && overlays.length
+        ? overlays.map((ov) => (
+            <Overlay
+              key={ov.key}
+              name={ov.name && ov.name[lang] ? ov.name[lang] : ov.key}
+              checked={ov.checked || false}
+            >
+              {ov.url &&
+              typeof ov.url === "string" &&
+              ov.url.includes("VectorTileServer") ? (
+                // For vector overlays, mount an imperatively-managed component
+                <VectorBasemap
+                  url={ov.url}
+                  attribution={ov.attribution}
+                  minZoom={ov.minZoom}
+                  maxZoom={ov.maxZoom}
+                />
+              ) : (
+                <TileLayer
+                  url={ov.url}
+                  attribution={ov.attribution}
+                  minZoom={ov.minZoom || 0}
+                  maxZoom={ov.maxZoom || 18}
+                />
+              )}
+            </Overlay>
+          ))
+        : null}
+    </>
+  );
+};
 
 // Main Map component
 const Map = forwardRef(function Map(
@@ -263,6 +283,7 @@ const Map = forwardRef(function Map(
       <ZoomControl position="topright" />
       <LayersControl position="bottomright">
         <BaseLayers basemaps={config.basemaps} lang={lang} />
+        <Overlays overlays={config.overlays} lang={lang} />
         {bounds && <FitBounds key={bounds} bounds={bounds} />}
         <Overlay checked name={t.dataset_markers}>
           <MarkerClusterGroup key={clusterKey}>
