@@ -9,7 +9,6 @@ import {
   Tooltip,
   LayersControl,
   ZoomControl,
-  VectorBasemap,
 } from "react-leaflet";
 import { Marker } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
