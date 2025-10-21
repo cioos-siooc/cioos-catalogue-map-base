@@ -163,7 +163,8 @@ function AppContent({ lang, setLang }) {
   const handleListItemClick = useCallback(
     (selectedItem) => {
       setBounds(selectedItem.spatial);
-      fetchDataSetInfo(selectedItem.id, setDatasetInfo);
+      // Use dataset name for static cache lookup
+      fetchDataSetInfo(selectedItem.name || selectedItem.id, setDatasetInfo);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
     },
