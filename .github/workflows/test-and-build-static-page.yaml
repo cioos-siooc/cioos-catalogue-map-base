@@ -6,6 +6,7 @@ on:
       - main
       - development
       - dev-bryan
+      - fix/about-pages
   pull_request:
     branches:
       - main
@@ -67,7 +68,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/about-pages'
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
