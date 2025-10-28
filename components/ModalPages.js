@@ -4,7 +4,7 @@ import { MdInfoOutline } from "react-icons/md";
 import SidebarButton from "@/components/SidebarButton";
 import config from "@/app/config.js";
 import { marked } from "marked";
-
+const basePath = process.env.BASE_PATH || "";
 export default function ModalPages({ lang }) {
   const [openKey, setOpenKey] = useState(null);
   const [htmlMap, setHtmlMap] = useState({});
@@ -17,7 +17,7 @@ export default function ModalPages({ lang }) {
     const page = pages[openKey];
     if (!page) return;
     if (page.markdown_content && page.markdown_content[lang]) {
-      fetch(page.markdown_content[lang])
+      fetch(basePath + page.markdown_content[lang])
         .then((res) => res.text())
         .then((md) =>
           setHtmlMap((prev) => ({ ...prev, [openKey]: marked.parse(md) })),
