@@ -353,8 +353,8 @@ function RootLayout({ children }) {
         <Script
           strategy="lazyOnload"
           defer
-          data-domain="cioos-siooc.github.io/cioos-catalogue-map-base"
-          src="https://plausible.cioos.ca/js/script.hash.outboundLinks.js"
+          data-domain="cioos-catalogue-map.cioos.ca"
+          src="https://plausible.cioos.ca/js/script.hash.outbound-links.js"
         />
         <Script id="plausible-init" strategy="lazyOnload">
           {`window.plausible = window.plausible || function(){ (window.plausible.q = window.plausible.q || []).push(arguments) }`}
