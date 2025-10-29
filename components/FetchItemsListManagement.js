@@ -1,9 +1,8 @@
 "use client";
 
-import config  from "@/app/config.js";
+import config from "@/app/config.js";
 
 const catalogueUrl = config.catalogue_url;
-
 
 // Function to fill organization and project lists
 export const fillOrganizationAndProjectLists = (
@@ -28,13 +27,23 @@ export const fillOrganizationAndProjectLists = (
 };
 
 export function fetchDataSetInfo(id, setDatasetInfo) {
-  fetch(`${catalogueUrl}/api/3/action/package_show?id=${id}`)
-    .then((res) => res.json())
-    .then((data) => {
-      setDatasetInfo(data.result);
+  // We expect id to correspond to the dataset name used for caching.
+  // Attempt to fetch the pre-cached JSON first.
+  fetch(`/datasets/${id}.json`)
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Static dataset not found for ${id}`);
+      }
+      return res.json();
     })
+    .then((data) => setDatasetInfo(data))
     .catch((error) => {
-      console.error("Error loading dataset info:", error);
+      console.error("Error loading cached dataset info:", error);
+      // Fallback to live fetch (optional safety net)
+      fetch(`${catalogueUrl}/api/3/action/package_show?id=${id}`)
+        .then((res) => res.json())
+        .then((data) => setDatasetInfo(data.result))
+        .catch((e) => console.error("Fallback live fetch failed:", e));
     });
 }
 

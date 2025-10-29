@@ -101,7 +101,7 @@ function AppContent({ lang, setLang }) {
         lang,
       );
     }
-  }, [allItems,lang]);
+  }, [allItems, lang]);
 
   // Use callback for fetching data
   const fetchData = useCallback(async () => {
@@ -143,7 +143,7 @@ function AppContent({ lang, setLang }) {
     if (selectedDateFilterOption) {
       setSelectedDateFilterOption("");
     }
-  }, [allItems, badges,selectedDateFilterOption]);
+  }, [allItems, badges, selectedDateFilterOption]);
 
   // Fonction pour charger et filtrer les EOVs traduits
   const fetchAndFilterEovsTranslated = useCallback(async (lang, eovList) => {
@@ -159,13 +159,12 @@ function AppContent({ lang, setLang }) {
     setTranslatedEovList(filtered);
   }, []);
 
-
-
-    // Memoize callbacks to prevent re-renders
+  // Memoize callbacks to prevent re-renders
   const handleListItemClick = useCallback(
     (selectedItem) => {
       setBounds(selectedItem.spatial);
-      fetchDataSetInfo(selectedItem.id, setDatasetInfo);
+      // Use dataset name for static cache lookup
+      fetchDataSetInfo(selectedItem.name || selectedItem.id, setDatasetInfo);
       updateURLWithSelectedItem(selectedItem.id);
       openDrawer();
     },
@@ -180,7 +179,10 @@ function AppContent({ lang, setLang }) {
         manageURLParametersOnLoad(setBadges);
         selectedId = window.location.hash.replace(/^#/, "");
       }
-      console.log("All items loaded, managing URL parameters NON ::: ", selectedId);
+      console.log(
+        "All items loaded, managing URL parameters NON ::: ",
+        selectedId,
+      );
       if (selectedId) {
         const selectedItem = allItems.find((item) => item.id === selectedId);
         if (selectedItem && selectedItem.spatial) {
@@ -190,8 +192,6 @@ function AppContent({ lang, setLang }) {
       }
     }
   }, [allItems]);
-
-
 
   // This effect updates the map bounds when datasetSpatial changes
   // It ensures that the map is updated only when the mapRef is ready
@@ -232,8 +232,6 @@ function AppContent({ lang, setLang }) {
     }
   }, [lang, eovList, fetchAndFilterEovsTranslated]);
 
-
-
   // Add this function to remove the hash fragment from the URL
   function removeURLFragment() {
     console.log("Removing URL fragment");
@@ -250,22 +248,23 @@ function AppContent({ lang, setLang }) {
 
   useEffect(() => {
     console.log("Drawer state changed:", isDrawerOpen);
-
+    // We only want to perform cleanup when transitioning from open -> closed
     if (prevDrawerOpen.current && !isDrawerOpen) {
+      // Remove the hash fragment so deep-link is cleared when user dismisses details
       removeURLFragment();
-      // Recenter the map to default center and zoom when drawer closes
+
+      // Clear any polygon / geojson highlight layers we drew, but DO NOT recenter the map
       if (
         mapRef.current &&
-        typeof mapRef.current.recenterToDefault === "function"
+        typeof mapRef.current.clearMapLayers === "function"
       ) {
-        mapRef.current.recenterToDefault();
+        mapRef.current.clearMapLayers();
       }
+
+      // Reset bounds so that selecting the same dataset again will still trigger FitBounds
+      setBounds(null);
     }
-    // Drawer just closed, recenter map to config center when drawer closes
-    if (mapRef.current && typeof mapRef.current.clearMapLayers === "function") {
-      mapRef.current.clearMapLayers();
-    }
-    setBounds(null); // Reset bounds when drawer closes
+    // Update previous state ref AFTER handling logic
     prevDrawerOpen.current = isDrawerOpen;
   }, [isDrawerOpen]);
 
@@ -341,7 +340,6 @@ function useDrawer() {
 function RootLayout({ children }) {
   const [lang, setLang] = useState(config.default_language);
   const meta = config.metadata?.[lang] || {};
-  const favicon = config.favicon || "/favicon.ico";
 
   return (
     <html lang={lang}>
@@ -350,7 +348,6 @@ function RootLayout({ children }) {
         {meta.description && (
           <meta name="description" content={meta.description} />
         )}
-        <link rel="icon" href={favicon} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

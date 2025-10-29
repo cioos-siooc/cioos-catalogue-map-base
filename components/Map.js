@@ -158,10 +158,43 @@ const BaseLayers = ({ basemaps, lang }) => (
           minZoom={layer.minZoom || 0}
           maxZoom={layer.maxZoom || 10}
         />
+        {/* Optional label overlay (cities, place names) rendered on top of base tiles */}
       </BaseLayer>
     ))}
   </>
 );
+
+// Render overlays defined in config.overlays inside LayersControl as Overlay entries
+const Overlays = ({ overlays, lang }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    // No-op for now; vector overlays mount/unmount are handled per-overlay via child components
+  }, [map]);
+
+  return (
+    <>
+      {overlays && overlays.length
+        ? overlays.map((ov) => (
+            <Overlay
+              key={ov.key}
+              name={ov.name && ov.name[lang] ? ov.name[lang] : ov.key}
+              checked={ov.checked || false}
+            >
+              {
+                <TileLayer
+                  url={ov.url}
+                  attribution={ov.attribution}
+                  minZoom={ov.minZoom || 0}
+                  maxZoom={ov.maxZoom || 10}
+                />
+              }
+            </Overlay>
+          ))
+        : null}
+    </>
+  );
+};
 
 // Main Map component
 const Map = forwardRef(function Map(
@@ -223,7 +256,7 @@ const Map = forwardRef(function Map(
       zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
-      attributionControl={false}
+      attributionControl={true}
       ref={mapRef}
       whenReady={(mapInstance) => {
         mapRef.current = mapInstance;
@@ -239,6 +272,7 @@ const Map = forwardRef(function Map(
       <ZoomControl position="topright" />
       <LayersControl position="bottomright">
         <BaseLayers basemaps={config.basemaps} lang={lang} />
+        <Overlays overlays={config.overlays} lang={lang} />
         {bounds && <FitBounds key={bounds} bounds={bounds} />}
         <Overlay checked name={t.dataset_markers}>
           <MarkerClusterGroup key={clusterKey}>

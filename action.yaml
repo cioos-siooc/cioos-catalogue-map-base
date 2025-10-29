@@ -1,0 +1,57 @@
+name: 'Build Catalogue Map'
+description: 'Generate a catalogue map'
+inputs:
+  token:
+    description: 'GitHub token to access the repository'
+    required: true
+    
+runs:
+  using: "composite"
+  steps:
+    - name: Clone catalogue map repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ inputs.token }}
+        repository: cioos-siooc/cioos-catalogue-map-base
+        ref: main
+
+    - name: Clone config repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ inputs.token }}
+        path: config
+    
+    - name: Copy config
+      shell: bash
+      run: |
+        rm -rf config/.git
+        cp -r config/* .
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Install Dependencies
+      run: npm ci
+      shell: bash
+
+    - name: Run Lint
+      run: npm run lint
+      shell: bash
+
+    - name: Build Static Files
+      run: npm run build
+      shell: bash
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: out
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4

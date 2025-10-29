@@ -16,6 +16,7 @@ const basePath = process.env.BASE_PATH || "";
  * @param {string} [logos[].mode] - The mode of the logo, either "dark" or "light".
  * @param {string} [logos[].className] - Optional CSS class name for the logo image.
  * @param {number} [logos[].width] - Optional width of the logo image.
+ * @param {string} [logos[].link] - Optional link URL for the logo image.
  * @param {string} [lang] - The language code to match logos with. Defaults to the application's default language.
  * @param {number} [default_width] - The default width of the logo if not specified in the matching logo object.
  * @param {string} [force_mode] - Forces the mode to either "dark" or "light". If not provided, the mode is determined by the user's system preferences.
@@ -78,13 +79,19 @@ const Logo = ({ logos, lang, default_width, force_mode }) => {
   return (
     <>
       {logoURL && (
-        <Image
-          src={logoURL}
-          alt={logoAlt}
-          className={matchingLogo?.className || "h-auto"}
-          width={matchingLogo?.width || default_width}
-          height={0}
-        />
+        <a
+          href={matchingLogo?.link || undefined}
+          target={matchingLogo?.link ? "_blank" : undefined}
+          rel={matchingLogo?.link ? "noopener noreferrer" : undefined}
+        >
+          <Image
+            src={logoURL}
+            alt={logoAlt}
+            className={matchingLogo?.className || "h-auto"}
+            width={matchingLogo?.width || default_width}
+            height={0}
+          />
+        </a>
       )}
     </>
   );

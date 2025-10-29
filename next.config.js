@@ -36,6 +36,24 @@ const generateTheme = () => {
   );
 };
 
+// Copy favicon from public to app directory for Next.js to pick it up
+const copyFavicon = () => {
+  const sourcePath = path.join(
+    __dirname,
+    "public",
+    config.favicon || "favicon.ico",
+  );
+  const destPath = path.join(__dirname, "app", "favicon.ico");
+
+  if (fs.existsSync(sourcePath)) {
+    fs.copyFileSync(sourcePath, destPath);
+    console.log(`Favicon copied to ${destPath}`);
+  } else {
+    console.warn(`Favicon source not found at ${sourcePath}`);
+  }
+};
+
+copyFavicon();
 // Generate theme colors
 generateTheme();
 
