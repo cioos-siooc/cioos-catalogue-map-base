@@ -17,7 +17,6 @@ export default function ModalPages({ lang }) {
     const page = pages[openKey];
     if (!page) return;
     if (page.markdown_content && page.markdown_content[lang]) {
-      console.log("fetching about page:");
       fetch(basePath + page.markdown_content[lang])
         .then((res) => res.text())
         .then((md) =>
