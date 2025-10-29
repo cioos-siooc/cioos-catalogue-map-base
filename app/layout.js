@@ -1,6 +1,7 @@
 "use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import config from "./config.js";
 import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
@@ -348,6 +349,16 @@ function RootLayout({ children }) {
         {meta.description && (
           <meta name="description" content={meta.description} />
         )}
+        {/* Plausible Analytics */}
+        <Script
+          strategy="lazyOnload"
+          defer
+          data-domain="cioos-siooc.github.io/cioos-catalogue-map-base"
+          src="https://plausible.cioos.ca/js/script.hash.outboundLinks.js"
+        />
+        <Script id="plausible-init" strategy="lazyOnload">
+          {`window.plausible = window.plausible || function(){ (window.plausible.q = window.plausible.q || []).push(arguments) }`}
+        </Script>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
