@@ -138,11 +138,15 @@ const HexGrid = ({
     }
   }, [colorScale]);
 
-  // Get color based on count
+  // Get color based on count using logarithmic scaling
   const getHexColor = useCallback(
     (count, maxCount) => {
       const colorPalette = getColorScale();
-      const index = Math.floor((count / maxCount) * (colorPalette.length - 1));
+      // Use logarithmic scaling: log(count+1) normalized to 0-1 range
+      const logCount = Math.log(count + 1);
+      const logMax = Math.log(maxCount + 1);
+      const normalizedValue = logMax > 0 ? logCount / logMax : 0;
+      const index = Math.floor(normalizedValue * (colorPalette.length - 1));
       return colorPalette[index];
     },
     [getColorScale],
@@ -179,12 +183,17 @@ const HexGrid = ({
     const geoJsonLayer = L.geoJSON(geoJsonData, {
       style: (feature) => {
         const color = getHexColor(feature.properties.count, maxCount);
+        // Use logarithmic scaling for transparency: log scale from 0.05 (minimum) to 0.75 (maximum)
+        const logCount = Math.log(feature.properties.count + 1);
+        const logMax = Math.log(maxCount + 1);
+        const normalizedLogValue = logMax > 0 ? logCount / logMax : 0;
+        const scaledOpacity = 0.05 + normalizedLogValue * 0.7;
         return {
           fillColor: color,
-          color: color,
-          weight: 1,
-          opacity: opacity,
-          fillOpacity: fillOpacity,
+          color: "transparent",
+          weight: 0,
+          opacity: 0,
+          fillOpacity: scaledOpacity,
         };
       },
       onEachFeature: (feature, layer) => {
