@@ -196,22 +196,27 @@ function AppContent({ lang, setLang }) {
   // This effect runs on initial load to manage URL parameters and set initial state
   useEffect(() => {
     if (allItems.length > 0) {
-      let selectedId = null;
-      if (typeof window !== "undefined") {
-        manageURLParametersOnLoad(setBadges);
-        selectedId = window.location.hash.replace(/^#/, "");
-      }
-      console.log(
-        "All items loaded, managing URL parameters NON ::: ",
-        selectedId,
-      );
-      if (selectedId) {
-        const selectedItem = allItems.find((item) => item.id === selectedId);
-        if (selectedItem && selectedItem.spatial) {
-          setDatasetSpatial(selectedItem.spatial);
-          handleListItemClick(selectedItem);
+      const loadURLParameters = async () => {
+        let selectedId = null;
+        if (typeof window !== "undefined") {
+          // Pass both setBadges and setVisualizationMode to handle URL parameters
+          const setVisualizationMode = mapRef.current?.setVisualizationMode;
+          await manageURLParametersOnLoad(setBadges, setVisualizationMode);
+          selectedId = window.location.hash.replace(/^#/, "");
         }
-      }
+        console.log(
+          "All items loaded, managing URL parameters NON ::: ",
+          selectedId,
+        );
+        if (selectedId) {
+          const selectedItem = allItems.find((item) => item.id === selectedId);
+          if (selectedItem && selectedItem.spatial) {
+            setDatasetSpatial(selectedItem.spatial);
+            handleListItemClick(selectedItem);
+          }
+        }
+      };
+      loadURLParameters();
     }
   }, [allItems]);
 

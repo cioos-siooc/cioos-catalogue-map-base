@@ -28,6 +28,7 @@ import {
 import L from "leaflet";
 import config from "@/app/config";
 import { getLocale } from "@/app/get-locale";
+import { updateURLWithVisualizationMode } from "@/components/UrlParametrization";
 import dynamic from "next/dynamic";
 
 // Dynamically import components to avoid SSR issues
@@ -214,7 +215,21 @@ const Map = forwardRef(function Map(
   const { openDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
 
-  const [visualizationMode, setVisualizationMode] = useState("markers"); // "markers" or "hexgrid"
+  // Initialize visualization mode from URL parameter if available
+  const getInitialVisualizationMode = () => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const vizMode = urlParams.get("visualizationMode");
+      if (vizMode && ["markers", "hexgrid"].includes(vizMode)) {
+        return vizMode;
+      }
+    }
+    return "markers";
+  };
+
+  const [visualizationMode, setVisualizationMode] = useState(
+    getInitialVisualizationMode(),
+  ); // "markers" or "hexgrid"
   const mapRef = useRef();
 
   // Remount key for cluster group to force updates on filter change
@@ -241,6 +256,11 @@ const Map = forwardRef(function Map(
       onHexCellFiltered(cellId, datasetsInCell);
     }
   };
+
+  // Update URL when visualization mode changes
+  useEffect(() => {
+    updateURLWithVisualizationMode(visualizationMode);
+  }, [visualizationMode]);
 
   // Expose clearMapLayers to parent via ref
   useImperativeHandle(ref, () => ({
