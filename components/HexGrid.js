@@ -197,6 +197,12 @@ const HexGrid = ({
         };
       },
       onEachFeature: (feature, layer) => {
+        // Calculate and store original opacity based on feature count
+        const logCount = Math.log(feature.properties.count + 1);
+        const logMax = Math.log(maxCount + 1);
+        const normalizedLogValue = logMax > 0 ? logCount / logMax : 0;
+        const originalOpacity = 0.05 + normalizedLogValue * 0.7;
+
         // Add hover effects
         layer.on("mouseover", () => {
           layer.setStyle({
@@ -207,9 +213,10 @@ const HexGrid = ({
         });
 
         layer.on("mouseout", () => {
+          // Restore original opacity
           layer.setStyle({
-            weight: 1,
-            fillOpacity: 0.7,
+            weight: 0,
+            fillOpacity: originalOpacity,
           });
         });
 
