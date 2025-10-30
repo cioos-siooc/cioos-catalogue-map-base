@@ -1,0 +1,48 @@
+.visualization-mode-control {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+
+.visualization-btn {
+  background: white;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  height: 36px;
+  width: 36px;
+}
+
+.visualization-btn:last-child {
+  border-bottom: none;
+}
+
+.visualization-btn:hover {
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.visualization-btn.active {
+  background-color: #52a79b;
+  color: white;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.visualization-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: none;
+}

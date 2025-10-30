@@ -23,10 +23,20 @@ import {
   memo,
   useImperativeHandle,
   useMemo,
+  useState,
 } from "react";
 import L from "leaflet";
 import config from "@/app/config";
 import { getLocale } from "@/app/get-locale";
+import dynamic from "next/dynamic";
+
+// Dynamically import components to avoid SSR issues
+const HexGrid = dynamic(() => import("./HexGrid"), { ssr: false });
+const HexGridLegend = dynamic(() => import("./HexGridLegend"), { ssr: false });
+const VisualizationModeControl = dynamic(
+  () => import("./VisualizationModeControl"),
+  { ssr: false },
+);
 
 const { BaseLayer, Overlay } = LayersControl;
 
@@ -198,13 +208,15 @@ const Overlays = ({ overlays, lang }) => {
 
 // Main Map component
 const Map = forwardRef(function Map(
-  { bounds, filteredItems, handleListItemClick, lang },
+  { bounds, filteredItems, handleListItemClick, lang, onHexCellFiltered },
   ref,
 ) {
   const { openDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
 
+  const [visualizationMode, setVisualizationMode] = useState("markers"); // "markers" or "hexgrid"
   const mapRef = useRef();
+
   // Remount key for cluster group to force updates on filter change
   const clusterKey = useMemo(() => {
     try {
@@ -220,6 +232,16 @@ const Map = forwardRef(function Map(
       return `cluster-${filteredItems.length}`;
     }
   }, [filteredItems]);
+
+  // Handle hex cell click to filter datasets
+  const handleHexCellClick = (feature) => {
+    if (onHexCellFiltered) {
+      const cellId = feature.id;
+      const datasetsInCell = feature.properties.datasets;
+      onHexCellFiltered(cellId, datasetsInCell);
+    }
+  };
+
   // Expose clearMapLayers to parent via ref
   useImperativeHandle(ref, () => ({
     clearMapLayers: () => {
@@ -241,6 +263,9 @@ const Map = forwardRef(function Map(
           setDatasetSpatial(null);
         }
       }
+    },
+    setVisualizationMode: (mode) => {
+      setVisualizationMode(mode);
     },
   }));
 
@@ -270,24 +295,50 @@ const Map = forwardRef(function Map(
       }}
     >
       <ZoomControl position="topright" />
+      {/* Visualization mode toggle control */}
+      <VisualizationModeControl
+        visualizationMode={visualizationMode}
+        onModeChange={setVisualizationMode}
+        markerLabel={t.dataset_markers}
+        hexGridLabel={t.hex_grid_layer}
+      />
+      {/* Legend for hex grid layer */}
+      <HexGridLegend
+        isVisible={visualizationMode === "hexgrid"}
+        maxCount={
+          filteredItems.length > 0
+            ? Math.max(1, Math.ceil(filteredItems.length / Math.max(1, 100)))
+            : 0
+        }
+      />
       <LayersControl position="bottomright">
         <BaseLayers basemaps={config.basemaps} lang={lang} />
         <Overlays overlays={config.overlays} lang={lang} />
         {bounds && <FitBounds key={bounds} bounds={bounds} />}
-        <Overlay checked name={t.dataset_markers}>
-          <MarkerClusterGroup key={clusterKey}>
-            {filteredItems.map((item) => (
-              <DatasetMarker
-                key={item.id}
-                record={item}
-                handleListItemClick={handleListItemClick}
-                lang={lang}
-                openDrawer={openDrawer}
-              />
-            ))}
-          </MarkerClusterGroup>
-        </Overlay>
       </LayersControl>
+      {/* Render markers only in markers mode */}
+      {visualizationMode === "markers" && (
+        <MarkerClusterGroup key={clusterKey}>
+          {filteredItems.map((item) => (
+            <DatasetMarker
+              key={item.id}
+              record={item}
+              handleListItemClick={handleListItemClick}
+              lang={lang}
+              openDrawer={openDrawer}
+            />
+          ))}
+        </MarkerClusterGroup>
+      )}
+      {/* Render hex grid only in hexgrid mode */}
+      {visualizationMode === "hexgrid" && (
+        <HexGrid
+          filteredItems={filteredItems}
+          isActive={true}
+          onHexClick={handleHexCellClick}
+          colorScale={config.hex_grid_color_scale || "viridis"}
+        />
+      )}
     </MapContainer>
   );
 });

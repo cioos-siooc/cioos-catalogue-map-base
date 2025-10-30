@@ -28,6 +28,11 @@ theme:
   primary_color: "#52a79b"
   accent_color: "#fa7268"
 
+# Hexagon grid color scale configuration
+# Supports named color schemes: "viridis", "plasma", "inferno", "magma", "cividis", "Blues", "Greens", "Greys", "Oranges", "Reds", "Purples"
+# Or specify custom colors as an array of hex values
+hex_grid_color_scale: "viridis"
+
 # Path to the favicon file, relative to the public directory.
 favicon: "./favicon.ico"
 

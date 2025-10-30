@@ -67,6 +67,7 @@ function AppContent({ lang, setLang }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
   const [datasetSpatial, setDatasetSpatial] = useState(null);
+  const [hexCellFilter, setHexCellFilter] = useState(null); // Store current hex cell filter
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -170,6 +171,26 @@ function AppContent({ lang, setLang }) {
       openDrawer();
     },
     [openDrawer],
+  );
+
+  // Handle hex cell click to filter datasets
+  const handleHexCellFiltered = useCallback(
+    (cellId, datasetsInCell) => {
+      // Filter the allItems to only include datasets in this hex cell
+      const datasetIdsInCell = new Set(datasetsInCell.map((d) => d.id));
+      const hexFilteredItems = allItems.filter((item) =>
+        datasetIdsInCell.has(item.id),
+      );
+
+      // Create a badge filter for this hex cell
+      setHexCellFilter(cellId);
+
+      // Apply hex cell filter by temporarily filtering allItems
+      // This will trigger the badge filtering logic which updates filteredItems
+      setFilteredItems(hexFilteredItems);
+      setFilteredResultsCount(hexFilteredItems.length);
+    },
+    [allItems],
   );
 
   // This effect runs on initial load to manage URL parameters and set initial state
@@ -314,6 +335,7 @@ function AppContent({ lang, setLang }) {
             bounds={bounds}
             filteredItems={filteredItems}
             handleListItemClick={handleListItemClick}
+            onHexCellFiltered={handleHexCellFiltered}
             lang={lang}
             ref={mapRef}
           />
