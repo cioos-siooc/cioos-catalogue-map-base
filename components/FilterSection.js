@@ -464,6 +464,52 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
   );
 }
 
+export function HexCellFilter({ lang, setBadges, badges }) {
+  const t = getLocale(lang);
+
+  // Only render if hex cell filter is active
+  if (!badges?.hexCell) {
+    return null;
+  }
+
+  const clearHexCellBadge = (e) => {
+    if (e) e.stopPropagation();
+    setBadges((prev) => {
+      const next = { ...prev };
+      delete next.hexCell;
+      return next;
+    });
+  };
+
+  return (
+    <Button
+      className="bg-primary-500 gap-1 px-3 hover:cursor-pointer"
+      pill
+      size="xs"
+    >
+      <span className="bg-accent-500 h-4 w-4 rounded-full border-0 text-center text-xs leading-4 text-black">
+        1
+      </span>
+      <div>⬡ Area</div>
+      <span className="max-w-[120px] truncate text-xs opacity-90">
+        : {badges.hexCell.count} datasets
+      </span>
+      <span
+        role="button"
+        tabIndex={0}
+        className="hover:text-accent-500 group relative m-0 cursor-pointer border-0 bg-transparent p-0 pl-1 text-lg"
+        onClick={clearHexCellBadge}
+        aria-label={t.remove_filter}
+      >
+        <FiDelete />
+        <span className="absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs whitespace-nowrap text-white shadow-lg group-hover:block">
+          {t.remove_filter}
+        </span>
+      </span>
+    </Button>
+  );
+}
+
 export default function FilterSection({
   lang,
   badges,
@@ -517,6 +563,7 @@ export default function FilterSection({
                   badges.filter_date.trim() !== ""
                 )
                   c++;
+                if (badges.hexCell && badges.hexCell.cellId) c++;
                 return c;
               })();
               return count > 0 ? (
@@ -534,6 +581,7 @@ export default function FilterSection({
       >
         <div className="flex flex-row flex-wrap items-center justify-center gap-1">
           <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
+          <HexCellFilter lang={lang} setBadges={setBadges} badges={badges} />
           <FilterItems
             filter_type="organization"
             lang={lang}

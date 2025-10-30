@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useCallback, useRef } from "react";
+import { useEffect, useMemo, useCallback, useRef, useState } from "react";
 import { useMap, Pane } from "react-leaflet";
 import L from "leaflet";
 import chroma from "chroma-js";
@@ -20,17 +20,31 @@ const HexGrid = ({
 }) => {
   const map = useMap();
   const hexGridLayerRef = useRef(null);
-  const mapZoomRef = useRef(map.getZoom());
+  const [currentZoom, setCurrentZoom] = useState(map.getZoom());
 
-  // Memoize GeoJSON data generation - recalculate when zoom changes
+  // Track zoom changes
+  useEffect(() => {
+    if (!map) return;
+
+    const handleZoomChange = () => {
+      setCurrentZoom(map.getZoom());
+    };
+
+    // Use zoomend instead of zoom to get final zoom level
+    map.on("zoomend", handleZoomChange);
+    return () => {
+      map.off("zoomend", handleZoomChange);
+    };
+  }, [map]);
+
+  // Memoize GeoJSON data generation - recalculate when zoom changes or filtered items change
   const geoJsonData = useMemo(() => {
     if (!isActive || !filteredItems || filteredItems.length === 0) {
       return null;
     }
 
-    const currentZoom = mapZoomRef.current;
     return aggregateDatasetsToHexGrid(filteredItems, currentZoom);
-  }, [filteredItems, isActive]);
+  }, [filteredItems, isActive, currentZoom]);
 
   // Create color scale
   const getColorScale = useCallback(() => {
@@ -62,20 +76,6 @@ const HexGrid = ({
     },
     [getColorScale],
   );
-
-  // Track zoom changes to recalculate hex grid resolution
-  useEffect(() => {
-    if (!map) return;
-
-    const handleZoomChange = () => {
-      mapZoomRef.current = map.getZoom();
-    };
-
-    map.on("zoom", handleZoomChange);
-    return () => {
-      map.off("zoom", handleZoomChange);
-    };
-  }, [map]);
 
   // Render hex grid layer
   useEffect(() => {

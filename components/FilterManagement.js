@@ -4,6 +4,15 @@ export function filterItemsByBadges(items, badges, selectedDateFilterOption) {
   if (!badges || Object.keys(badges).length === 0) return items;
   return items.filter((item) => {
     return Object.entries(badges).every(([filterType, value]) => {
+      // Handle hex cell filter (object with cellId, count, and datasetIds)
+      if (filterType === "hexCell") {
+        if (!value || !value.cellId || !value.datasetIds) {
+          return true; // If no hex cell filter, include item
+        }
+        // Filter to only items whose IDs are in the hex cell's dataset list
+        return value.datasetIds.includes(item.id);
+      }
+
       if (value.length === 0) {
         return true; // If no value, skip this filter
       }
