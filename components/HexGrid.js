@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useCallback, useRef, useState } from "react";
-import { useMap, Pane } from "react-leaflet";
+import { useMap } from "react-leaflet";
 import L from "leaflet";
 import chroma from "chroma-js";
-import { aggregateDatasetsToHexGrid, getMaxCount } from "@/utils/hexGridUtils";
+import { cellToBoundary } from "h3-js";
+import { getMaxCount } from "@/utils/hexGridUtils";
 import config from "@/app/config";
 
 /**
@@ -20,36 +21,106 @@ const HexGrid = ({
 }) => {
   const map = useMap();
   const hexGridLayerRef = useRef(null);
-  const [currentZoom, setCurrentZoom] = useState(map.getZoom());
+  const [prerenderedHexGrid, setPrerenderedHexGrid] = useState(null);
 
-  // Track zoom changes
+  // Load prerendered hex grid on mount
   useEffect(() => {
-    if (!map) return;
-
-    const handleZoomChange = () => {
-      setCurrentZoom(map.getZoom());
+    const loadPrerenderedHexGrid = async () => {
+      try {
+        const response = await fetch("/hex-grid-default.json");
+        if (response.ok) {
+          const data = await response.json();
+          setPrerenderedHexGrid(data);
+          console.log(
+            `Loaded prerendered hex grid with ${data.features.length} cells`,
+          );
+        }
+      } catch (error) {
+        console.log(
+          "Prerendered hex grid not available, will compute on demand",
+        );
+      }
     };
 
-    // Use zoomend instead of zoom to get final zoom level
-    map.on("zoomend", handleZoomChange);
-    return () => {
-      map.off("zoomend", handleZoomChange);
-    };
-  }, [map]);
+    loadPrerenderedHexGrid();
+  }, []);
 
-  // Memoize GeoJSON data generation - recalculate when zoom changes or filtered items change
+  // No need to track zoom changes - always use the prerendered hex grid
+
+  // Memoize GeoJSON data generation - only use prerendered hex grid
+  // Do not recompute based on zoom level - use the prerendered layer only
   const geoJsonData = useMemo(() => {
-    if (!isActive || !filteredItems || filteredItems.length === 0) {
+    if (
+      !isActive ||
+      !filteredItems ||
+      filteredItems.length === 0 ||
+      !prerenderedHexGrid
+    ) {
       return null;
     }
 
-    return aggregateDatasetsToHexGrid(filteredItems, currentZoom);
-  }, [filteredItems, isActive, currentZoom]);
+    // Only use the prerendered hex grid - no on-demand computation
+    // Filter the prerendered data to only include datasets that match current filter
+    const datasetIds = new Set(filteredItems.map((d) => d.id));
+    const filteredCells = prerenderedHexGrid.cells
+      .filter((cell) => {
+        // d = datasets (array of IDs), filter directly
+        return cell.d.some((id) => datasetIds.has(id));
+      })
+      .map((cell) => {
+        const filteredDatasets = cell.d.filter((id) => datasetIds.has(id));
+        return {
+          cellId: cell.id,
+          count: filteredDatasets.length,
+          datasets: filteredDatasets,
+          organizations: cell.o, // o = organizations
+          eovs: cell.e, // e = eovs
+        };
+      });
+
+    // Only generate geometries if we have cells to render
+    if (filteredCells.length === 0) {
+      return null;
+    }
+
+    // Convert cells to GeoJSON features
+    const features = filteredCells
+      .map((cell) => {
+        try {
+          const boundary = cellToBoundary(cell.cellId);
+          const coordinates = [boundary.map(([lat, lng]) => [lng, lat])];
+          return {
+            type: "Feature",
+            id: cell.cellId,
+            geometry: {
+              type: "Polygon",
+              coordinates,
+            },
+            properties: {
+              cellId: cell.cellId,
+              count: cell.count,
+              datasets: cell.datasets,
+              organizations: cell.organizations,
+              eovs: cell.eovs,
+            },
+          };
+        } catch (error) {
+          return null;
+        }
+      })
+      .filter((f) => f !== null);
+
+    return {
+      type: "FeatureCollection",
+      features,
+    };
+  }, [filteredItems, isActive, prerenderedHexGrid]);
 
   // Create color scale
   const getColorScale = useCallback(() => {
     // Get color scale from config or use default
-    const scaleName = config.hex_grid_color_scale || colorScale;
+    const hexGridConfig = config.hex_grid || {};
+    const scaleName = hexGridConfig.color_scale || colorScale;
 
     try {
       // Create chroma scale with 10 colors
@@ -95,6 +166,15 @@ const HexGrid = ({
 
     const maxCount = getMaxCount(geoJsonData.features);
 
+    // Get styling config from hex_grid settings
+    const hexGridConfig = config.hex_grid || {};
+    const fillOpacity =
+      hexGridConfig.fill_opacity !== undefined
+        ? hexGridConfig.fill_opacity
+        : 0.4;
+    const opacity =
+      hexGridConfig.opacity !== undefined ? hexGridConfig.opacity : 0.8;
+
     // Create GeoJSON layer with styling
     const geoJsonLayer = L.geoJSON(geoJsonData, {
       style: (feature) => {
@@ -103,8 +183,8 @@ const HexGrid = ({
           fillColor: color,
           color: color,
           weight: 1,
-          opacity: 0.8,
-          fillOpacity: 0.7,
+          opacity: opacity,
+          fillOpacity: fillOpacity,
         };
       },
       onEachFeature: (feature, layer) => {

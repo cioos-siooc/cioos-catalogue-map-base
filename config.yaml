@@ -28,10 +28,17 @@ theme:
   primary_color: "#52a79b"
   accent_color: "#fa7268"
 
-# Hexagon grid color scale configuration
-# Supports named color schemes: "viridis", "plasma", "inferno", "magma", "cividis", "Blues", "Greens", "Greys", "Oranges", "Reds", "Purples"
-# Or specify custom colors as an array of hex values
-hex_grid_color_scale: "viridis"
+# Hexagon grid configuration
+hex_grid:
+  # Color scale: named schemes like "viridis", "plasma", "inferno", "magma", "cividis", "Blues", "Greens", "Greys", "Oranges", "Reds", "Purples"
+  # Or specify custom colors as an array of hex values
+  color_scale: "viridis"
+  # Bounding box for hex grid [minLng, minLat, maxLng, maxLat]
+  # Only hexes within this box will be rendered
+  bounds: [-141, 40, -50, 85]
+  # Hex cell styling options
+  fill_opacity: 0.4  # Transparency: 0 (fully transparent) to 1 (fully opaque)
+  opacity: 0.8  # Border opacity
 
 # Path to the favicon file, relative to the public directory.
 favicon: "./favicon.ico"

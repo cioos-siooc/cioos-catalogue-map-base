@@ -4,14 +4,32 @@ import * as turf from "@turf/turf";
 /**
  * Determines H3 resolution based on current zoom level
  * Higher zoom = higher resolution (more detailed hexagons)
+ * Lower H3 resolution = larger hexagons
  */
 export const getH3ResolutionForZoom = (zoomLevel) => {
   if (zoomLevel <= 2) return 2;
   if (zoomLevel <= 3) return 3;
-  if (zoomLevel <= 5) return 4;
-  if (zoomLevel <= 7) return 5;
-  if (zoomLevel <= 9) return 6;
-  return 7;
+  if (zoomLevel <= 5) return 3;
+  if (zoomLevel <= 7) return 4;
+  if (zoomLevel <= 9) return 5;
+  return 6;
+};
+
+/**
+ * Checks if a hex cell crosses the ±180 longitude boundary (date line)
+ */
+const isCellOnDateLine = (cellId) => {
+  try {
+    const boundary = cellToBoundary(cellId);
+    const lngs = boundary.map(([, lng]) => lng);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+
+    // Skip hexes that are near or cross the ±180 longitude boundary
+    return maxLng > 170 || minLng < -170 || maxLng - minLng > 180;
+  } catch (error) {
+    return false;
+  }
 };
 
 /**
@@ -37,10 +55,21 @@ const isCellInPolygon = (cellId, polygon) => {
  * Aggregates datasets into hexagonal grid cells
  * Uses the entire spatial extent (polygon) of each dataset, including all interior hexagons
  * Returns GeoJSON FeatureCollection with aggregated data
+ * @param {Array} datasets - Array of datasets to aggregate
+ * @param {number} zoomLevel - Current zoom level
+ * @param {Object} config - Configuration object with minDatasetsPerCell and bounds
  */
-export const aggregateDatasetsToHexGrid = (datasets, zoomLevel) => {
+export const aggregateDatasetsToHexGrid = (
+  datasets,
+  zoomLevel,
+  config = {},
+) => {
   const resolution = getH3ResolutionForZoom(zoomLevel);
   const hexagons = new Map();
+
+  // Get filtering configuration
+  const bounds = config.bounds || [-180, -90, 180, 90]; // [minLng, minLat, maxLng, maxLat]
+  const [boundsMinLng, boundsMinLat, boundsMaxLng, boundsMaxLat] = bounds;
 
   // Process each dataset
   datasets.forEach((dataset) => {
@@ -78,12 +107,8 @@ export const aggregateDatasetsToHexGrid = (datasets, zoomLevel) => {
 
               // Add dataset if not already present
               const hexData = hexagons.get(cellId);
-              if (!hexData.datasets.some((d) => d.id === dataset.id)) {
-                hexData.datasets.push({
-                  id: dataset.id,
-                  title: dataset.title_translated,
-                  organization: dataset.organization?.title_translated,
-                });
+              if (!hexData.datasets.includes(dataset.id)) {
+                hexData.datasets.push(dataset.id);
 
                 // Add organization and EOVs only once per dataset per cell
                 if (dataset.organization?.title_translated) {
@@ -109,10 +134,32 @@ export const aggregateDatasetsToHexGrid = (datasets, zoomLevel) => {
     }
   });
 
-  // Convert hexagons to GeoJSON features
+  // Convert hexagons to GeoJSON features and apply filters
   const features = Array.from(hexagons.values()).map((hexData) => {
     try {
+      // Skip hexes on date line
+      if (isCellOnDateLine(hexData.cellId)) {
+        return null;
+      }
+
       const boundary = cellToBoundary(hexData.cellId);
+      const lngs = boundary.map(([, lng]) => lng);
+      const lats = boundary.map(([lat]) => lat);
+      const minLng = Math.min(...lngs);
+      const maxLng = Math.max(...lngs);
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+
+      // Skip hexes outside the configured bounding box
+      if (
+        minLng < boundsMinLng ||
+        maxLng > boundsMaxLng ||
+        minLat < boundsMinLat ||
+        maxLat > boundsMaxLat
+      ) {
+        return null;
+      }
+
       // Convert H3 boundary (array of [lat, lng]) to GeoJSON format [lng, lat]
       const coordinates = [boundary.map(([lat, lng]) => [lng, lat])];
 

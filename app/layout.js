@@ -182,12 +182,13 @@ function AppContent({ lang, setLang }) {
 
     // Add hex cell filter to badges
     // This will trigger the badge filtering logic
+    // datasetsInCell is already an array of dataset IDs (strings)
     setBadges((prevBadges) => ({
       ...prevBadges,
       hexCell: {
         cellId,
         count: datasetsInCell.length,
-        datasetIds: datasetsInCell.map((d) => d.id),
+        datasetIds: datasetsInCell, // Already an array of IDs
       },
     }));
   }, []);
