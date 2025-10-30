@@ -40,36 +40,24 @@ async function generateHexGrid() {
     const resolution = getH3ResolutionForZoom(defaultZoom);
     console.log(`H3 resolution for zoom ${defaultZoom}: ${resolution}`);
 
-    // Calculate map bounds from center and zoom level
-    const [centerLat, centerLng] = config.map?.center || [0, 0];
-    const calculateMapBounds = (lat, lng, zoom) => {
-      // Simplified bounds calculation: larger zoom = smaller area
-      // At zoom 4, typical visible area is roughly 90 degrees on each side
-      const baseDegrees = 360 / Math.pow(2, zoom);
-      const rangeInDegrees = baseDegrees;
+    // Get hex grid configuration early to use in dataset filtering
+    const hexGridConfig = config.hex_grid || {};
+    const bounds = hexGridConfig.bounds || [-180, -90, 180, 90]; // [minLng, minLat, maxLng, maxLat]
+    const [boundsMinLng, boundsMinLat, boundsMaxLng, boundsMaxLat] = bounds;
 
-      return {
-        minLat: Math.max(-90, lat - rangeInDegrees),
-        maxLat: Math.min(90, lat + rangeInDegrees),
-        minLng: lng - rangeInDegrees,
-        maxLng: lng + rangeInDegrees,
-      };
-    };
-
-    const mapBounds = calculateMapBounds(centerLat, centerLng, defaultZoom);
     console.log(
-      `Map bounds: lat ${mapBounds.minLat.toFixed(2)}-${mapBounds.maxLat.toFixed(2)}, lng ${mapBounds.minLng.toFixed(2)}-${mapBounds.maxLng.toFixed(2)}`,
+      `Hex grid bounds: lat ${boundsMinLat}-${boundsMaxLat}, lng ${boundsMinLng}-${boundsMaxLng}`,
     );
 
-    // Check if dataset polygon exceeds map bounds (too global)
-    const doesDatasetExceedBounds = (bbox) => {
+    // Check if dataset bounding box intersects with hex grid bounds
+    const doesDatasetIntersectBounds = (bbox) => {
       const [minLng, minLat, maxLng, maxLat] = bbox;
-      // Dataset exceeds bounds if it extends beyond the map bounds
-      return (
-        minLat <= mapBounds.minLat - 10 || // 10 degrees tolerance
-        maxLat >= mapBounds.maxLat + 10 ||
-        minLng <= mapBounds.minLng - 10 ||
-        maxLng >= mapBounds.maxLng + 10
+      // Check if dataset bbox overlaps with hex grid bounds
+      return !(
+        maxLng < boundsMinLng ||
+        minLng > boundsMaxLng ||
+        maxLat < boundsMinLat ||
+        minLat > boundsMaxLat
       );
     };
 
@@ -91,20 +79,27 @@ async function generateHexGrid() {
 
     // Aggregate datasets into hex grid
     const hexagons = new Map();
-    let skippedDatasets = 0;
+    let integratedDatasets = 0;
+    let noSpatialDatasets = 0;
+    let outOfBoundsDatasets = 0;
 
     for (const dataset of datasets) {
-      if (!dataset.spatial) continue;
+      if (!dataset.spatial) {
+        noSpatialDatasets++;
+        continue;
+      }
 
       try {
         // Get bounding box
         const bbox = turf.bbox(dataset.spatial);
 
-        // Skip datasets that exceed map bounds (too global)
-        if (doesDatasetExceedBounds(bbox)) {
-          skippedDatasets++;
+        // Skip datasets that don't intersect with hex grid bounds
+        if (!doesDatasetIntersectBounds(bbox)) {
+          outOfBoundsDatasets++;
           continue;
         }
+
+        integratedDatasets++;
 
         const [minLng, minLat, maxLng, maxLat] = bbox;
 
@@ -155,14 +150,7 @@ async function generateHexGrid() {
       }
     }
 
-    // Get hex grid configuration
-    const hexGridConfig = config.hex_grid || {};
-    const bounds = hexGridConfig.bounds || [-180, -90, 180, 90]; // [minLng, minLat, maxLng, maxLat]
-    const [boundsMinLng, boundsMinLat, boundsMaxLng, boundsMaxLat] = bounds;
-
-    console.log(
-      `Hex grid config: bounds=[${boundsMinLng},${boundsMinLat},${boundsMaxLng},${boundsMaxLat}]`,
-    );
+    // Hex grid configuration already loaded at the top
 
     // Convert to minimal format - store only essential data
     // cellId can be used to generate geometry with cellToBoundary() on the fly
@@ -226,10 +214,13 @@ async function generateHexGrid() {
     console.log(
       `✓ Prerendered hex grid with ${cells.length} cells to ${outPath}`,
     );
+    console.log(`  - Integrated: ${integratedDatasets} datasets into hex grid`);
     console.log(
-      `  - Filtered out: ${outOfBoundsHexes} out-of-bounds hexes, ${dateLineHexes} date line hexes`,
+      `  - Excluded: ${noSpatialDatasets} without spatial data, ${outOfBoundsDatasets} outside hex grid bounds`,
     );
-    console.log(`  - Skipped: ${skippedDatasets} global datasets`);
+    console.log(
+      `  - Filtered hexes: ${outOfBoundsHexes} out-of-bounds, ${dateLineHexes} date line crossing`,
+    );
   } catch (error) {
     console.error("Error prerendering hex grid:", error);
     // Don't exit with error - this is a non-critical step
