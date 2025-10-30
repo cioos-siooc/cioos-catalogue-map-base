@@ -46,3 +46,4 @@ public/packages.json
 public/datasets
 public/organizations
 app/favicon.ico
+public/hex-grid-default.json
