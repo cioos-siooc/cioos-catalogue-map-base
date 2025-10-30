@@ -16,74 +16,88 @@ export const getH3ResolutionForZoom = (zoomLevel) => {
 
 /**
  * Aggregates datasets into hexagonal grid cells
+ * Uses the entire spatial extent (polygon) of each dataset, not just the centroid
  * Returns GeoJSON FeatureCollection with aggregated data
  */
 export const aggregateDatasetsToHexGrid = (datasets, zoomLevel) => {
   const resolution = getH3ResolutionForZoom(zoomLevel);
   const hexagons = new Map();
+  const datasetToHexagons = new Map(); // Track which hexagons each dataset contributes to
 
   // Process each dataset
   datasets.forEach((dataset) => {
     if (!dataset.spatial) return;
 
-    // Get a point from the spatial extent
-    let point;
+    const hexagonsForDataset = new Set();
+
     try {
-      // Try to get center of mass first
-      const centerOfMass = turf.centerOfMass(dataset.spatial);
-      const isInside = turf.booleanPointInPolygon(
-        centerOfMass,
-        dataset.spatial,
-      );
+      // Extract all coordinates from the spatial geometry
+      let coordinates = [];
 
-      if (isInside) {
-        point = centerOfMass;
-      } else {
-        // If not inside, get a point guaranteed to be inside the polygon
-        point = turf.pointOnFeature(dataset.spatial);
-      }
-    } catch (error) {
-      console.error(`Error getting point for dataset ${dataset.id}:`, error);
-      return;
-    }
-
-    if (!point || !point.geometry || !point.geometry.coordinates) {
-      return;
-    }
-
-    const [lng, lat] = point.geometry.coordinates;
-
-    // Convert lat/lng to H3 cell
-    try {
-      const cellId = latLngToCell(lat, lng, resolution);
-
-      if (!hexagons.has(cellId)) {
-        hexagons.set(cellId, {
-          cellId,
-          datasets: [],
-          organizations: new Set(),
-          eovs: new Set(),
+      if (dataset.spatial.type === "Polygon") {
+        // For Polygon, use all coordinates from all rings
+        dataset.spatial.coordinates.forEach((ring) => {
+          coordinates.push(...ring);
         });
+      } else if (dataset.spatial.type === "MultiPolygon") {
+        // For MultiPolygon, extract coordinates from all polygons
+        dataset.spatial.coordinates.forEach((polygon) => {
+          polygon.forEach((ring) => {
+            coordinates.push(...ring);
+          });
+        });
+      } else if (dataset.spatial.type === "Point") {
+        // For Point, use single coordinate
+        coordinates = [dataset.spatial.coordinates];
       }
 
-      const hexData = hexagons.get(cellId);
-      hexData.datasets.push({
-        id: dataset.id,
-        title: dataset.title_translated,
-        organization: dataset.organization?.title_translated,
+      if (coordinates.length === 0) {
+        return;
+      }
+
+      // For each coordinate in the polygon, add it to the corresponding hex cell
+      coordinates.forEach(([lng, lat]) => {
+        try {
+          const cellId = latLngToCell(lat, lng, resolution);
+          hexagonsForDataset.add(cellId);
+
+          if (!hexagons.has(cellId)) {
+            hexagons.set(cellId, {
+              cellId,
+              datasets: [],
+              organizations: new Set(),
+              eovs: new Set(),
+            });
+          }
+
+          // Only add dataset once per cell (avoid duplicates)
+          const hexData = hexagons.get(cellId);
+          if (!hexData.datasets.some((d) => d.id === dataset.id)) {
+            hexData.datasets.push({
+              id: dataset.id,
+              title: dataset.title_translated,
+              organization: dataset.organization?.title_translated,
+            });
+
+            // Add organization and EOVs only once per dataset per cell
+            if (dataset.organization?.title_translated) {
+              const orgTitle =
+                dataset.organization.title_translated.en ||
+                dataset.organization.title_translated.fr ||
+                "Unknown";
+              hexData.organizations.add(orgTitle);
+            }
+
+            if (dataset.eov && Array.isArray(dataset.eov)) {
+              dataset.eov.forEach((eov) => hexData.eovs.add(eov));
+            }
+          }
+        } catch (error) {
+          // Skip individual point errors, continue with next point
+        }
       });
 
-      if (dataset.organization?.title_translated) {
-        const orgTitle =
-          dataset.organization.title_translated.en ||
-          dataset.organization.title_translated.fr ||
-          "Unknown";
-        hexData.organizations.add(orgTitle);
-      }
-
-      if (dataset.eov && Array.isArray(dataset.eov)) {
-        dataset.eov.forEach((eov) => hexData.eovs.add(eov));
-      }
+      datasetToHexagons.set(dataset.id, hexagonsForDataset);
     } catch (error) {
       console.error(`Error processing dataset ${dataset.id}:`, error);
     }
