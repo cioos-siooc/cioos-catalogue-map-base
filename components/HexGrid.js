@@ -170,15 +170,6 @@ const HexGrid = ({
 
     const maxCount = getMaxCount(geoJsonData.features);
 
-    // Get styling config from hex_grid settings
-    const hexGridConfig = config.hex_grid || {};
-    const fillOpacity =
-      hexGridConfig.fill_opacity !== undefined
-        ? hexGridConfig.fill_opacity
-        : 0.4;
-    const opacity =
-      hexGridConfig.opacity !== undefined ? hexGridConfig.opacity : 0.8;
-
     // Create GeoJSON layer with styling
     const geoJsonLayer = L.geoJSON(geoJsonData, {
       style: (feature) => {
