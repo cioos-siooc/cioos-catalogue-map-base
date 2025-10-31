@@ -32,11 +32,16 @@ theme:
 hex_grid:
   # Color scale: named schemes like "viridis", "plasma", "inferno", "magma", "cividis", "Blues", "Greens", "Greys", "Oranges", "Reds", "Purples"
   # Or specify custom colors as an array of hex values
-  color_scale: "viridis"
+  color_scale: "YlOrRd"
   # Bounding box for hex grid [minLng, minLat, maxLng, maxLat]
   # Only hexes within this box will be rendered
   # Covers North America: Pacific to Atlantic, Arctic to Gulf
   bounds: [-160, 25, -30, 85]
+  # Opacity settings for hex cells (0 = transparent, 1 = opaque)
+  # min_opacity: Opacity for cells with minimum dataset count
+  # max_opacity: Opacity for cells with maximum dataset count
+  min_opacity: 0.01
+  max_opacity: 0.50
 
 # Path to the favicon file, relative to the public directory.
 favicon: "./favicon.ico"

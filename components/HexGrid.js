@@ -170,15 +170,27 @@ const HexGrid = ({
 
     const maxCount = getMaxCount(geoJsonData.features);
 
+    // Get opacity settings from config
+    const hexGridConfig = config.hex_grid || {};
+    const minOpacity =
+      hexGridConfig.min_opacity !== undefined
+        ? hexGridConfig.min_opacity
+        : 0.05;
+    const maxOpacity =
+      hexGridConfig.max_opacity !== undefined
+        ? hexGridConfig.max_opacity
+        : 0.75;
+    const opacityRange = maxOpacity - minOpacity;
+
     // Create GeoJSON layer with styling
     const geoJsonLayer = L.geoJSON(geoJsonData, {
       style: (feature) => {
         const color = getHexColor(feature.properties.count, maxCount);
-        // Use logarithmic scaling for transparency: log scale from 0.05 (minimum) to 0.75 (maximum)
+        // Use logarithmic scaling for transparency based on config min/max values
         const logCount = Math.log(feature.properties.count + 1);
         const logMax = Math.log(maxCount + 1);
         const normalizedLogValue = logMax > 0 ? logCount / logMax : 0;
-        const scaledOpacity = 0.05 + normalizedLogValue * 0.7;
+        const scaledOpacity = minOpacity + normalizedLogValue * opacityRange;
         return {
           fillColor: color,
           color: "transparent",
@@ -192,7 +204,7 @@ const HexGrid = ({
         const logCount = Math.log(feature.properties.count + 1);
         const logMax = Math.log(maxCount + 1);
         const normalizedLogValue = logMax > 0 ? logCount / logMax : 0;
-        const originalOpacity = 0.05 + normalizedLogValue * 0.7;
+        const originalOpacity = minOpacity + normalizedLogValue * opacityRange;
 
         // Create tooltip with hex info
         const props = feature.properties;
