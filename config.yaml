@@ -36,10 +36,10 @@ hex_grid:
   # Bounding box for hex grid [minLng, minLat, maxLng, maxLat]
   # Only hexes within this box will be rendered
   # Covers North America: Pacific to Atlantic, Arctic to Gulf
-  bounds: [-141, 25, -30, 85]
+  bounds: [-160, 25, -30, 85]
   # Hex cell styling options
-  fill_opacity: 0.4  # Transparency: 0 (fully transparent) to 1 (fully opaque)
-  opacity: 0.8  # Border opacity
+  fill_opacity: 0.4 # Transparency: 0 (fully transparent) to 1 (fully opaque)
+  opacity: 0.8 # Border opacity
 
 # Path to the favicon file, relative to the public directory.
 favicon: "./favicon.ico"
