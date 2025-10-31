@@ -203,28 +203,6 @@ const HexGrid = ({
         const normalizedLogValue = logMax > 0 ? logCount / logMax : 0;
         const originalOpacity = 0.05 + normalizedLogValue * 0.7;
 
-        // Add hover effects
-        layer.on("mouseover", () => {
-          layer.setStyle({
-            weight: 2,
-            fillOpacity: 0.9,
-          });
-          layer.bringToFront();
-        });
-
-        layer.on("mouseout", () => {
-          // Restore original opacity
-          layer.setStyle({
-            weight: 0,
-            fillOpacity: originalOpacity,
-          });
-        });
-
-        // Add click handler to filter datasets
-        layer.on("click", () => {
-          onHexClick(feature);
-        });
-
         // Create tooltip with hex info
         const props = feature.properties;
         const tooltipContent = `
@@ -235,9 +213,36 @@ const HexGrid = ({
           </div>
         `;
 
-        layer.bindTooltip(tooltipContent, {
+        const tooltip = layer.bindTooltip(tooltipContent, {
           className: "hex-tooltip",
           sticky: false,
+          permanent: false,
+        });
+
+        // Add hover effects
+        layer.on("mouseover", () => {
+          layer.setStyle({
+            weight: 2,
+            fillOpacity: 0.9,
+          });
+          layer.bringToFront();
+          // Open tooltip on hover
+          tooltip.openTooltip();
+        });
+
+        layer.on("mouseout", () => {
+          // Restore original opacity
+          layer.setStyle({
+            weight: 0,
+            fillOpacity: originalOpacity,
+          });
+          // Close tooltip on mouse out
+          tooltip.closeTooltip();
+        });
+
+        // Add click handler to filter datasets
+        layer.on("click", () => {
+          onHexClick(feature);
         });
       },
     });
@@ -249,6 +254,12 @@ const HexGrid = ({
     return () => {
       if (hexGridLayerRef.current && map) {
         try {
+          // Close all tooltips before removing layer
+          hexGridLayerRef.current.eachLayer((layer) => {
+            if (layer.closeTooltip) {
+              layer.closeTooltip();
+            }
+          });
           map.removeLayer(hexGridLayerRef.current);
         } catch (error) {
           // Layer might already be removed
