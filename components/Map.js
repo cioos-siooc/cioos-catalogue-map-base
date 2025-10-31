@@ -290,76 +290,74 @@ const Map = forwardRef(function Map(
   }));
 
   return (
-    <MapContainer
-      className="h-full w-full"
-      center={config.map.center}
-      zoom={
-        typeof window !== "undefined" && window.innerWidth < 600
-          ? config.map.zoom_mobile
-          : config.map.zoom
-      }
-      zoomControl={false}
-      scrollWheelZoom={true}
-      boundsOptions={{ padding: [1, 1] }}
-      attributionControl={true}
-      ref={mapRef}
-      whenReady={(mapInstance) => {
-        mapRef.current = mapInstance;
-        console.log(
-          "This function will fire once the map is created",
-          mapRef.current,
-        );
-      }}
-      whenCreated={(map) => {
-        console.log("The underlying leaflet map instance:", map);
-      }}
-    >
-      <ZoomControl position="topright" />
-      {/* Visualization mode toggle control */}
-      <VisualizationModeControl
-        visualizationMode={visualizationMode}
-        onModeChange={setVisualizationMode}
-        markerLabel={t.dataset_markers}
-        hexGridLabel={t.hex_grid_layer}
-      />
-      {/* Legend for hex grid layer */}
+    <>
+      <MapContainer
+        className="h-full w-full"
+        center={config.map.center}
+        zoom={
+          typeof window !== "undefined" && window.innerWidth < 600
+            ? config.map.zoom_mobile
+            : config.map.zoom
+        }
+        zoomControl={false}
+        scrollWheelZoom={true}
+        boundsOptions={{ padding: [1, 1] }}
+        attributionControl={true}
+        ref={mapRef}
+        whenReady={(mapInstance) => {
+          mapRef.current = mapInstance;
+          console.log(
+            "This function will fire once the map is created",
+            mapRef.current,
+          );
+        }}
+        whenCreated={(map) => {
+          console.log("The underlying leaflet map instance:", map);
+        }}
+      >
+        <ZoomControl position="topright" />
+        {/* Visualization mode toggle control */}
+        <VisualizationModeControl
+          visualizationMode={visualizationMode}
+          onModeChange={setVisualizationMode}
+          markerLabel={t.dataset_markers}
+          hexGridLabel={t.hex_grid_layer}
+        />
+        <LayersControl position="bottomright">
+          <BaseLayers basemaps={config.basemaps} lang={lang} />
+          <Overlays overlays={config.overlays} lang={lang} />
+          {bounds && <FitBounds key={bounds} bounds={bounds} />}
+        </LayersControl>
+        {/* Render markers only in markers mode */}
+        {visualizationMode === "markers" && (
+          <MarkerClusterGroup key={clusterKey}>
+            {filteredItems.map((item) => (
+              <DatasetMarker
+                key={item.id}
+                record={item}
+                handleListItemClick={handleListItemClick}
+                lang={lang}
+                openDrawer={openDrawer}
+              />
+            ))}
+          </MarkerClusterGroup>
+        )}
+        {/* Render hex grid only in hexgrid mode */}
+        {visualizationMode === "hexgrid" && (
+          <HexGrid
+            filteredItems={filteredItems}
+            isActive={true}
+            onHexClick={handleHexCellClick}
+            colorScale={config.hex_grid_color_scale || "viridis"}
+          />
+        )}
+      </MapContainer>
+      {/* Legend for hex grid layer - rendered outside MapContainer */}
       <HexGridLegend
         isVisible={visualizationMode === "hexgrid"}
-        maxCount={
-          filteredItems.length > 0
-            ? Math.max(1, Math.ceil(filteredItems.length / Math.max(1, 100)))
-            : 0
-        }
+        filteredItems={filteredItems}
       />
-      <LayersControl position="bottomright">
-        <BaseLayers basemaps={config.basemaps} lang={lang} />
-        <Overlays overlays={config.overlays} lang={lang} />
-        {bounds && <FitBounds key={bounds} bounds={bounds} />}
-      </LayersControl>
-      {/* Render markers only in markers mode */}
-      {visualizationMode === "markers" && (
-        <MarkerClusterGroup key={clusterKey}>
-          {filteredItems.map((item) => (
-            <DatasetMarker
-              key={item.id}
-              record={item}
-              handleListItemClick={handleListItemClick}
-              lang={lang}
-              openDrawer={openDrawer}
-            />
-          ))}
-        </MarkerClusterGroup>
-      )}
-      {/* Render hex grid only in hexgrid mode */}
-      {visualizationMode === "hexgrid" && (
-        <HexGrid
-          filteredItems={filteredItems}
-          isActive={true}
-          onHexClick={handleHexCellClick}
-          colorScale={config.hex_grid_color_scale || "viridis"}
-        />
-      )}
-    </MapContainer>
+    </>
   );
 });
 
