@@ -36,7 +36,10 @@ const VisualizationModeControl = ({
         );
         markersBtn.href = "#";
         markersBtn.title = markerLabel;
-        markersBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm0-12c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/></svg>`;
+        // Map marker/pin icon
+        markersBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+          <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+        </svg>`;
 
         const hexGridBtn = L.DomUtil.create(
           "a",
@@ -45,8 +48,10 @@ const VisualizationModeControl = ({
         );
         hexGridBtn.href = "#";
         hexGridBtn.title = hexGridLabel;
-        // LuHexagon SVG from lucide-react icon set
-        hexGridBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`;
+        // Hex grid pattern icon - simplified with 7 hexagons in honeycomb pattern
+        hexGridBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="bi bi-hexagon-fill" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M8.5.134a1 1 0 0 0-1 0l-6 3.577a1 1 0 0 0-.5.866v6.846a1 1 0 0 0 .5.866l6 3.577a1 1 0 0 0 1 0l6-3.577a1 1 0 0 0 .5-.866V4.577a1 1 0 0 0-.5-.866z"/>
+        </svg>`;
 
         L.DomEvent.on(markersBtn, "click", (e) => {
           L.DomEvent.preventDefault(e);
