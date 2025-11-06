@@ -17,6 +17,7 @@ const HexGrid = ({
   filteredItems,
   isActive,
   onHexClick,
+  selectedHexCellId,
   colorScale = "viridis",
 }) => {
   const map = useMap();
@@ -191,21 +192,19 @@ const HexGrid = ({
         const logMax = Math.log(maxCount + 1);
         const normalizedLogValue = logMax > 0 ? logCount / logMax : 0;
         const scaledOpacity = minOpacity + normalizedLogValue * opacityRange;
+
+        // Check if this hex is selected
+        const isSelected = selectedHexCellId === feature.properties.cellId;
+
         return {
           fillColor: color,
-          color: "transparent",
-          weight: 0,
-          opacity: 0,
+          color: isSelected ? "#000" : "transparent",
+          weight: isSelected ? 3 : 0,
+          opacity: isSelected ? 1 : 0,
           fillOpacity: scaledOpacity,
         };
       },
       onEachFeature: (feature, layer) => {
-        // Calculate and store original opacity based on feature count
-        const logCount = Math.log(feature.properties.count + 1);
-        const logMax = Math.log(maxCount + 1);
-        const normalizedLogValue = logMax > 0 ? logCount / logMax : 0;
-        const originalOpacity = minOpacity + normalizedLogValue * opacityRange;
-
         // Create tooltip with hex info
         const props = feature.properties;
         const tooltipContent = `
@@ -268,7 +267,7 @@ const HexGrid = ({
         hexGridLayerRef.current = null;
       }
     };
-  }, [geoJsonData, isActive, map, getHexColor, onHexClick]);
+  }, [geoJsonData, isActive, map, getHexColor, onHexClick, selectedHexCellId]);
 
   return null;
 };

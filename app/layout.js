@@ -193,6 +193,14 @@ function AppContent({ lang, setLang }) {
     }));
   }, []);
 
+  // Clear hex cell filter when hexCell badge is removed
+  useEffect(() => {
+    if (!badges?.hexCell) {
+      setHexCellFilter(null);
+      setHexCellDatasets([]);
+    }
+  }, [badges]);
+
   // This effect runs on initial load to manage URL parameters and set initial state
   useEffect(() => {
     if (allItems.length > 0) {
@@ -342,6 +350,7 @@ function AppContent({ lang, setLang }) {
             allItems={allItems}
             handleListItemClick={handleListItemClick}
             onHexCellFiltered={handleHexCellFiltered}
+            selectedHexCellId={hexCellFilter}
             lang={lang}
             ref={mapRef}
           />

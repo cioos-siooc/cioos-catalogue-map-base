@@ -217,6 +217,7 @@ const Map = forwardRef(function Map(
     handleListItemClick,
     lang,
     onHexCellFiltered,
+    selectedHexCellId,
   },
   ref,
 ) {
@@ -359,6 +360,7 @@ const Map = forwardRef(function Map(
             filteredItems={allItems}
             isActive={true}
             onHexClick={handleHexCellClick}
+            selectedHexCellId={selectedHexCellId}
             colorScale={config.hex_grid_color_scale || "viridis"}
           />
         )}
