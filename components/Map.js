@@ -24,6 +24,7 @@ import {
   useImperativeHandle,
   useMemo,
   useState,
+  useCallback,
 } from "react";
 import L from "leaflet";
 import config from "@/app/config";
@@ -209,7 +210,14 @@ const Overlays = ({ overlays, lang }) => {
 
 // Main Map component
 const Map = forwardRef(function Map(
-  { bounds, filteredItems, handleListItemClick, lang, onHexCellFiltered },
+  {
+    bounds,
+    filteredItems,
+    allItems,
+    handleListItemClick,
+    lang,
+    onHexCellFiltered,
+  },
   ref,
 ) {
   const { openDrawer } = useContext(DrawerContext);
@@ -249,13 +257,16 @@ const Map = forwardRef(function Map(
   }, [filteredItems]);
 
   // Handle hex cell click to filter datasets
-  const handleHexCellClick = (feature) => {
-    if (onHexCellFiltered) {
-      const cellId = feature.id;
-      const datasetsInCell = feature.properties.datasets;
-      onHexCellFiltered(cellId, datasetsInCell);
-    }
-  };
+  const handleHexCellClick = useCallback(
+    (feature) => {
+      if (onHexCellFiltered) {
+        const cellId = feature.id;
+        const datasetsInCell = feature.properties.datasets;
+        onHexCellFiltered(cellId, datasetsInCell);
+      }
+    },
+    [onHexCellFiltered],
+  );
 
   // Update URL when visualization mode changes
   useEffect(() => {
@@ -345,7 +356,7 @@ const Map = forwardRef(function Map(
         {/* Render hex grid only in hexgrid mode */}
         {visualizationMode === "hexgrid" && (
           <HexGrid
-            filteredItems={filteredItems}
+            filteredItems={allItems}
             isActive={true}
             onHexClick={handleHexCellClick}
             colorScale={config.hex_grid_color_scale || "viridis"}
@@ -355,7 +366,7 @@ const Map = forwardRef(function Map(
       {/* Legend for hex grid layer - rendered outside MapContainer */}
       <HexGridLegend
         isVisible={visualizationMode === "hexgrid"}
-        filteredItems={filteredItems}
+        filteredItems={allItems}
       />
     </>
   );

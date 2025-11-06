@@ -218,7 +218,7 @@ function AppContent({ lang, setLang }) {
       };
       loadURLParameters();
     }
-  }, [allItems]);
+  }, [allItems, handleListItemClick]);
 
   // This effect updates the map bounds when datasetSpatial changes
   // It ensures that the map is updated only when the mapRef is ready
@@ -339,6 +339,7 @@ function AppContent({ lang, setLang }) {
           <MapComponent
             bounds={bounds}
             filteredItems={filteredItems}
+            allItems={allItems}
             handleListItemClick={handleListItemClick}
             onHexCellFiltered={handleHexCellFiltered}
             lang={lang}

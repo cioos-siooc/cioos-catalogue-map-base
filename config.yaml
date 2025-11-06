@@ -41,7 +41,7 @@ hex_grid:
   # min_opacity: Opacity for cells with minimum dataset count
   # max_opacity: Opacity for cells with maximum dataset count
   min_opacity: 0.01
-  max_opacity: 0.50
+  max_opacity: 0.80
 
 # Path to the favicon file, relative to the public directory.
 favicon: "./favicon.ico"

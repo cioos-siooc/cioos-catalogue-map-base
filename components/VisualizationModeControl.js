@@ -45,7 +45,8 @@ const VisualizationModeControl = ({
         );
         hexGridBtn.href = "#";
         hexGridBtn.title = hexGridLabel;
-        hexGridBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+        // LuHexagon SVG from lucide-react icon set
+        hexGridBtn.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`;
 
         L.DomEvent.on(markersBtn, "click", (e) => {
           L.DomEvent.preventDefault(e);

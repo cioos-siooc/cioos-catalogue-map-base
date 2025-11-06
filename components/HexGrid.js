@@ -216,35 +216,33 @@ const HexGrid = ({
           </div>
         `;
 
-        const tooltip = layer.bindTooltip(tooltipContent, {
+        // Bind tooltip to layer (opens only on click, not hover)
+        layer.bindTooltip(tooltipContent, {
           className: "hex-tooltip",
-          sticky: false,
+          sticky: true,
           permanent: false,
+          interactive: true,
+          closeButton: false,
         });
 
-        // Add hover effects
-        layer.on("mouseover", () => {
-          layer.setStyle({
-            weight: 2,
-            fillOpacity: 0.9,
+        // Disable automatic tooltip on hover
+        layer.off("mouseover");
+        layer.off("mouseout");
+
+        // Add click handler to show tooltip and filter datasets
+        layer.on("click", (e) => {
+          // Prevent event from propagating to map
+          L.DomEvent.stopPropagation(e);
+
+          // Close all other tooltips first
+          geoJsonLayer.eachLayer((l) => {
+            if (l !== layer && l.getTooltip && l.getTooltip()) {
+              l.closeTooltip();
+            }
           });
-          layer.bringToFront();
-          // Open tooltip on hover
-          tooltip.openTooltip();
-        });
 
-        layer.on("mouseout", () => {
-          // Restore original opacity
-          layer.setStyle({
-            weight: 0,
-            fillOpacity: originalOpacity,
-          });
-          // Close tooltip on mouse out
-          tooltip.closeTooltip();
-        });
-
-        // Add click handler to filter datasets
-        layer.on("click", () => {
+          // Open this tooltip
+          layer.openTooltip(e.latlng);
           onHexClick(feature);
         });
       },
