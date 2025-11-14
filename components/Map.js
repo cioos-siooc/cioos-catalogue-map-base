@@ -23,7 +23,6 @@ import {
   useImperativeHandle,
   useMemo,
   useState,
-  useCallback,
 } from "react";
 import L from "leaflet";
 import config from "@/app/config";
@@ -313,7 +312,7 @@ const Map = forwardRef(function Map(
         zoomControl={false}
         scrollWheelZoom={true}
         boundsOptions={{ padding: [1, 1] }}
-        attributionControl={true}
+        attributionControl={false}
         ref={mapRef}
         whenReady={(mapInstance) => {
           mapRef.current = mapInstance;
@@ -327,7 +326,6 @@ const Map = forwardRef(function Map(
         }}
       >
         <ZoomControl position="topright" />
-        {/* Visualization mode toggle control */}
         <VisualizationModeControl
           visualizationMode={visualizationMode}
           onModeChange={setVisualizationMode}
@@ -338,31 +336,33 @@ const Map = forwardRef(function Map(
           <BaseLayers basemaps={config.basemaps} lang={lang} />
           <Overlays overlays={config.overlays} lang={lang} />
           {bounds && <FitBounds key={bounds} bounds={bounds} />}
+          <Overlay checked name={t.dataset_markers}>
+            {visualizationMode === "markers" && (
+              <MarkerClusterGroup key={clusterKey}>
+                {filteredItems.map((item) => (
+                  <DatasetMarker
+                    key={item.id}
+                    record={item}
+                    handleListItemClick={handleListItemClick}
+                    lang={lang}
+                    openDrawer={openDrawer}
+                  />
+                ))}
+              </MarkerClusterGroup>
+            )}
+          </Overlay>
+          {/* Render hex grid only in hexgrid mode */}
+          {visualizationMode === "hexgrid" && (
+            <HexGrid
+              filteredItems={allItems}
+              isActive={true}
+              onHexClick={handleHexCellClick}
+              selectedHexCellId={selectedHexCellId}
+              colorScale={config.hex_grid_color_scale || "viridis"}
+            />
+          )}
         </LayersControl>
-        {/* Render markers only in markers mode */}
-        {visualizationMode === "markers" && (
-          <MarkerClusterGroup key={clusterKey}>
-            {filteredItems.map((item) => (
-              <DatasetMarker
-                key={item.id}
-                record={item}
-                handleListItemClick={handleListItemClick}
-                lang={lang}
-                openDrawer={openDrawer}
-              />
-            ))}
-          </MarkerClusterGroup>
-        )}
-        {/* Render hex grid only in hexgrid mode */}
-        {visualizationMode === "hexgrid" && (
-          <HexGrid
-            filteredItems={allItems}
-            isActive={true}
-            onHexClick={handleHexCellClick}
-            selectedHexCellId={selectedHexCellId}
-            colorScale={config.hex_grid_color_scale || "viridis"}
-          />
-        )}
+        <AttributionToggle />
       </MapContainer>
       {/* Legend for hex grid layer - rendered outside MapContainer */}
       <HexGridLegend
@@ -372,5 +372,83 @@ const Map = forwardRef(function Map(
     </>
   );
 });
+
+// Attribution toggle component (no SSR dependencies beyond config)
+function AttributionToggle() {
+  const [hovered, setHovered] = useState(false);
+  const [attributions, setAttributions] = useState([]);
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+
+    const updateAttributions = () => {
+      const list = [];
+      try {
+        // Get active base layer attribution
+        for (const b of config.basemaps || []) {
+          const layer =
+            map._layers[
+              Object.keys(map._layers).find((key) => {
+                const l = map._layers[key];
+                return l.options && l.options.attribution === b.attribution;
+              })
+            ];
+          if (layer && map.hasLayer(layer) && b.attribution) {
+            list.push(b.attribution);
+            break; // Only one base layer should be active
+          }
+        }
+        // Get active overlay attributions
+        for (const o of config.overlays || []) {
+          const layer =
+            map._layers[
+              Object.keys(map._layers).find((key) => {
+                const l = map._layers[key];
+                return l.options && l.options.attribution === o.attribution;
+              })
+            ];
+          if (layer && map.hasLayer(layer) && o.attribution) {
+            list.push(o.attribution);
+          }
+        }
+      } catch {}
+      setAttributions([...new Set(list)]);
+    };
+
+    updateAttributions();
+
+    // Listen for layer add/remove events
+    map.on("layeradd layerremove", updateAttributions);
+
+    return () => {
+      map.off("layeradd layerremove", updateAttributions);
+    };
+  }, [map]);
+
+  if (!attributions.length) return null;
+  return (
+    <div
+      className="pointer-events-none absolute right-[64px] bottom-[20px] z-[600] flex flex-col items-end gap-2"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {hovered && (
+        <div className="pointer-events-auto max-h-40 w-64 overflow-y-auto rounded-md bg-black/40 p-2 text-[10px] leading-relaxed shadow-md backdrop-blur">
+          {attributions.map((a, i) => (
+            <div
+              key={i}
+              className="mb-1 last:mb-0"
+              dangerouslySetInnerHTML={{ __html: a }}
+            />
+          ))}
+        </div>
+      )}
+      <div className="bg-primary-500 dark:bg-primary-600 pointer-events-auto rounded-xl px-2 py-1 text-[11px] font-medium text-white shadow">
+        ?
+      </div>
+    </div>
+  );
+}
 
 export default Map;
