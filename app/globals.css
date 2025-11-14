@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @plugin "flowbite-react/plugin/tailwindcss";
+@plugin "@tailwindcss/typography";
 @source "../.flowbite-react/class-list.json";
 @import "./theme.css";
 
