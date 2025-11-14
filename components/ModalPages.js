@@ -57,7 +57,7 @@ export default function ModalPages({ lang }) {
             </ModalHeader>
             <ModalBody className="bg-primary-50 dark:bg-primary-800">
               <div
-                className="space-y-6 text-base leading-relaxed"
+                className="prose prose-sm prose-gray dark:prose-invert max-w-none"
                 dangerouslySetInnerHTML={{
                   __html: htmlMap[idx] || "<span>Loading...</span>",
                 }}
