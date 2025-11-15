@@ -311,7 +311,7 @@ function AppContent({ lang, setLang }) {
 
   return (
     <>
-      <div className="relative flex h-screen flex-col overflow-hidden lg:flex-row">
+      <div className="relative flex h-dvh flex-col overflow-hidden lg:flex-row">
         {/* Top Banner - Above map on mobile, inside sidebar on desktop */}
         <div className="bg-primary-50 dark:bg-primary-800 z-35 order-1 w-full lg:hidden">
           <TopBanner
