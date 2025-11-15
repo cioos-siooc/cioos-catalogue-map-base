@@ -275,7 +275,7 @@ function AppContent({ lang, setLang }) {
 
   return (
     <>
-      <div className="relative flex h-screen overflow-hidden">
+      <div className="relative flex h-dvh overflow-hidden">
         <div
           className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full"} z-30`}
         >
