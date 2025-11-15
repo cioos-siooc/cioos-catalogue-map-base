@@ -52,25 +52,25 @@ main_logo:
     lang: en
     mode: light
     alt: "CIOOS National"
-    className: "h-[75px] w-auto m-3"
+    className: "h-[65px] w-auto m-2"
     link: "https://cioos.ca"
   - url: "/Images/cioos-national_FR-01.png"
     lang: fr
     mode: light
     alt: "CIOOS National"
-    className: "h-[75px] w-auto m-3"
+    className: "h-[65px] w-auto m-2"
     link: "https://siooc.ca/fr"
   - url: "/Images/cioos-national_EN_W.svg"
     lang: en
     mode: dark
     alt: "CIOOS National"
-    className: "h-[75px] w-auto m-3"
+    className: "h-[65px] w-auto m-2"
     link: "https://cioos.ca"
   - url: "/Images/cioos-national_FR_W.svg"
     lang: fr
     mode: dark
     alt: "CIOOS National"
-    className: "h-[75px] w-auto m-3"
+    className: "h-[65px] w-auto m-2"
     link: "https://siooc.ca/fr"
 
 # bottom_logo: Specifies the footer or secondary logo,
@@ -80,23 +80,23 @@ bottom_logo:
   #   lang: en
   #   mode: light
   #   alt: "CIOOS National"
-  #   className: "max-h-[75px] h-auto m-3"
+  #   className: "max-h-[50px] h-auto m-3"
   #   link: "/"
   # - url: "/Images/cioos-national_FR-01.png"
   #   lang: fr
   #   mode: light
   #   alt: "CIOOS National"
-  #   className: "max-h-[75px] h-auto m-3"
+  #   className: "max-h-[50px] h-auto m-3"
   # - url: "/Images/cioos-national_EN_W.svg"
   #   lang: en
   #   mode: dark
   #   alt: "CIOOS National"
-  #   className: "max-h-[75px] h-auto m-3"
+  #   className: "max-h-[50px] h-auto m-3"
   # - url: "/Images/cioos-national_FR_W.svg"
   #   lang: fr
   #   mode: dark
   #   alt: "CIOOS National"
-  #   className: "max-h-[75px] h-auto m-3"
+  #   className: "max-h-[50px] h-auto m-3"
 
 basemaps:
   - name:
