@@ -60,7 +60,6 @@ export function Sidebar({
   setAboutPageIndex,
 }) {
   const t = getLocale(lang);
-  const ProgressBar = dynamic(() => import("./ProgressBar"), { ssr: false });
 
   const onLeftMenuItemClick = (selectedItem) => {
     onItemClick(selectedItem);
