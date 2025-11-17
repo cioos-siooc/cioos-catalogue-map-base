@@ -319,7 +319,7 @@ function AppContent({ lang, setLang }) {
 
         {/* Sidebar */}
         <div
-          className={`absolute inset-y-0 left-0 w-full transform transition-transform duration-300 ease-in-out lg:relative lg:w-90 ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full lg:translate-x-0"} z-30`}
+          className={`absolute inset-y-0 left-0 w-full transform transition-all duration-300 ease-in-out lg:relative ${isSidebarOpen ? "translate-x-0 lg:w-90" : "w-0 -translate-x-full lg:w-0 lg:translate-x-0 lg:overflow-hidden"} z-30`}
         >
           <Sidebar
             filteredItems={filteredItems}
@@ -360,7 +360,7 @@ function AppContent({ lang, setLang }) {
 
         {/* Main content area */}
         <main
-          className={`relative z-20 order-2 w-full flex-1 lg:order-3 lg:w-auto`}
+          className={`relative z-20 order-2 w-full flex-1 transition-all duration-300 ease-in-out lg:order-3 lg:w-auto`}
         >
           <MapComponent
             bounds={bounds}
