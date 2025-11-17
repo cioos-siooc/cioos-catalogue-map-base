@@ -23,6 +23,7 @@ const HexGrid = ({
   const map = useMap();
   const hexGridLayerRef = useRef(null);
   const [prerenderedHexGrid, setPrerenderedHexGrid] = useState(null);
+  const selectedLayerRef = useRef(null); // Track the currently selected layer
 
   // Load prerendered hex grid on mount
   useEffect(() => {
@@ -215,14 +216,23 @@ const HexGrid = ({
           </div>
         `;
 
-        // Bind tooltip to layer (opens only on click, not hover)
+        // Check if this is the selected hex
+        const isSelected = selectedHexCellId === feature.properties.cellId;
+
+        // Bind tooltip to layer
         layer.bindTooltip(tooltipContent, {
           className: "hex-tooltip",
           sticky: true,
-          permanent: false,
+          permanent: isSelected, // Keep tooltip open if this hex is selected
           interactive: true,
           closeButton: false,
         });
+
+        // If this is the selected hex, open the tooltip and track it
+        if (isSelected) {
+          layer.openTooltip();
+          selectedLayerRef.current = layer;
+        }
 
         // Disable automatic tooltip on hover
         layer.off("mouseover");
@@ -233,15 +243,15 @@ const HexGrid = ({
           // Prevent event from propagating to map
           L.DomEvent.stopPropagation(e);
 
-          // Close all other tooltips first
-          geoJsonLayer.eachLayer((l) => {
-            if (l !== layer && l.getTooltip && l.getTooltip()) {
-              l.closeTooltip();
-            }
-          });
+          // Close previous selected tooltip if any
+          if (selectedLayerRef.current) {
+            selectedLayerRef.current.closeTooltip();
+          }
 
-          // Open this tooltip
-          layer.openTooltip(e.latlng);
+          // Open this tooltip permanently
+          layer.openTooltip();
+          selectedLayerRef.current = layer;
+
           onHexClick(feature);
         });
       },
@@ -265,6 +275,7 @@ const HexGrid = ({
           // Layer might already be removed
         }
         hexGridLayerRef.current = null;
+        selectedLayerRef.current = null;
       }
     };
   }, [geoJsonData, isActive, map, getHexColor, onHexClick, selectedHexCellId]);
