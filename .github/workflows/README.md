@@ -75,6 +75,20 @@ gh-pages/
 
 The workflows set the `BASE_PATH` environment variable, which is used by [next.config.js](../../next.config.js) to configure the correct base path for each deployment. This ensures that all assets and links work correctly in their subdirectories.
 
+### Caching Strategy
+
+The workflow uses two separate caching mechanisms:
+
+1. **Build Cache** (branch-specific): Caches `.next/cache` per branch/PR to prevent cross-contamination
+   - Key: `{OS}-nextjs-{branch/pr}-{dependencies}-{source-files}`
+   - Ensures each branch builds with its own cached artifacts
+
+2. **Data Cache** (shared): Caches `public/packages.json` and dataset files across all branches
+   - Key: `{OS}-ckan-data-{fetch-script}-{config}`
+   - Only re-fetches CKAN data when the fetch script or config changes
+   - Speeds up builds by reusing external data that doesn't change with code
+   - The workflow fetches data separately, then runs `npm run build` with `SKIP_FETCH=true` to skip the fetch step
+
 ### Concurrency Control
 
 Each branch/PR has its own concurrency group to prevent race conditions:
@@ -104,6 +118,29 @@ The workflows require the following permissions (already configured in the workf
 - `id-token: write` - for GitHub Pages deployment
 - `pull-requests: write` - to comment on PRs
 
+## Local Development
+
+### Build Script with SKIP_FETCH
+
+The `npm run build` script supports a `SKIP_FETCH` environment variable to skip fetching CKAN data:
+
+```bash
+# Normal build (fetches data, then builds)
+npm run build
+
+# Build without fetching (uses existing public/packages.json)
+SKIP_FETCH=true npm run build
+
+# Fetch data only (without building)
+npm run load_data
+```
+
+This is useful when:
+
+- You already have fresh data and want to rebuild quickly
+- Testing build configurations without waiting for data fetch
+- The workflow uses this to separate caching of data from build artifacts
+
 ## Maintenance
 
 ### Cleaning Up Stale PR Deployments
@@ -123,6 +160,18 @@ The index page is automatically regenerated on each deployment using the [index-
 3. The workflows will automatically use the updated template on the next deployment
 
 ## Troubleshooting
+
+### PR Build Shows Stale/Wrong Content
+
+If a PR deployment shows old content or content from another branch, this is likely due to build caching. **This has been fixed** by:
+
+1. **Branch-specific caching**: Cache keys now include the branch/PR identifier to prevent cache sharing between branches
+2. **Clean build directories**: The workflow explicitly removes `out/` and `.next/` before building
+
+If you still see stale content, you can:
+
+- Close and reopen the PR to trigger a fresh build
+- Clear the GitHub Actions cache in Settings → Actions → Caches
 
 ### Deployment Not Showing Up
 
