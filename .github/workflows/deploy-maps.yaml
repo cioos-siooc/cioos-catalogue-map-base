@@ -48,6 +48,20 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Cache CKAN packages data
+        id: cache-packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            public/packages.json
+            public/dataset-cache
+          # Cache based on the fetch script and config - data is shared across branches
+          key: ${{ runner.os }}-ckan-data-${{ hashFiles('scripts/fetchCkanPackages.js', 'config.yaml') }}
+
+      - name: Fetch CKAN packages (if not cached)
+        if: steps.cache-packages.outputs.cache-hit != 'true'
+        run: node scripts/fetchCkanPackages.js
+
       - name: Run Lint
         run: npm run lint
 
@@ -72,6 +86,7 @@ jobs:
       - name: Build with Next.js
         env:
           BASE_PATH: ${{ env.BASE_PATH }}
+          SKIP_FETCH: true
         run: npm run build
 
       # Checkout gh-pages branch to prepare deployment
