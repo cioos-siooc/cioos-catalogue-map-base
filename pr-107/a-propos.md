@@ -1,0 +1,5 @@
+# À propos du Catalogue Cartographique
+
+Le Catalogue Cartographique du Système intégré d’observation des océans du Canada (SIOOC) est une application web conçue pour aider les utilisateurs à explorer et visualiser les jeux de données océanographiques provenant du SIOOC. L’interface cartographique interactive permet de filtrer, rechercher et visualiser des données géospatiales liées à diverses variables océaniques, telles que la température de l’eau, le phytoplancton, et bien plus. En cliquant sur les marqueurs de la carte, les utilisateurs peuvent accéder à des informations détaillées sur chaque jeu de données, notamment des descriptions, les producteurs de données, ainsi que des liens directs vers le catalogue du SIOOC et les fichiers téléchargeables.
+
+Cet outil s’adresse aux chercheurs, décideurs et au grand public intéressés par la découverte et l’accès aux données océaniques au Canada. L’application est disponible en plusieurs langues et offre une expérience conviviale pour naviguer dans des données scientifiques complexes.
