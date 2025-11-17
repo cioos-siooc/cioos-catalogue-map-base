@@ -11,10 +11,9 @@ import {
 } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { getLocale } from "@/app/get-locale";
-import { IoFilterOutline } from "react-icons/io5";
-import SidebarButton from "./SidebarButton";
 import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
+import { MdClose } from "react-icons/md";
 import { updateURLWithBadges } from "@/components/UrlParametrization";
 
 // Helper to format an ISO date to YYYY-MM-DD (machine-friendly)
@@ -69,7 +68,7 @@ export function SearchFilter({ lang, setBadges, badges }) {
   return (
     <>
       <Button
-        className="bg-primary-500 gap-1 px-3 hover:cursor-pointer"
+        className="bg-primary-500 gap-1 border border-white/20 px-3 transition-all duration-200 hover:-translate-y-0.5 hover:cursor-pointer hover:shadow-lg"
         pill
         size="xs"
         onClick={() => setOpenModal(true)}
@@ -200,7 +199,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption, badges }) {
   return (
     <>
       <Button
-        className="bg-primary-500 gap-1 hover:cursor-pointer"
+        className="bg-primary-500 gap-1 border border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:cursor-pointer hover:shadow-lg"
         pill
         size="xs"
         onClick={() => setOpenModal(true)}
@@ -363,6 +362,9 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
 
     if (badgeLabels.length > 0) {
       setQuery(badgeLabels);
+    } else {
+      // Clear query when badges are cleared
+      setQuery([]);
     }
   }, [filter_type, options, badges]);
 
@@ -411,12 +413,12 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
       <Button
         pill
         size="xs"
-        className="bg-primary-500 gap-1 hover:cursor-pointer"
+        className="bg-primary-500 gap-1 border border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:cursor-pointer hover:shadow-lg"
         onClick={() => setOpenModal(true)}
       >
         {count > 0 && (
           <>
-            <span className="bg-accent-500 h-4 w-4 rounded-full border-0 text-xs text-black">
+            <span className="bg-accent-500 min-w-4 items-center justify-center rounded-full px-1 text-xs text-black">
               {count}
             </span>
             <div>{t[filter_type]}</div>
@@ -472,12 +474,28 @@ export default function FilterSection({
   projList,
   eovList,
   setSelectedOption,
+  isOpen,
+  setIsOpen,
 }) {
   const t = getLocale(lang);
-  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+  const [isAccordionOpen, setIsAccordionOpen] = useState(isOpen || false);
 
-  const toggleAccordion = () => {
-    setIsAccordionOpen(!isAccordionOpen);
+  // Count active filters
+  const countActiveFilters = () => {
+    let count = 0;
+    if (badges?.search) count++;
+    if (badges?.filter_date) count++;
+    if (badges?.organization && badges.organization.length > 0)
+      count += badges.organization.length;
+    if (badges?.projects && badges.projects.length > 0)
+      count += badges.projects.length;
+    if (badges?.eov && badges.eov.length > 0) count += badges.eov.length;
+    return count;
+  };
+
+  const clearAllFilters = () => {
+    setBadges({});
+    setSelectedOption("");
   };
 
   useEffect(() => {
@@ -485,74 +503,45 @@ export default function FilterSection({
     updateURLWithBadges(badges);
   }, [badges]);
 
+  useEffect(() => {
+    // Sync internal state with external state
+    if (isOpen !== undefined) {
+      setIsAccordionOpen(isOpen);
+    }
+  }, [isOpen]);
+
+  const activeFilterCount = countActiveFilters();
+
   return (
-    <>
-      <SidebarButton
-        logo={<IoFilterOutline />}
-        label={
-          <div className="flex items-center gap-2">
-            <div>{t.filters}</div>
-            {(() => {
-              const count = (() => {
-                if (!badges) return 0;
-                let c = 0;
-                if (
-                  typeof badges.search === "string" &&
-                  badges.search.trim() !== ""
-                )
-                  c++;
-                if (
-                  Array.isArray(badges.organization) &&
-                  badges.organization.length > 0
-                )
-                  c++;
-                if (
-                  Array.isArray(badges.projects) &&
-                  badges.projects.length > 0
-                )
-                  c++;
-                if (Array.isArray(badges.eov) && badges.eov.length > 0) c++;
-                if (
-                  typeof badges.filter_date === "string" &&
-                  badges.filter_date.trim() !== ""
-                )
-                  c++;
-                return c;
-              })();
-              return count > 0 ? (
-                <span className="bg-accent-500 h-4 min-w-4 rounded-full px-1 text-center text-xs leading-4 text-black">
-                  {count}
-                </span>
-              ) : null;
-            })()}
-          </div>
-        }
-        onClick={toggleAccordion}
-      />
-      <div
-        className={`transition-all duration-300 ${isAccordionOpen ? "pt-1" : "hidden max-h-0"}`}
-      >
-        <div className="flex flex-row flex-wrap items-center justify-center gap-1">
+    <div
+      className={`overflow-visible transition-all duration-300 ${
+        isAccordionOpen
+          ? "border-primary-300 dark:border-primary-600 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100"
+          : "pointer-events-none max-h-0 -translate-y-4 opacity-0"
+      }`}
+    >
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-row flex-wrap items-center justify-center gap-1.5">
           <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
           <FilterItems
             filter_type="organization"
             lang={lang}
             setBadges={setBadges}
-            options={orgList.map((org) => ({ label: org, value: org }))} // Convert to array of tuples
+            options={orgList.map((org) => ({ label: org, value: org }))}
             badges={badges}
           />
           <FilterItems
             filter_type="projects"
             lang={lang}
             setBadges={setBadges}
-            options={projList.map((proj) => ({ label: proj, value: proj }))} // Convert to array of tuples
+            options={projList.map((proj) => ({ label: proj, value: proj }))}
             badges={badges}
           />
           <FilterItems
             filter_type="eov"
             lang={lang}
             setBadges={setBadges}
-            options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))} // Convert to array of tuples
+            options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))}
             badges={badges}
           />
           <TimeFilter
@@ -562,7 +551,17 @@ export default function FilterSection({
             badges={badges}
           />
         </div>
+        {activeFilterCount > 0 && (
+          <div className="flex justify-center">
+            <button
+              className="text-accent-500 hover:text-accent-600 dark:text-accent-400 dark:hover:text-accent-500 flex items-center gap-1 text-xs font-medium underline transition-colors duration-200"
+              onClick={clearAllFilters}
+            >
+              {t.clear_all_filters}
+            </button>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }

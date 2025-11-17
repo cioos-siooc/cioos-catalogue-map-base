@@ -6,56 +6,36 @@ import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
 import Logo from "./Logo";
-import { TfiMenu } from "react-icons/tfi";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 import { BsDatabase } from "react-icons/bs";
-import SidebarButton from "./SidebarButton";
+import {
+  MdLanguage,
+  MdInfoOutline,
+  MdFilterList,
+  MdClose,
+  MdMenu,
+} from "react-icons/md";
 
-const Title = ({ lang, setLang }) => {
-  const opposite_lang = lang === "en" ? "fr" : "en";
-  const toggleLanguage = () => {
-    setLang(lang === "en" ? "fr" : "en");
-  };
-
+export const TopBanner = ({ lang, toggleSidebar, isSidebarOpen }) => {
   return (
-    <div className="flex w-full flex-row justify-between">
-      <div className="flex-col">
+    <div className="flex flex-row items-center justify-between gap-1 p-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Logo logos={config.main_logo} lang={lang} default_width={120} />
-        <span className="pt-3 text-xl font-semibold">{config.title[lang]}</span>
+        <span className="text-center text-xl font-semibold">
+          {config.title[lang]}
+        </span>
       </div>
-
-      <button
-        className="cursor-pointer p-1 uppercase"
-        id="headerTranslation"
-        onClick={toggleLanguage}
-      >
-        {opposite_lang}
-      </button>
-    </div>
-  );
-};
-
-export const TopBanner = ({ lang, setLang, toggleSidebar, isSidebarOpen }) => {
-  const t = getLocale(lang);
-  return (
-    <div
-      className={`bg-primary-50 dark:bg-primary-800 mt-1 w-90 pt-1 ${
-        !isSidebarOpen ? "overflow-hidden rounded-r-3xl" : ""
-      }`}
-    >
-      <div className="flex items-center px-2 py-1">
-        <Title lang={lang} setLang={setLang} />
-      </div>
-      <SidebarButton
-        logo={<TfiMenu />}
-        label={
-          <div className="flex flex-row items-center gap-4">
-            <div>Menu</div>
-            <div>{isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}</div>
+      <div className="group relative">
+        <button
+          className="hover:bg-primary-500 flex cursor-pointer items-center justify-center rounded-md p-1 text-3xl transition-colors duration-200 hover:text-white"
+          onClick={toggleSidebar}
+        >
+          <div
+            className={`transition-transform duration-300 ${isSidebarOpen ? "rotate-90" : "rotate-0"}`}
+          >
+            {isSidebarOpen ? <MdClose /> : <MdMenu />}
           </div>
-        }
-        onClick={toggleSidebar}
-      />
+        </button>
+      </div>
     </div>
   );
 };
@@ -78,9 +58,27 @@ export function Sidebar({
   setSelectedDateFilterOption,
   toggleSidebar,
   isSidebarOpen,
+  filterOpen,
+  setFilterOpen,
+  aboutPageIndex,
+  setAboutPageIndex,
 }) {
   const t = getLocale(lang);
-  const ProgressBar = dynamic(() => import("./ProgressBar"), { ssr: false });
+
+  // Count active filters
+  const countActiveFilters = () => {
+    let count = 0;
+    if (badges?.search) count++;
+    if (badges?.filter_date) count++;
+    if (badges?.organization && badges.organization.length > 0)
+      count += badges.organization.length;
+    if (badges?.projects && badges.projects.length > 0)
+      count += badges.projects.length;
+    if (badges?.eov && badges.eov.length > 0) count += badges.eov.length;
+    return count;
+  };
+
+  const activeFilterCount = countActiveFilters();
 
   const onLeftMenuItemClick = (selectedItem) => {
     onItemClick(selectedItem);
@@ -106,39 +104,79 @@ export function Sidebar({
   };
 
   return (
-    <div className="bg-primary-50 dark:bg-primary-800 flex h-screen flex-col">
+    <div className="bg-primary-50 dark:bg-primary-800 flex h-screen flex-col overflow-visible">
       <TopBanner
         lang={lang}
-        setLang={setLang}
         toggleSidebar={toggleSidebar}
         isSidebarOpen={isSidebarOpen}
       />
-      <ModalPages lang={lang} />
-      <FilterSection
+      <ModalPages
         lang={lang}
-        badges={badges}
-        setBadges={setBadges}
-        orgList={organizationList}
-        projList={projectList}
-        eovList={eovList}
-        setSelectedOption={setSelectedDateFilterOption}
+        openKey={aboutPageIndex}
+        setOpenKey={setAboutPageIndex}
       />
 
-      <SidebarButton
-        logo={<BsDatabase />}
-        label={
-          <div className="flex items-center gap-2">
-            <span>{t.datasets}</span>
-            {generateDatasetsLabel(
-              filteredResultsCount,
-              totalResultsCount,
-              t.no_results,
-              t.results,
-            )}
+      <div className="bg-primary-100 dark:bg-primary-700 mx-2 mt-2 mb-3 rounded-md py-1">
+        <div className="flex flex-row items-center justify-center gap-2 overflow-visible">
+          <div className="group relative">
+            <button
+              className="hover:bg-primary-500 flex w-20 cursor-pointer flex-col items-center justify-center rounded-md px-2 py-1 transition-colors duration-200 hover:text-white"
+              onClick={() => setLang(lang === "en" ? "fr" : "en")}
+            >
+              <MdLanguage className="text-2xl" />
+              <span className="text-sm">{lang === "en" ? "FR" : "EN"}</span>
+            </button>
           </div>
-        }
-      />
-      <ul className="flex-grow space-y-2 overflow-y-auto rounded-md p-2">
+          <div className="group relative">
+            <button
+              className="hover:bg-primary-500 flex w-20 cursor-pointer flex-col items-center justify-center rounded-md p-1 transition-colors duration-200 hover:text-white"
+              onClick={() => setAboutPageIndex(0)}
+            >
+              <MdInfoOutline className="text-2xl" />
+              <span className="text-sm">{t.about}</span>
+            </button>
+          </div>
+          <div className="group relative">
+            <button
+              className="hover:bg-primary-500 flex w-20 cursor-pointer flex-col items-center justify-center rounded-md p-1 transition-colors duration-200 hover:text-white"
+              onClick={() => setFilterOpen(!filterOpen)}
+            >
+              <div className="relative">
+                <MdFilterList className="text-2xl" />
+                {activeFilterCount > 0 && (
+                  <span className="bg-accent-500 absolute -top-1 -right-3 rounded-full px-1 text-xs text-black">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </div>
+              <span className="text-sm">{t.filters}</span>
+            </button>
+          </div>
+        </div>
+        <FilterSection
+          lang={lang}
+          badges={badges}
+          setBadges={setBadges}
+          orgList={organizationList}
+          projList={projectList}
+          eovList={eovList}
+          setSelectedOption={setSelectedDateFilterOption}
+          isOpen={filterOpen}
+          setIsOpen={setFilterOpen}
+        />
+      </div>
+
+      <div className="bg-primary-200 dark:bg-primary-700 mx-2 flex items-center gap-2 rounded-t-md p-2 px-2">
+        <BsDatabase className="text-xl" />
+        {t.datasets}
+        {generateDatasetsLabel(
+          filteredResultsCount,
+          totalResultsCount,
+          t.no_results,
+          t.results,
+        )}
+      </div>
+      <ul className="custom-scrollbar bg-primary-200 dark:bg-primary-700 mx-2 flex-grow overflow-y-auto rounded-b-md">
         <ItemsList
           itemsList={filteredItems}
           onItemClick={onLeftMenuItemClick}

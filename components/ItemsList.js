@@ -30,32 +30,28 @@ export default function ItemsList({
     );
   }
   return (
-    <div>
-      <div className="z-50 grid grid-flow-row">
-        <div
-          id="drawer-navigation"
-          className="bg-primary-200 dark:bg-primary-700 w-full rounded-md transition-transform duration-300 ease-in-out"
-        >
-          <ul className="space-y-2 font-medium">
-            {itemsList.map(
-              (item) => (
-                <li
-                  className="hover:bg-primary-500 bg-primary-100 dark:bg-primary-900 m-2 cursor-pointer rounded-md p-2 text-sm hover:text-white"
-                  onClick={() => onItemClick(item)}
-                  onDoubleClick={() => onItemDoubleClick(item)}
-                  key={item.id}
-                >
-                  {item.title_translated[lang]}
-                  <br />
-                  <span className="text-xs opacity-80">
-                    {item.organization.title_translated[lang]}
-                  </span>
-                </li>
-              ), // Dynamically create <li> items
-            )}
-          </ul>
-        </div>
-      </div>
+    <div
+      id="drawer-navigation"
+      className="grid-flow-rowtransition-transform z-50 grid duration-300 ease-in-out"
+    >
+      <ul className="space-y-2 font-medium">
+        {itemsList.map(
+          (item) => (
+            <li
+              className="hover:bg-primary-500 bg-primary-100 dark:bg-primary-900 ml-2 cursor-pointer rounded-md p-2 text-sm hover:text-white"
+              onClick={() => onItemClick(item)}
+              onDoubleClick={() => onItemDoubleClick(item)}
+              key={item.id}
+            >
+              {item.title_translated[lang]}
+              <br />
+              <span className="text-xs opacity-80">
+                {item.organization.title_translated[lang]}
+              </span>
+            </li>
+          ), // Dynamically create <li> items
+        )}
+      </ul>
     </div>
   );
 }

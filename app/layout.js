@@ -67,6 +67,8 @@ function AppContent({ lang, setLang }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
   const [datasetSpatial, setDatasetSpatial] = useState(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [aboutPageIndex, setAboutPageIndex] = useState(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -275,9 +277,22 @@ function AppContent({ lang, setLang }) {
 
   return (
     <>
-      <div className="relative flex h-screen overflow-hidden">
+      <div className="relative flex h-dvh flex-col overflow-hidden lg:flex-row">
+        {/* Top Banner - Above map on mobile, inside sidebar on desktop */}
+        <div className="bg-primary-50 dark:bg-primary-800 z-35 order-1 w-full lg:hidden">
+          <TopBanner
+            lang={lang}
+            setLang={setLang}
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
+            onFilterClick={() => setFilterOpen(!filterOpen)}
+            onAboutClick={() => setAboutPageIndex(0)}
+          />
+        </div>
+
+        {/* Sidebar */}
         <div
-          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full"} z-30`}
+          className={`absolute inset-y-0 left-0 w-full transform transition-transform duration-300 ease-in-out lg:w-90 ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full"} z-30`}
         >
           <Sidebar
             filteredItems={filteredItems}
@@ -297,18 +312,28 @@ function AppContent({ lang, setLang }) {
             setSelectedDateFilterOption={setSelectedDateFilterOption}
             toggleSidebar={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
+            filterOpen={filterOpen}
+            setFilterOpen={setFilterOpen}
+            aboutPageIndex={aboutPageIndex}
+            setAboutPageIndex={setAboutPageIndex}
           />
         </div>
-        <div className="absolute top-0 left-0 z-35">
+
+        {/* Top Banner - Desktop only */}
+        <div className="bg-primary-50 dark:bg-primary-800 absolute top-0 left-0 z-35 mt-2 hidden w-90 rounded-r-3xl lg:block">
           <TopBanner
             lang={lang}
             setLang={setLang}
             toggleSidebar={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
+            onFilterClick={() => setFilterOpen(!filterOpen)}
+            onAboutClick={() => setAboutPageIndex(0)}
           />
         </div>
+
+        {/* Main content area */}
         <main
-          className={`relative z-20 flex-1 transform transition-transform duration-300 ease-in-out`}
+          className={`relative z-20 order-2 w-full flex-1 lg:order-3 lg:w-auto`}
         >
           <MapComponent
             bounds={bounds}
@@ -321,7 +346,7 @@ function AppContent({ lang, setLang }) {
         {isDrawerOpen && dataSetInfo && (
           <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
-        <div className="bg-primary-50 dark:bg-primary-800 absolute bottom-0 left-0 z-25 flex w-90 items-center justify-center rounded-tr-xl pt-2 opacity-50">
+        <div className="justify-left absolute bottom-0 left-0 z-25 ml-2 flex w-90 items-center pt-2">
           <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
         </div>
       </div>
