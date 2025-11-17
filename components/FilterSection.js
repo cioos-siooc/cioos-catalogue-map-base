@@ -68,7 +68,7 @@ export function SearchFilter({ lang, setBadges, badges }) {
   return (
     <>
       <Button
-        className="bg-primary-500 gap-1 px-3 hover:cursor-pointer"
+        className="bg-primary-500 gap-1 border border-white/20 px-3 transition-all duration-200 hover:-translate-y-0.5 hover:cursor-pointer hover:shadow-lg"
         pill
         size="xs"
         onClick={() => setOpenModal(true)}
@@ -199,7 +199,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption, badges }) {
   return (
     <>
       <Button
-        className="bg-primary-500 gap-1 hover:cursor-pointer"
+        className="bg-primary-500 gap-1 border border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:cursor-pointer hover:shadow-lg"
         pill
         size="xs"
         onClick={() => setOpenModal(true)}
@@ -410,7 +410,7 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
       <Button
         pill
         size="xs"
-        className="bg-primary-500 gap-1 hover:cursor-pointer"
+        className="bg-primary-500 gap-1 border border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:cursor-pointer hover:shadow-lg"
         onClick={() => setOpenModal(true)}
       >
         {count > 0 && (
@@ -510,57 +510,55 @@ export default function FilterSection({
   const activeFilterCount = countActiveFilters();
 
   return (
-    <>
-      <div
-        className={`overflow-visible transition-all duration-300 ${
-          isAccordionOpen
-            ? "border-primary-300 dark:border-primary-600 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100"
-            : "pointer-events-none max-h-0 -translate-y-4 opacity-0"
-        }`}
-      >
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-row flex-wrap items-center justify-center gap-1">
-            <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
-            <FilterItems
-              filter_type="organization"
-              lang={lang}
-              setBadges={setBadges}
-              options={orgList.map((org) => ({ label: org, value: org }))}
-              badges={badges}
-            />
-            <FilterItems
-              filter_type="projects"
-              lang={lang}
-              setBadges={setBadges}
-              options={projList.map((proj) => ({ label: proj, value: proj }))}
-              badges={badges}
-            />
-            <FilterItems
-              filter_type="eov"
-              lang={lang}
-              setBadges={setBadges}
-              options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))}
-              badges={badges}
-            />
-            <TimeFilter
-              lang={lang}
-              setBadges={setBadges}
-              setSelectedOption={setSelectedOption}
-              badges={badges}
-            />
-          </div>
-          {activeFilterCount > 0 && (
-            <div className="flex justify-center">
-              <button
-                className="text-accent-500 hover:text-accent-600 dark:text-accent-400 dark:hover:text-accent-500 flex items-center gap-1 text-xs font-medium underline transition-colors duration-200"
-                onClick={clearAllFilters}
-              >
-                {t.clear_all_filters}
-              </button>
-            </div>
-          )}
+    <div
+      className={`overflow-visible transition-all duration-300 ${
+        isAccordionOpen
+          ? "border-primary-300 dark:border-primary-600 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100"
+          : "pointer-events-none max-h-0 -translate-y-4 opacity-0"
+      }`}
+    >
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-row flex-wrap items-center justify-center gap-1.5">
+          <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
+          <FilterItems
+            filter_type="organization"
+            lang={lang}
+            setBadges={setBadges}
+            options={orgList.map((org) => ({ label: org, value: org }))}
+            badges={badges}
+          />
+          <FilterItems
+            filter_type="projects"
+            lang={lang}
+            setBadges={setBadges}
+            options={projList.map((proj) => ({ label: proj, value: proj }))}
+            badges={badges}
+          />
+          <FilterItems
+            filter_type="eov"
+            lang={lang}
+            setBadges={setBadges}
+            options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))}
+            badges={badges}
+          />
+          <TimeFilter
+            lang={lang}
+            setBadges={setBadges}
+            setSelectedOption={setSelectedOption}
+            badges={badges}
+          />
         </div>
+        {activeFilterCount > 0 && (
+          <div className="flex justify-center">
+            <button
+              className="text-accent-500 hover:text-accent-600 dark:text-accent-400 dark:hover:text-accent-500 flex items-center gap-1 text-xs font-medium underline transition-colors duration-200"
+              onClick={clearAllFilters}
+            >
+              {t.clear_all_filters}
+            </button>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }
