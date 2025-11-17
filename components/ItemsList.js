@@ -38,7 +38,7 @@ export default function ItemsList({
         {itemsList.map(
           (item) => (
             <li
-              className="hover:bg-primary-500 bg-primary-100 dark:bg-primary-900 m-2 cursor-pointer rounded-md p-2 text-sm hover:text-white"
+              className="hover:bg-primary-500 bg-primary-100 dark:bg-primary-900 ml-2 cursor-pointer rounded-md p-2 text-sm hover:text-white"
               onClick={() => onItemClick(item)}
               onDoubleClick={() => onItemDoubleClick(item)}
               key={item.id}
