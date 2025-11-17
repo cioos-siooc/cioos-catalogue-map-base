@@ -11,43 +11,26 @@ import { BsDatabase } from "react-icons/bs";
 import { MdLanguage, MdInfoOutline } from "react-icons/md";
 import { IoFilterOutline } from "react-icons/io5";
 
-const Title = ({ lang }) => {
-  return (
-    <div className="flex w-full flex-col items-center gap-1">
-      <Logo logos={config.main_logo} lang={lang} default_width={120} />
-      <span className="text-center text-xl font-semibold">
-        {config.title[lang]}
-      </span>
-    </div>
-  );
-};
-
 export const TopBanner = ({ lang, toggleSidebar, isSidebarOpen }) => {
   return (
-    <div
-      className={`bg-primary-50 dark:bg-primary-800 mt-1 w-90 ${
-        !isSidebarOpen ? "overflow-hidden rounded-r-3xl" : ""
-      }`}
-    >
-      <div className="flex flex-col items-center justify-center overflow-visible px-2 py-0.5">
-        <div className="flex w-full flex-row items-center justify-center gap-2 overflow-visible">
-          <Title lang={lang} />
-          <div className="group relative">
-            <button
-              className="hover:bg-primary-500 flex cursor-pointer items-center justify-center rounded-md p-1 text-3xl transition-colors duration-200 hover:text-white"
-              onClick={toggleSidebar}
-            >
-              <div
-                className={`transition-transform duration-300 ${isSidebarOpen ? "rotate-90" : "rotate-0"}`}
-              >
-                {isSidebarOpen ? <MdClose /> : <MdMenu />}
-              </div>
-            </button>
-            <div className="absolute right-0 bottom-full z-50 mb-2 hidden rounded bg-gray-800 px-2 py-1 text-sm whitespace-nowrap text-white group-hover:block">
-              {isSidebarOpen ? "Close" : "Menu"}
-            </div>
+    <div className="flex flex-row items-center justify-between gap-1 p-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Logo logos={config.main_logo} lang={lang} default_width={120} />
+        <span className="text-center text-xl font-semibold">
+          {config.title[lang]}
+        </span>
+      </div>
+      <div className="group relative">
+        <button
+          className="hover:bg-primary-500 flex cursor-pointer items-center justify-center rounded-md p-1 text-3xl transition-colors duration-200 hover:text-white"
+          onClick={toggleSidebar}
+        >
+          <div
+            className={`transition-transform duration-300 ${isSidebarOpen ? "rotate-90" : "rotate-0"}`}
+          >
+            {isSidebarOpen ? <MdClose /> : <MdMenu />}
           </div>
-        </div>
+        </button>
       </div>
     </div>
   );
