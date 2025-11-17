@@ -1,5 +1,8 @@
 import { Modal, ModalBody, ModalHeader } from "flowbite-react";
 import { useEffect, useState } from "react";
+import { MdInfoOutline } from "react-icons/md";
+import { IoMdClose } from "react-icons/io";
+import SidebarButton from "@/components/SidebarButton";
 import config from "@/app/config.js";
 import { marked } from "marked";
 const basePath = process.env.BASE_PATH || "";
@@ -47,25 +50,38 @@ export default function ModalPages({
   return (
     <>
       {pages.map((page, idx) => (
-        <Modal
-          key={idx}
-          dismissible
-          show={openKey === idx}
-          onClose={() => setOpenKey(null)}
-          className="bg-primary-50/50 dark:bg-primary-900/50"
-        >
-          <ModalHeader className="bg-primary-300 dark:bg-primary-700 border-0">
-            {page.label[lang]}
-          </ModalHeader>
-          <ModalBody className="bg-primary-50 dark:bg-primary-800">
-            <div
-              className="space-y-6 text-base leading-relaxed"
-              dangerouslySetInnerHTML={{
-                __html: htmlMap[idx] || "<span>Loading...</span>",
-              }}
-            />
-          </ModalBody>
-        </Modal>
+        <div key={idx}>
+          <SidebarButton
+            logo={<MdInfoOutline />}
+            label={page.label[lang]}
+            onClick={() => setOpenKey(idx)}
+          />
+          <Modal
+            dismissible
+            show={openKey === idx}
+            onClose={() => setOpenKey(null)}
+            className="bg-primary-50/50 dark:bg-primary-900/50"
+          >
+            <div className="relative overflow-hidden rounded-lg">
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={() => setOpenKey(null)}
+                className="absolute top-2 right-2 z-10 p-2 text-lg"
+              >
+                <IoMdClose />
+              </button>
+              <ModalBody className="bg-primary-50 dark:bg-primary-800">
+                <div
+                  className="prose prose-sm prose-gray dark:prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: htmlMap[idx] || "<span>Loading...</span>",
+                  }}
+                />
+              </ModalBody>
+            </div>
+          </Modal>
+        </div>
       ))}
     </>
   );
