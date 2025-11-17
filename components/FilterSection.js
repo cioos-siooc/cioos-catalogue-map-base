@@ -362,6 +362,9 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
 
     if (badgeLabels.length > 0) {
       setQuery(badgeLabels);
+    } else {
+      // Clear query when badges are cleared
+      setQuery([]);
     }
   }, [filter_type, options, badges]);
 
