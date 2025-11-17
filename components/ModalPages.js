@@ -2,7 +2,6 @@ import { Modal, ModalBody, ModalHeader } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { MdInfoOutline } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
-import SidebarButton from "@/components/SidebarButton";
 import config from "@/app/config.js";
 import { marked } from "marked";
 const basePath = process.env.BASE_PATH || "";
@@ -51,11 +50,6 @@ export default function ModalPages({
     <>
       {pages.map((page, idx) => (
         <div key={idx}>
-          <SidebarButton
-            logo={<MdInfoOutline />}
-            label={page.label[lang]}
-            onClick={() => setOpenKey(idx)}
-          />
           <Modal
             dismissible
             show={openKey === idx}
