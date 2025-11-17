@@ -6,10 +6,14 @@ import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
 import Logo from "./Logo";
-import { MdClose, MdMenu } from "react-icons/md";
 import { BsDatabase } from "react-icons/bs";
-import { MdLanguage, MdInfoOutline } from "react-icons/md";
-import { IoFilterOutline } from "react-icons/io5";
+import {
+  MdLanguage,
+  MdInfoOutline,
+  MdFilterList,
+  MdClose,
+  MdMenu,
+} from "react-icons/md";
 
 export const TopBanner = ({ lang, toggleSidebar, isSidebarOpen }) => {
   return (
@@ -122,7 +126,7 @@ export function Sidebar({
               className="hover:bg-primary-500 flex w-16 cursor-pointer flex-col items-center justify-center rounded-md p-2 transition-colors duration-200 hover:text-white"
               onClick={() => setFilterOpen(!filterOpen)}
             >
-              <IoFilterOutline className="text-2xl" />
+              <MdFilterList className="text-2xl" />
               <span className="text-sm">{t.filters}</span>
             </button>
           </div>
@@ -140,8 +144,8 @@ export function Sidebar({
         />
       </div>
 
-      <div className="bg-primary-200 dark:bg-primary-700 mx-2 flex items-center gap-2 rounded-t-md px-2 pt-2 text-lg font-semibold">
-        <BsDatabase />
+      <div className="bg-primary-200 dark:bg-primary-700 mx-2 flex items-center gap-2 rounded-t-md p-2 px-2">
+        <BsDatabase className="text-xl" />
         {t.datasets}
         {generateDatasetsLabel(
           filteredResultsCount,
