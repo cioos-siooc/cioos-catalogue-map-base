@@ -94,7 +94,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
           aria-label="Close Dataset Details"
           title="Close Dataset Details"
         >
-          <IoMdClose />
+          <IoMdClose className="text-3xl" />
         </button>
         <div id="top" className="flex-shrink-0">
           {dataSetInfo && dataSetInfo.organization ? (
