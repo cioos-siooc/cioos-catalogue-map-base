@@ -65,6 +65,21 @@ export function Sidebar({
 }) {
   const t = getLocale(lang);
 
+  // Count active filters
+  const countActiveFilters = () => {
+    let count = 0;
+    if (badges?.search) count++;
+    if (badges?.filter_date) count++;
+    if (badges?.organization && badges.organization.length > 0)
+      count += badges.organization.length;
+    if (badges?.projects && badges.projects.length > 0)
+      count += badges.projects.length;
+    if (badges?.eov && badges.eov.length > 0) count += badges.eov.length;
+    return count;
+  };
+
+  const activeFilterCount = countActiveFilters();
+
   const onLeftMenuItemClick = (selectedItem) => {
     onItemClick(selectedItem);
   };
@@ -126,7 +141,14 @@ export function Sidebar({
               className="hover:bg-primary-500 flex w-16 cursor-pointer flex-col items-center justify-center rounded-md p-2 transition-colors duration-200 hover:text-white"
               onClick={() => setFilterOpen(!filterOpen)}
             >
-              <MdFilterList className="text-2xl" />
+              <div className="relative">
+                <MdFilterList className="text-2xl" />
+                {activeFilterCount > 0 && (
+                  <span className="bg-accent-500 absolute -top-1 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-xs text-black">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </div>
               <span className="text-sm">{t.filters}</span>
             </button>
           </div>
