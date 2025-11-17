@@ -342,8 +342,11 @@ function AppContent({ lang, setLang }) {
         <div className="absolute top-0 left-0 z-35">
           <TopBanner
             lang={lang}
+            setLang={setLang}
             toggleSidebar={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
+            onFilterClick={() => setFilterOpen(!filterOpen)}
+            onAboutClick={() => setAboutPageIndex(0)}
           />
         </div>
         <main
