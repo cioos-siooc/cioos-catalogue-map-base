@@ -10,7 +10,6 @@ import { MdClose, MdMenu } from "react-icons/md";
 import { BsDatabase } from "react-icons/bs";
 import { MdLanguage, MdInfoOutline } from "react-icons/md";
 import { IoFilterOutline } from "react-icons/io5";
-import SidebarButton from "./SidebarButton";
 
 const Title = ({ lang }) => {
   return (
@@ -116,62 +115,60 @@ export function Sidebar({
         setOpenKey={setAboutPageIndex}
       />
 
-      <div className="flex flex-row items-center justify-center gap-2 overflow-visible px-2 py-2">
-        <div className="group flexalign-middle relative">
-          <button
-            className="hover:bg-primary-500 flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 transition-colors duration-200 hover:text-white"
-            onClick={() => setLang(lang === "en" ? "fr" : "en")}
-          >
-            <MdLanguage className="text-2xl" />
-            {lang === "en" ? "Français" : "English"}
-          </button>
-        </div>
-        <div className="group relative">
-          <button
-            className="hover:bg-primary-500 flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 transition-colors duration-200 hover:text-white"
-            onClick={() => setAboutPageIndex(0)}
-          >
-            <MdInfoOutline className="text-2xl" />
-            {t.about}
-          </button>
-        </div>
-        <div className="group relative">
-          <button
-            className="hover:bg-primary-500 flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 transition-colors duration-200 hover:text-white"
-            onClick={() => setFilterOpen(!filterOpen)}
-          >
-            <IoFilterOutline className="text-2xl" />
-            {t.filters}
-          </button>
-        </div>
-      </div>
-      <FilterSection
-        lang={lang}
-        badges={badges}
-        setBadges={setBadges}
-        orgList={organizationList}
-        projList={projectList}
-        eovList={eovList}
-        setSelectedOption={setSelectedDateFilterOption}
-        isOpen={filterOpen}
-        setIsOpen={setFilterOpen}
-      />
-
-      <SidebarButton
-        logo={<BsDatabase />}
-        label={
-          <div className="flex items-center gap-2">
-            <span>{t.datasets}</span>
-            {generateDatasetsLabel(
-              filteredResultsCount,
-              totalResultsCount,
-              t.no_results,
-              t.results,
-            )}
+      <div className="bg-primary-100 dark:bg-primary-700 mx-2 mt-2 mb-3 rounded-md py-1">
+        <div className="flex flex-row items-center justify-center gap-2 overflow-visible">
+          <div className="group relative">
+            <button
+              className="hover:bg-primary-500 flex w-16 cursor-pointer flex-col items-center justify-center rounded-md p-2 transition-colors duration-200 hover:text-white"
+              onClick={() => setLang(lang === "en" ? "fr" : "en")}
+            >
+              <MdLanguage className="text-2xl" />
+              <span className="text-sm">{lang === "en" ? "FR" : "EN"}</span>
+            </button>
           </div>
-        }
-      />
-      <ul className="flex-grow space-y-2 overflow-y-auto rounded-md p-2">
+          <div className="group relative">
+            <button
+              className="hover:bg-primary-500 flex w-16 cursor-pointer flex-col items-center justify-center rounded-md p-2 transition-colors duration-200 hover:text-white"
+              onClick={() => setAboutPageIndex(0)}
+            >
+              <MdInfoOutline className="text-2xl" />
+              <span className="text-sm">{t.about}</span>
+            </button>
+          </div>
+          <div className="group relative">
+            <button
+              className="hover:bg-primary-500 flex w-16 cursor-pointer flex-col items-center justify-center rounded-md p-2 transition-colors duration-200 hover:text-white"
+              onClick={() => setFilterOpen(!filterOpen)}
+            >
+              <IoFilterOutline className="text-2xl" />
+              <span className="text-sm">{t.filters}</span>
+            </button>
+          </div>
+        </div>
+        <FilterSection
+          lang={lang}
+          badges={badges}
+          setBadges={setBadges}
+          orgList={organizationList}
+          projList={projectList}
+          eovList={eovList}
+          setSelectedOption={setSelectedDateFilterOption}
+          isOpen={filterOpen}
+          setIsOpen={setFilterOpen}
+        />
+      </div>
+
+      <div className="bg-primary-200 dark:bg-primary-700 mx-2 flex items-center gap-2 rounded-t-md px-2 pt-2 text-lg font-semibold">
+        <BsDatabase />
+        {t.datasets}
+        {generateDatasetsLabel(
+          filteredResultsCount,
+          totalResultsCount,
+          t.no_results,
+          t.results,
+        )}
+      </div>
+      <ul className="bg-primary-200 dark:bg-primary-700 mx-2 flex-grow overflow-y-auto rounded-b-md">
         <ItemsList
           itemsList={filteredItems}
           onItemClick={onLeftMenuItemClick}

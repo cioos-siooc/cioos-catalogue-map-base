@@ -11,8 +11,6 @@ import {
 } from "flowbite-react";
 import { useState, useEffect } from "react";
 import { getLocale } from "@/app/get-locale";
-import { IoFilterOutline } from "react-icons/io5";
-import SidebarButton from "./SidebarButton";
 import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
 import { updateURLWithBadges } from "@/components/UrlParametrization";
@@ -493,7 +491,11 @@ export default function FilterSection({
   return (
     <>
       <div
-        className={`overflow-visible transition-all duration-300 ${isAccordionOpen ? "pt-1" : "hidden max-h-0"}`}
+        className={`overflow-visible transition-all duration-300 ${
+          isAccordionOpen
+            ? "border-primary-300 dark:border-primary-600 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100"
+            : "pointer-events-none max-h-0 -translate-y-4 opacity-0"
+        }`}
       >
         <div className="flex flex-row flex-wrap items-center justify-center gap-1">
           <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
@@ -501,21 +503,21 @@ export default function FilterSection({
             filter_type="organization"
             lang={lang}
             setBadges={setBadges}
-            options={orgList.map((org) => ({ label: org, value: org }))} // Convert to array of tuples
+            options={orgList.map((org) => ({ label: org, value: org }))}
             badges={badges}
           />
           <FilterItems
             filter_type="projects"
             lang={lang}
             setBadges={setBadges}
-            options={projList.map((proj) => ({ label: proj, value: proj }))} // Convert to array of tuples
+            options={projList.map((proj) => ({ label: proj, value: proj }))}
             badges={badges}
           />
           <FilterItems
             filter_type="eov"
             lang={lang}
             setBadges={setBadges}
-            options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))} // Convert to array of tuples
+            options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))}
             badges={badges}
           />
           <TimeFilter
