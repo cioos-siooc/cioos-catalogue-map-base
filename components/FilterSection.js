@@ -472,65 +472,28 @@ export default function FilterSection({
   projList,
   eovList,
   setSelectedOption,
+  isOpen,
+  setIsOpen,
 }) {
   const t = getLocale(lang);
-  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
-
-  const toggleAccordion = () => {
-    setIsAccordionOpen(!isAccordionOpen);
-  };
+  const [isAccordionOpen, setIsAccordionOpen] = useState(isOpen || false);
 
   useEffect(() => {
     // Update URL with badges whenever badges change
     updateURLWithBadges(badges);
   }, [badges]);
 
+  useEffect(() => {
+    // Sync internal state with external state
+    if (isOpen !== undefined) {
+      setIsAccordionOpen(isOpen);
+    }
+  }, [isOpen]);
+
   return (
     <>
-      <SidebarButton
-        logo={<IoFilterOutline />}
-        label={
-          <div className="flex items-center gap-2">
-            <div>{t.filters}</div>
-            {(() => {
-              const count = (() => {
-                if (!badges) return 0;
-                let c = 0;
-                if (
-                  typeof badges.search === "string" &&
-                  badges.search.trim() !== ""
-                )
-                  c++;
-                if (
-                  Array.isArray(badges.organization) &&
-                  badges.organization.length > 0
-                )
-                  c++;
-                if (
-                  Array.isArray(badges.projects) &&
-                  badges.projects.length > 0
-                )
-                  c++;
-                if (Array.isArray(badges.eov) && badges.eov.length > 0) c++;
-                if (
-                  typeof badges.filter_date === "string" &&
-                  badges.filter_date.trim() !== ""
-                )
-                  c++;
-                return c;
-              })();
-              return count > 0 ? (
-                <span className="bg-accent-500 h-4 min-w-4 rounded-full px-1 text-center text-xs leading-4 text-black">
-                  {count}
-                </span>
-              ) : null;
-            })()}
-          </div>
-        }
-        onClick={toggleAccordion}
-      />
       <div
-        className={`transition-all duration-300 ${isAccordionOpen ? "pt-1" : "hidden max-h-0"}`}
+        className={`overflow-visible transition-all duration-300 ${isAccordionOpen ? "pt-1" : "hidden max-h-0"}`}
       >
         <div className="flex flex-row flex-wrap items-center justify-center gap-1">
           <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />

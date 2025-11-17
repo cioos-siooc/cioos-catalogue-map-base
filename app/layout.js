@@ -67,6 +67,8 @@ function AppContent({ lang, setLang }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
   const [datasetSpatial, setDatasetSpatial] = useState(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [aboutPageIndex, setAboutPageIndex] = useState(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -297,12 +299,15 @@ function AppContent({ lang, setLang }) {
             setSelectedDateFilterOption={setSelectedDateFilterOption}
             toggleSidebar={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
+            filterOpen={filterOpen}
+            setFilterOpen={setFilterOpen}
+            aboutPageIndex={aboutPageIndex}
+            setAboutPageIndex={setAboutPageIndex}
           />
         </div>
         <div className="absolute top-0 left-0 z-35">
           <TopBanner
             lang={lang}
-            setLang={setLang}
             toggleSidebar={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
           />

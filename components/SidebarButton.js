@@ -4,9 +4,7 @@ import PropTypes from "prop-types";
 const SidebarButton = ({ logo, label, onClick }) => {
   return (
     <button
-      className={`flex w-full flex-row items-center gap-2 px-4 py-2 transition-colors duration-200 ${
-        onClick ? "hover:bg-primary-500 cursor-pointer hover:text-white" : ""
-      }`}
+      className={`flex flex-row items-center gap-2 rounded-md px-4 py-2 text-lg transition-colors duration-200 ${onClick ? "hover:bg-primary-500 cursor-pointer hover:text-white" : ""}`}
       onClick={onClick}
     >
       <div>{logo}</div>
