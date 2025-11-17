@@ -154,7 +154,7 @@ export function Sidebar({
           t.results,
         )}
       </div>
-      <ul className="bg-primary-200 dark:bg-primary-700 mx-2 flex-grow overflow-y-auto rounded-b-md">
+      <ul className="custom-scrollbar bg-primary-200 dark:bg-primary-700 mx-2 flex-grow overflow-y-auto rounded-b-md">
         <ItemsList
           itemsList={filteredItems}
           onItemClick={onLeftMenuItemClick}
