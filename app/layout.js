@@ -78,13 +78,6 @@ function AppContent({ lang, setLang }) {
   const mapRef = useRef();
   const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();
 
-  // if window is greater than 600px, set isSidebarOpen to true
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth > 600) {
-      setIsSidebarOpen(true);
-    }
-  }, []);
-
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
     const browserLanguage = navigator.language?.split("-")[0];
@@ -326,7 +319,7 @@ function AppContent({ lang, setLang }) {
 
         {/* Sidebar */}
         <div
-          className={`absolute inset-y-0 left-0 w-full transform transition-transform duration-300 ease-in-out lg:w-90 ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full"} z-30`}
+          className={`absolute inset-y-0 left-0 w-full transform transition-transform duration-300 ease-in-out lg:relative lg:w-90 ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full lg:translate-x-0"} z-30`}
         >
           <Sidebar
             filteredItems={filteredItems}
