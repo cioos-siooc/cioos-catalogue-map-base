@@ -285,7 +285,7 @@ function AppContent({ lang, setLang }) {
 
         {/* Sidebar */}
         <div
-          className={`absolute inset-y-0 left-0 w-full transform transition-transform duration-300 ease-in-out lg:relative lg:w-90 ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full lg:translate-x-0"} z-30`}
+          className={`absolute inset-y-0 left-0 overflow-hidden transition-all duration-300 ease-in-out ${isSidebarOpen ? "w-full translate-x-0 lg:w-90" : "w-full -translate-x-full lg:w-90 lg:-translate-x-90"} z-30`}
         >
           <Sidebar
             filteredItems={filteredItems}
@@ -312,8 +312,8 @@ function AppContent({ lang, setLang }) {
           />
         </div>
 
-        {/* Top Banner - Desktop only */}
-        <div className="bg-primary-50 dark:bg-primary-800 absolute top-0 left-0 z-35 mt-2 hidden w-90 rounded-r-3xl lg:block">
+        {/* Top Banner - Desktop only - shown when sidebar is closed */}
+        <div className="bg-primary-50 dark:bg-primary-800 absolute top-0 left-0 z-40 mt-2 hidden w-90 rounded-r-3xl lg:block">
           <TopBanner
             lang={lang}
             setLang={setLang}
@@ -325,9 +325,7 @@ function AppContent({ lang, setLang }) {
         </div>
 
         {/* Main content area */}
-        <main
-          className={`relative z-20 order-2 w-full flex-1 lg:order-3 lg:w-auto`}
-        >
+        <main className={`relative z-20 order-2 w-full flex-1 lg:order-3`}>
           <MapComponent
             bounds={bounds}
             filteredItems={filteredItems}

@@ -35,15 +35,9 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Restore cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .next/cache
-          # Include branch/PR in cache key to prevent cross-contamination
-          key: ${{ runner.os }}-nextjs-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+      # Note: Intentionally NOT caching .next/cache for static exports
+      # Caching .next/cache can cause build hash mismatches where HTML references
+      # different chunk hashes than what's actually built, leading to 404s
 
       - name: Install Dependencies
         run: npm ci
@@ -62,6 +56,15 @@ jobs:
         if: steps.cache-packages.outputs.cache-hit != 'true'
         run: node scripts/fetchCkanPackages.js
 
+      - name: Verify packages data exists
+        run: |
+          if [ ! -f "public/packages.json" ]; then
+            echo "ERROR: public/packages.json not found. Cache or fetch failed."
+            exit 1
+          fi
+          echo "packages.json verified in public directory"
+          ls -lh public/packages.json
+
       - name: Run Lint
         run: npm run lint
 
@@ -69,25 +72,46 @@ jobs:
       - name: Set deployment path
         id: set-path
         run: |
+          # Extract repository name for base path
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             echo "DEPLOY_PATH=pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-            echo "BASE_PATH=/pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+            echo "BASE_PATH=/${REPO_NAME}/pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
           elif [ "${{ github.ref_name }}" == "main" ]; then
             echo "DEPLOY_PATH=main" >> $GITHUB_ENV
-            echo "BASE_PATH=/main" >> $GITHUB_ENV
+            echo "BASE_PATH=/${REPO_NAME}/main" >> $GITHUB_ENV
           elif [ "${{ github.ref_name }}" == "development" ]; then
             echo "DEPLOY_PATH=development" >> $GITHUB_ENV
-            echo "BASE_PATH=/development" >> $GITHUB_ENV
+            echo "BASE_PATH=/${REPO_NAME}/development" >> $GITHUB_ENV
           fi
 
       - name: Clean previous build
-        run: rm -rf out .next
+        run: |
+          echo "Cleaning previous build artifacts..."
+          rm -rf out .next
+          echo "Clean complete"
 
       - name: Build with Next.js
         env:
           BASE_PATH: ${{ env.BASE_PATH }}
           SKIP_FETCH: true
         run: npm run build
+
+      # Verify build output contains required files
+      - name: Verify build output
+        run: |
+          echo "Checking build output..."
+          ls -la out/
+          if [ ! -f "out/packages.json" ]; then
+            echo "ERROR: packages.json not found in out directory"
+            exit 1
+          fi
+          if [ ! -d "out/_next" ]; then
+            echo "ERROR: _next directory not found in out directory"
+            exit 1
+          fi
+          echo "Build output verified successfully"
 
       # Checkout gh-pages branch to prepare deployment
       - name: Checkout gh-pages branch
@@ -112,9 +136,34 @@ jobs:
       # Create or update the deployment directory
       - name: Prepare deployment directory
         run: |
+          echo "Preparing deployment directory: ${{ env.DEPLOY_PATH }}"
+
+          # Completely remove and recreate deployment directory for clean slate
+          rm -rf gh-pages-branch/${{ env.DEPLOY_PATH }}
           mkdir -p gh-pages-branch/${{ env.DEPLOY_PATH }}
-          rm -rf gh-pages-branch/${{ env.DEPLOY_PATH }}/*
+
+          # Copy all built files
           cp -r out/* gh-pages-branch/${{ env.DEPLOY_PATH }}/
+
+          # Add .nojekyll file to ensure GitHub Pages serves files starting with _
+          touch gh-pages-branch/.nojekyll
+
+          echo "Deployment directory prepared successfully"
+
+          # Verify the deployment directory has necessary files
+          echo "Verifying deployment directory..."
+          if [ ! -f "gh-pages-branch/${{ env.DEPLOY_PATH }}/packages.json" ]; then
+            echo "ERROR: packages.json not found in deployment directory"
+            exit 1
+          fi
+          if [ ! -d "gh-pages-branch/${{ env.DEPLOY_PATH }}/_next" ]; then
+            echo "ERROR: _next directory not found in deployment directory"
+            exit 1
+          fi
+          echo "Deployment directory structure:"
+          ls -la "gh-pages-branch/${{ env.DEPLOY_PATH }}/"
+          echo "Contents of _next directory:"
+          ls -la "gh-pages-branch/${{ env.DEPLOY_PATH }}/_next/"
 
       # Create/update index page listing all deployments
       - name: Create index page
@@ -153,7 +202,7 @@ jobs:
             echo "No changes to deploy"
           else
             git commit -m "Deploy ${{ env.DEPLOY_PATH }} from ${{ github.sha }}"
-            git push origin gh-pages
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
           fi
 
       # Add comment to PR with deployment URL
