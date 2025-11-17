@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { getLocale } from "@/app/get-locale";
 import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
+import { MdClose } from "react-icons/md";
 import { updateURLWithBadges } from "@/components/UrlParametrization";
 
 // Helper to format an ISO date to YYYY-MM-DD (machine-friendly)
@@ -476,6 +477,24 @@ export default function FilterSection({
   const t = getLocale(lang);
   const [isAccordionOpen, setIsAccordionOpen] = useState(isOpen || false);
 
+  // Count active filters
+  const countActiveFilters = () => {
+    let count = 0;
+    if (badges?.search) count++;
+    if (badges?.filter_date) count++;
+    if (badges?.organization && badges.organization.length > 0)
+      count += badges.organization.length;
+    if (badges?.projects && badges.projects.length > 0)
+      count += badges.projects.length;
+    if (badges?.eov && badges.eov.length > 0) count += badges.eov.length;
+    return count;
+  };
+
+  const clearAllFilters = () => {
+    setBadges({});
+    setSelectedOption("");
+  };
+
   useEffect(() => {
     // Update URL with badges whenever badges change
     updateURLWithBadges(badges);
@@ -488,6 +507,8 @@ export default function FilterSection({
     }
   }, [isOpen]);
 
+  const activeFilterCount = countActiveFilters();
+
   return (
     <>
       <div
@@ -497,35 +518,47 @@ export default function FilterSection({
             : "pointer-events-none max-h-0 -translate-y-4 opacity-0"
         }`}
       >
-        <div className="flex flex-row flex-wrap items-center justify-center gap-1">
-          <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
-          <FilterItems
-            filter_type="organization"
-            lang={lang}
-            setBadges={setBadges}
-            options={orgList.map((org) => ({ label: org, value: org }))}
-            badges={badges}
-          />
-          <FilterItems
-            filter_type="projects"
-            lang={lang}
-            setBadges={setBadges}
-            options={projList.map((proj) => ({ label: proj, value: proj }))}
-            badges={badges}
-          />
-          <FilterItems
-            filter_type="eov"
-            lang={lang}
-            setBadges={setBadges}
-            options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))}
-            badges={badges}
-          />
-          <TimeFilter
-            lang={lang}
-            setBadges={setBadges}
-            setSelectedOption={setSelectedOption}
-            badges={badges}
-          />
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-row flex-wrap items-center justify-center gap-1">
+            <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
+            <FilterItems
+              filter_type="organization"
+              lang={lang}
+              setBadges={setBadges}
+              options={orgList.map((org) => ({ label: org, value: org }))}
+              badges={badges}
+            />
+            <FilterItems
+              filter_type="projects"
+              lang={lang}
+              setBadges={setBadges}
+              options={projList.map((proj) => ({ label: proj, value: proj }))}
+              badges={badges}
+            />
+            <FilterItems
+              filter_type="eov"
+              lang={lang}
+              setBadges={setBadges}
+              options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))}
+              badges={badges}
+            />
+            <TimeFilter
+              lang={lang}
+              setBadges={setBadges}
+              setSelectedOption={setSelectedOption}
+              badges={badges}
+            />
+          </div>
+          {activeFilterCount > 0 && (
+            <div className="flex justify-center">
+              <button
+                className="text-accent-500 hover:text-accent-600 dark:text-accent-400 dark:hover:text-accent-500 flex items-center gap-1 text-xs font-medium underline transition-colors duration-200"
+                onClick={clearAllFilters}
+              >
+                {t.clear_all_filters}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
