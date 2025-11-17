@@ -4,6 +4,10 @@
 @source "../.flowbite-react/class-list.json";
 @import "./theme.css";
 
+@utility -translate-x-90 {
+  transform: translateX(-22.5rem);
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
