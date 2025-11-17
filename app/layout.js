@@ -277,7 +277,20 @@ function AppContent({ lang, setLang }) {
 
   return (
     <>
-      <div className="relative flex h-screen overflow-hidden">
+      <div className="relative flex h-screen flex-col overflow-hidden lg:flex-row">
+        {/* Top Banner - Above map on mobile, inside sidebar on desktop */}
+        <div className="bg-primary-50 dark:bg-primary-800 z-35 order-1 w-full lg:hidden">
+          <TopBanner
+            lang={lang}
+            setLang={setLang}
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
+            onFilterClick={() => setFilterOpen(!filterOpen)}
+            onAboutClick={() => setAboutPageIndex(0)}
+          />
+        </div>
+
+        {/* Sidebar */}
         <div
           className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full"} z-30`}
         >
@@ -305,7 +318,9 @@ function AppContent({ lang, setLang }) {
             setAboutPageIndex={setAboutPageIndex}
           />
         </div>
-        <div className="absolute top-0 left-0 z-35">
+
+        {/* Top Banner - Desktop only */}
+        <div className="bg-primary-50 dark:bg-primary-800 absolute top-0 left-0 z-35 mt-2 hidden w-90 rounded-r-3xl lg:block">
           <TopBanner
             lang={lang}
             setLang={setLang}
@@ -315,8 +330,10 @@ function AppContent({ lang, setLang }) {
             onAboutClick={() => setAboutPageIndex(0)}
           />
         </div>
+
+        {/* Main content area */}
         <main
-          className={`relative z-20 flex-1 transform transition-transform duration-300 ease-in-out`}
+          className={`relative z-20 order-2 w-full flex-1 lg:order-3 lg:w-auto`}
         >
           <MapComponent
             bounds={bounds}
