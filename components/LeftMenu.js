@@ -116,7 +116,7 @@ export function Sidebar({
         setOpenKey={setAboutPageIndex}
       />
 
-      <div className="bg-primary-100 dark:bg-primary-700 mx-2 mt-2 mb-3 rounded-md py-1">
+      <div className="bg-primary-200 dark:bg-primary-700 mx-2 mt-2 mb-3 rounded-md py-1">
         <div className="flex flex-row items-center justify-center gap-2 overflow-visible">
           <div className="group relative">
             <button
