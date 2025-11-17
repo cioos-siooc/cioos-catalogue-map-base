@@ -120,7 +120,7 @@ export function Sidebar({
         <div className="flex flex-row items-center justify-center gap-2 overflow-visible">
           <div className="group relative">
             <button
-              className="hover:bg-primary-500 flex w-16 cursor-pointer flex-col items-center justify-center rounded-md p-2 transition-colors duration-200 hover:text-white"
+              className="hover:bg-primary-500 flex w-20 cursor-pointer flex-col items-center justify-center rounded-md px-2 py-1 transition-colors duration-200 hover:text-white"
               onClick={() => setLang(lang === "en" ? "fr" : "en")}
             >
               <MdLanguage className="text-2xl" />
@@ -129,7 +129,7 @@ export function Sidebar({
           </div>
           <div className="group relative">
             <button
-              className="hover:bg-primary-500 flex w-16 cursor-pointer flex-col items-center justify-center rounded-md p-2 transition-colors duration-200 hover:text-white"
+              className="hover:bg-primary-500 flex w-20 cursor-pointer flex-col items-center justify-center rounded-md p-1 transition-colors duration-200 hover:text-white"
               onClick={() => setAboutPageIndex(0)}
             >
               <MdInfoOutline className="text-2xl" />
@@ -138,13 +138,13 @@ export function Sidebar({
           </div>
           <div className="group relative">
             <button
-              className="hover:bg-primary-500 flex w-16 cursor-pointer flex-col items-center justify-center rounded-md p-2 transition-colors duration-200 hover:text-white"
+              className="hover:bg-primary-500 flex w-20 cursor-pointer flex-col items-center justify-center rounded-md p-1 transition-colors duration-200 hover:text-white"
               onClick={() => setFilterOpen(!filterOpen)}
             >
               <div className="relative">
                 <MdFilterList className="text-2xl" />
                 {activeFilterCount > 0 && (
-                  <span className="bg-accent-500 absolute -top-1 -right-3 rounded-full px-1 text-xs text-black">
+                  <span className="bg-accent-500 absolute -top-1 -right-3 rounded-full p-1 text-xs text-black">
                     {activeFilterCount}
                   </span>
                 )}
