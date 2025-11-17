@@ -415,7 +415,7 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
       >
         {count > 0 && (
           <>
-            <span className="bg-accent-500 h-4 w-4 rounded-full border-0 text-xs text-black">
+            <span className="bg-accent-500 min-w-4 items-center justify-center rounded-full px-1 text-xs text-black">
               {count}
             </span>
             <div>{t[filter_type]}</div>
