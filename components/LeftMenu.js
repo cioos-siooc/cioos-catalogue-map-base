@@ -39,7 +39,7 @@ export const TopBanner = ({ lang, setLang, toggleSidebar, isSidebarOpen }) => {
   const t = getLocale(lang);
   return (
     <div
-      className={`bg-primary-50 dark:bg-primary-800 mt-1 w-90 pt-1 ${
+      className={`bg-primary-50 dark:bg-primary-800 mt-1 w-90 ${
         !isSidebarOpen ? "overflow-hidden rounded-r-3xl" : ""
       }`}
     >
