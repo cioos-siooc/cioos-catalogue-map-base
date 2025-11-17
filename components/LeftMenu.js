@@ -6,56 +6,50 @@ import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
 import FilterSection from "./FilterSection";
 import Logo from "./Logo";
-import { TfiMenu } from "react-icons/tfi";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import { MdClose, MdMenu } from "react-icons/md";
 import { BsDatabase } from "react-icons/bs";
+import { MdLanguage, MdInfoOutline } from "react-icons/md";
+import { IoFilterOutline } from "react-icons/io5";
 import SidebarButton from "./SidebarButton";
 
-const Title = ({ lang, setLang }) => {
-  const opposite_lang = lang === "en" ? "fr" : "en";
-  const toggleLanguage = () => {
-    setLang(lang === "en" ? "fr" : "en");
-  };
-
+const Title = ({ lang }) => {
   return (
-    <div className="flex w-full flex-row justify-between">
-      <div className="flex-col">
-        <Logo logos={config.main_logo} lang={lang} default_width={120} />
-        <span className="pt-3 text-xl font-semibold">{config.title[lang]}</span>
-      </div>
-
-      <button
-        className="cursor-pointer p-1 uppercase"
-        id="headerTranslation"
-        onClick={toggleLanguage}
-      >
-        {opposite_lang}
-      </button>
+    <div className="flex w-full flex-col items-center gap-1">
+      <Logo logos={config.main_logo} lang={lang} default_width={120} />
+      <span className="text-center text-xl font-semibold">
+        {config.title[lang]}
+      </span>
     </div>
   );
 };
 
-export const TopBanner = ({ lang, setLang, toggleSidebar, isSidebarOpen }) => {
-  const t = getLocale(lang);
+export const TopBanner = ({ lang, toggleSidebar, isSidebarOpen }) => {
   return (
     <div
       className={`bg-primary-50 dark:bg-primary-800 mt-1 w-90 ${
         !isSidebarOpen ? "overflow-hidden rounded-r-3xl" : ""
       }`}
     >
-      <div className="flex items-center px-2 py-1">
-        <Title lang={lang} setLang={setLang} />
-      </div>
-      <SidebarButton
-        logo={<TfiMenu />}
-        label={
-          <div className="flex flex-row items-center gap-4">
-            <div>Menu</div>
-            <div>{isSidebarOpen ? <FaChevronLeft /> : <FaChevronRight />}</div>
+      <div className="flex flex-col items-center justify-center overflow-visible px-2 py-0.5">
+        <div className="flex w-full flex-row items-center justify-center gap-2 overflow-visible">
+          <Title lang={lang} />
+          <div className="group relative">
+            <button
+              className="hover:bg-primary-500 flex cursor-pointer items-center justify-center rounded-md p-1 text-3xl transition-colors duration-200 hover:text-white"
+              onClick={toggleSidebar}
+            >
+              <div
+                className={`transition-transform duration-300 ${isSidebarOpen ? "rotate-90" : "rotate-0"}`}
+              >
+                {isSidebarOpen ? <MdClose /> : <MdMenu />}
+              </div>
+            </button>
+            <div className="absolute right-0 bottom-full z-50 mb-2 hidden rounded bg-gray-800 px-2 py-1 text-sm whitespace-nowrap text-white group-hover:block">
+              {isSidebarOpen ? "Close" : "Menu"}
+            </div>
           </div>
-        }
-        onClick={toggleSidebar}
-      />
+        </div>
+      </div>
     </div>
   );
 };
@@ -78,6 +72,10 @@ export function Sidebar({
   setSelectedDateFilterOption,
   toggleSidebar,
   isSidebarOpen,
+  filterOpen,
+  setFilterOpen,
+  aboutPageIndex,
+  setAboutPageIndex,
 }) {
   const t = getLocale(lang);
   const ProgressBar = dynamic(() => import("./ProgressBar"), { ssr: false });
@@ -106,14 +104,47 @@ export function Sidebar({
   };
 
   return (
-    <div className="bg-primary-50 dark:bg-primary-800 flex h-screen flex-col">
+    <div className="bg-primary-50 dark:bg-primary-800 flex h-screen flex-col overflow-visible">
       <TopBanner
         lang={lang}
-        setLang={setLang}
         toggleSidebar={toggleSidebar}
         isSidebarOpen={isSidebarOpen}
       />
-      <ModalPages lang={lang} />
+      <ModalPages
+        lang={lang}
+        openKey={aboutPageIndex}
+        setOpenKey={setAboutPageIndex}
+      />
+
+      <div className="flex flex-row items-center justify-center gap-2 overflow-visible px-2 py-2">
+        <div className="group flexalign-middle relative">
+          <button
+            className="hover:bg-primary-500 flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 transition-colors duration-200 hover:text-white"
+            onClick={() => setLang(lang === "en" ? "fr" : "en")}
+          >
+            <MdLanguage className="text-2xl" />
+            {lang === "en" ? "Français" : "English"}
+          </button>
+        </div>
+        <div className="group relative">
+          <button
+            className="hover:bg-primary-500 flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 transition-colors duration-200 hover:text-white"
+            onClick={() => setAboutPageIndex(0)}
+          >
+            <MdInfoOutline className="text-2xl" />
+            {t.about}
+          </button>
+        </div>
+        <div className="group relative">
+          <button
+            className="hover:bg-primary-500 flex cursor-pointer items-center justify-center gap-2 rounded-md p-2 transition-colors duration-200 hover:text-white"
+            onClick={() => setFilterOpen(!filterOpen)}
+          >
+            <IoFilterOutline className="text-2xl" />
+            {t.filters}
+          </button>
+        </div>
+      </div>
       <FilterSection
         lang={lang}
         badges={badges}
@@ -122,6 +153,8 @@ export function Sidebar({
         projList={projectList}
         eovList={eovList}
         setSelectedOption={setSelectedDateFilterOption}
+        isOpen={filterOpen}
+        setIsOpen={setFilterOpen}
       />
 
       <SidebarButton

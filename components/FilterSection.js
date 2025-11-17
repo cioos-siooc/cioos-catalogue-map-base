@@ -518,18 +518,23 @@ export default function FilterSection({
   projList,
   eovList,
   setSelectedOption,
+  isOpen,
+  setIsOpen,
 }) {
   const t = getLocale(lang);
-  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
-
-  const toggleAccordion = () => {
-    setIsAccordionOpen(!isAccordionOpen);
-  };
+  const [isAccordionOpen, setIsAccordionOpen] = useState(isOpen || false);
 
   useEffect(() => {
     // Update URL with badges whenever badges change
     updateURLWithBadges(badges);
   }, [badges]);
+
+  useEffect(() => {
+    // Sync internal state with external state
+    if (isOpen !== undefined) {
+      setIsAccordionOpen(isOpen);
+    }
+  }, [isOpen]);
 
   return (
     <>
@@ -577,7 +582,7 @@ export default function FilterSection({
         onClick={toggleAccordion}
       />
       <div
-        className={`transition-all duration-300 ${isAccordionOpen ? "pt-1" : "hidden max-h-0"}`}
+        className={`overflow-visible transition-all duration-300 ${isAccordionOpen ? "pt-1" : "hidden max-h-0"}`}
       >
         <div className="flex flex-row flex-wrap items-center justify-center gap-1">
           <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
