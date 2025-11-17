@@ -33,5 +33,6 @@
   "temporal-extent-overlaps": "Data available between dates",
   "metadata_created": "Metadata created",
   "metadata_modified": "Metadata modified",
-  "apply": "Apply"
+  "apply": "Apply",
+  "clear_all_filters": "Clear all filters"
 }
