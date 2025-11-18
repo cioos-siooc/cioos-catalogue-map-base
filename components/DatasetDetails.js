@@ -30,7 +30,7 @@ function Item({ label, value, href, className = "" }) {
           className={`hover:underline ${className}`}
         >
           {value}
-          <span className="ml-1 inline-flex h-2 w-2 items-baseline opacity-0 transition-opacity group-hover:opacity-100">
+          <span className="ml-1 inline-flex h-2 w-2 items-baseline">
             <GoLinkExternal />
           </span>
         </a>
@@ -148,6 +148,17 @@ export function DatasetDetails({ dataSetInfo, lang }) {
               />
             </div>
           </div>
+
+          {/* View in Catalogue Button */}
+          <a
+            href={`${config.catalogue_url}/dataset/${dataSetInfo?.name}?local=${lang}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 mt-4 flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
+          >
+            {t.view_in_catalogue}
+            <GoLinkExternal className="h-4 w-4" />
+          </a>
         </div>
 
         <div
