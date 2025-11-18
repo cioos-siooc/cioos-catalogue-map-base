@@ -9,7 +9,7 @@ import {
   Select,
   Datepicker,
 } from "flowbite-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getLocale } from "@/app/get-locale";
 import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
@@ -342,6 +342,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption, badges }) {
 
 export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
   const [openModal, setOpenModal] = useState(false);
+  const modalRef = useRef(null);
 
   const t = getLocale(lang);
   const [query, setQuery] = useState([]);
@@ -380,6 +381,25 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
     setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: query }));
     setOpenModal(false);
   }
+
+  // Handle outside click/touch to close modal
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setOpenModal(false);
+      }
+    };
+
+    if (openModal) {
+      // Listen to both mouse and touch events for better mobile support
+      document.addEventListener("mousedown", handleOutsideClick);
+      document.addEventListener("touchstart", handleOutsideClick);
+      return () => {
+        document.removeEventListener("mousedown", handleOutsideClick);
+        document.removeEventListener("touchstart", handleOutsideClick);
+      };
+    }
+  }, [openModal]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Escape") {
@@ -442,6 +462,7 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
         {count === 0 && <div>{t[filter_type]}</div>}
       </Button>
       <Modal
+        ref={modalRef}
         dismissible
         show={openModal}
         size="lg"
