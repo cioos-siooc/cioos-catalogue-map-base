@@ -136,7 +136,9 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
             {record.title_translated[lang]}
           </h2>
           <p className="text-xs text-wrap">
-            {record.organization.title_translated[lang]}
+            {record.organization && record.organization.length > 0
+              ? record.organization.map((org) => org.name).join(", ")
+              : ""}
           </p>
         </div>
       </Tooltip>

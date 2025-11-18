@@ -147,11 +147,14 @@ async function fetchAllPackages() {
           metadata_created: item.metadata_created,
           metadata_modified: item.metadata_modified,
           eov: item.eov,
-          organization: {
-            title_translated: fullRecord.organization?.title_translated,
-            name: fullRecord.organization?.name,
-            image_local: orgImageLocal || null,
-          },
+          organization: (fullRecord["cited-responsible-party"] || []).map(
+            (party) => ({
+              name: party["organisation-name"],
+              role: party.role,
+              email: party["contact-info_email"],
+              uri: party["organisation-uri_code"],
+            }),
+          ),
           temporal_extent: { begin, end },
           spatial: item.spatial,
         });

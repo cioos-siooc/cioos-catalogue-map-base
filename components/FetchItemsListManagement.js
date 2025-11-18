@@ -82,10 +82,11 @@ const processEovs = (item, eovList) => {
 
 // Function to process organization and add it to the organization list
 const processOrganization = (item, orgList, lang) => {
-  if (item.organization && item.organization.title_translated) {
-    if (orgList.has(item.organization.title_translated[lang])) {
-      return;
-    }
-    orgList.add(item.organization.title_translated[lang]);
+  if (item.organization && Array.isArray(item.organization)) {
+    item.organization.forEach((org) => {
+      if (org.name && !orgList.has(org.name)) {
+        orgList.add(org.name);
+      }
+    });
   }
 };

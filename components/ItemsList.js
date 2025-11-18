@@ -46,7 +46,9 @@ export default function ItemsList({
               {item.title_translated[lang]}
               <br />
               <span className="text-xs opacity-80">
-                {item.organization.title_translated[lang]}
+                {item.organization && item.organization.length > 0
+                  ? item.organization.map((org) => org.name).join(", ")
+                  : ""}
               </span>
             </li>
           ), // Dynamically create <li> items

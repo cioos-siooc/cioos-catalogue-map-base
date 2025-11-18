@@ -52,6 +52,13 @@ export function DatasetDetails({ dataSetInfo, lang }) {
   function resolveOrgImage(dataset, lang) {
     const org = dataset?.organization;
     if (!org) return null;
+
+    // Handle array structure (from cited-responsible-party) - just check for existence
+    if (Array.isArray(org)) {
+      return null; // No image in cited-responsible-party structure
+    }
+
+    // Handle old object structure
     // Prefer locally cached path if available
     if (org.image_local) {
       return `/${org.image_local.replace(/^\//, "")}`;
@@ -122,12 +129,18 @@ export function DatasetDetails({ dataSetInfo, lang }) {
               className="text-md font-bold"
             />
             <div className="text-xs">
-              <Item
-                value={dataSetInfo?.organization.title_translated[lang]}
-                href={add_base_url(
-                  dataSetInfo?.organization?.external_home_url,
-                )}
-              />
+              {Array.isArray(dataSetInfo?.organization) ? (
+                dataSetInfo.organization.map((org, idx) => (
+                  <Item key={idx} value={org.name} href={org.uri} />
+                ))
+              ) : (
+                <Item
+                  value={dataSetInfo?.organization?.title_translated?.[lang]}
+                  href={add_base_url(
+                    dataSetInfo?.organization?.external_home_url,
+                  )}
+                />
+              )}
               <hr className="my-1 border-gray-800 dark:border-gray-200" />
               <Item
                 label={t.source}

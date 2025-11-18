@@ -39,15 +39,10 @@ export function filterItemsByBadges(items, badges, selectedDateFilterOption) {
 function filterByOrganizationProjectsEov(item, filterType, selected_values) {
   const selectedValues = selected_values.map((arr) => arr[0]);
   if (filterType === "organization") {
-    if (
-      !Array.isArray(selected_values) ||
-      !Array.isArray(Object.values(item.organization.title_translated))
-    )
+    if (!Array.isArray(selected_values) || !Array.isArray(item.organization))
       return false;
 
-    return Object.values(item.organization.title_translated).some((org) =>
-      selectedValues.includes(org),
-    );
+    return item.organization.some((org) => selectedValues.includes(org.name));
   } else if (filterType === "projects") {
     if (!Array.isArray(selected_values) || !Array.isArray(item.project))
       return false;
