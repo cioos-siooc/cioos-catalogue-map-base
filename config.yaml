@@ -36,14 +36,14 @@ theme:
 # Color 3: Used for large clusters (100+ markers)
 marker_colors:
   color1:
-    background: "#52a79b"  # Primary Teal
-    text: "#000000"         # Black
+    background: "#C6E3DF" # Light Teal
+    text: "#000000" # Black
   color2:
-    background: "#31645d"  # Dark Teal
-    text: "#ffffff"         # White
+    background: "#52A79B" # CIOOS National Teal
+    text: "#ffffff" # White
   color3:
-    background: "#fa7268"  # Coral
-    text: "#000000"         # Black
+    background: "#152F37" # Dark Blue
+    text: "#ffffff" # Black
 
 # Path to the favicon file, relative to the public directory.
 favicon: "./favicon.ico"
