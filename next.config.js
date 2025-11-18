@@ -81,5 +81,6 @@ module.exports = withFlowbiteReact({
   env: {
     CONFIG: JSON.stringify(config),
     BASE_PATH: basePath,
+    NEXT_PUBLIC_BASE_PATH: basePath,
   },
 });

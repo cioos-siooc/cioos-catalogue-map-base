@@ -3,6 +3,7 @@
 import config from "@/app/config.js";
 
 const catalogueUrl = config.catalogue_url;
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 // Function to fill organization and project lists
 export const fillOrganizationAndProjectLists = (
@@ -29,7 +30,7 @@ export const fillOrganizationAndProjectLists = (
 export function fetchDataSetInfo(id, setDatasetInfo) {
   // We expect id to correspond to the dataset name used for caching.
   // Attempt to fetch the pre-cached JSON first.
-  fetch(`/datasets/${id}.json`)
+  fetch(`${basePath}/datasets/${id}.json`)
     .then((res) => {
       if (!res.ok) {
         throw new Error(`Static dataset not found for ${id}`);
