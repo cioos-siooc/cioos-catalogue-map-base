@@ -554,7 +554,7 @@ export default function FilterSection({
         {activeFilterCount > 0 && (
           <div className="flex justify-center">
             <button
-              className="text-accent-500 hover:text-accent-600 dark:text-accent-400 dark:hover:text-accent-500 flex items-center gap-1 text-xs font-medium underline transition-colors duration-200"
+              className="text-primary-800 hover:text-primary-300 dark:text-primary-100 dark:hover:text-primary-900 flex items-center gap-1 text-xs font-medium underline transition-colors duration-200 hover:cursor-pointer"
               onClick={clearAllFilters}
             >
               {t.clear_all_filters}
