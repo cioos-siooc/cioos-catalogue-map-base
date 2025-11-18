@@ -87,16 +87,16 @@ export function DatasetDetails({ dataSetInfo, lang }) {
       backdrop={false}
       className="bg-primary-50/50 dark:bg-primary-800/50 h-screen w-screen backdrop-blur-sm md:w-96 dark:text-white"
     >
-      <DrawerItems className="flex h-full flex-grow flex-col overflow-y-auto">
+      <DrawerItems className="custom-scrollbar flex h-full flex-grow flex-col overflow-y-auto">
         <button
-          className="absolute top-0 right-0 p-4"
+          className="absolute top-0 right-0 z-10 p-4"
           onClick={closeDrawer}
           aria-label="Close Dataset Details"
           title="Close Dataset Details"
         >
           <IoMdClose className="text-3xl" />
         </button>
-        <div id="top" className="flex-shrink-0">
+        <div id="top" className="flex-shrink-0 pr-12">
           {dataSetInfo && dataSetInfo.organization ? (
             (() => {
               const img = resolveOrgImage(dataSetInfo, lang);
@@ -149,7 +149,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
         </div>
 
         <div
-          className="prose relative mt-4 mb-4 flex-grow overflow-y-auto text-sm"
+          className="prose relative mt-4 mb-4 flex-grow text-sm"
           id="dataset-description"
           dangerouslySetInnerHTML={{ __html: describtion_html }}
         ></div>
