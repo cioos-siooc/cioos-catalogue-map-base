@@ -86,6 +86,23 @@ function AppContent({ lang, setLang }) {
     setLang(initialLanguage);
   }, [setLang]);
 
+  // Open sidebar on large screens on initial load
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== "undefined") {
+        const isLargeScreen = window.innerWidth >= 1024; // lg breakpoint
+        setIsSidebarOpen(isLargeScreen);
+      }
+    };
+
+    // Set initial state on mount
+    handleResize();
+
+    // Add resize listener to handle window resize
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem("preferredLanguage", lang);
