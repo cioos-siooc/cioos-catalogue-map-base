@@ -11,6 +11,7 @@ const config = yaml.load(fs.readFileSync("./config.yaml", "utf8"));
 // Theme generation
 const generateTheme = () => {
   const { primary_color, accent_color, light, dark } = config.theme;
+  const markerColors = config.marker_colors;
   const colorSteps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
   // Generate color palette for a specific color
@@ -21,10 +22,31 @@ const generateTheme = () => {
       .join("\n");
   };
 
-  // Generate CSS content with both palettes
+  // Generate marker colors CSS variables
+  const generateMarkerColors = () => {
+    if (!markerColors) {
+      return "";
+    }
+    const lines = [
+      "/* Marker Colors Configuration */",
+      "/* Marker Color 1: Used for small clusters (1-10 markers) */",
+      `--marker-color-1: ${markerColors.color1.background};`,
+      `--marker-text-color-1: ${markerColors.color1.text};`,
+      "/* Marker Color 2: Used for medium clusters (11-100 markers) */",
+      `--marker-color-2: ${markerColors.color2.background};`,
+      `--marker-text-color-2: ${markerColors.color2.text};`,
+      "/* Marker Color 3: Used for large clusters (100+ markers) */",
+      `--marker-color-3: ${markerColors.color3.background};`,
+      `--marker-text-color-3: ${markerColors.color3.text};`,
+    ];
+    return lines.join("\n");
+  };
+
+  // Generate CSS content with both palettes and marker colors
   const cssContent = `@theme {
     ${generatePalette(primary_color, "primary")}
     ${generatePalette(accent_color, "accent")}
+    ${generateMarkerColors()}
   }\n`;
 
   // Write to file
@@ -34,6 +56,11 @@ const generateTheme = () => {
   console.log(
     `Color palette generated: primary=${primary_color}, accent=${accent_color}`,
   );
+  if (markerColors) {
+    console.log(
+      `Marker colors generated: color1=${markerColors.color1.background}, color2=${markerColors.color2.background}, color3=${markerColors.color3.background}`,
+    );
+  }
 };
 
 // Copy favicon from public to app directory for Next.js to pick it up

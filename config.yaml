@@ -28,6 +28,23 @@ theme:
   primary_color: "#52a79b"
   accent_color: "#fa7268"
 
+# Marker Colors Configuration
+# ===========================
+# Defines the 3 colors used for marker clusters and their text colors
+# Color 1: Used for small clusters (1-10 markers)
+# Color 2: Used for medium clusters (11-100 markers)
+# Color 3: Used for large clusters (100+ markers)
+marker_colors:
+  color1:
+    background: "#52a79b"  # Primary Teal
+    text: "#000000"         # Black
+  color2:
+    background: "#31645d"  # Dark Teal
+    text: "#ffffff"         # White
+  color3:
+    background: "#fa7268"  # Coral
+    text: "#000000"         # Black
+
 # Path to the favicon file, relative to the public directory.
 favicon: "./favicon.ico"
 
