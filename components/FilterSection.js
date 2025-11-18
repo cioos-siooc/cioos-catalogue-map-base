@@ -13,7 +13,6 @@ import { useState, useEffect, useRef } from "react";
 import { getLocale } from "@/app/get-locale";
 import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
-import { MdClose } from "react-icons/md";
 import { updateURLWithBadges } from "@/components/UrlParametrization";
 
 // Helper to format an ISO date to YYYY-MM-DD (machine-friendly)
