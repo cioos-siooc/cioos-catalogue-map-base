@@ -48,13 +48,15 @@ function Item({ label, value, href, className = "" }) {
 export function DatasetDetails({ dataSetInfo, lang }) {
   const { isDrawerOpen, closeDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
   function resolveOrgImage(dataset, lang) {
     const org = dataset?.organization;
     if (!org) return null;
     // Prefer locally cached path if available
     if (org.image_local) {
-      return `/${org.image_local.replace(/^\//, "")}`;
+      const cleanPath = org.image_local.replace(/^\//, "");
+      return `${basePath}/${cleanPath}`;
     }
     // Fallback to translated image URL if provided in the original structure
     const translated = org?.image_url_translated?.[lang];
