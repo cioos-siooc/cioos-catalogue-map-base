@@ -120,7 +120,7 @@ export function SearchFilter({ lang, setBadges, badges }) {
         value={query}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        className="w-full rounded-lg border-0 text-black focus:text-black dark:text-white dark:placeholder-gray-400 focus:dark:text-white"
+        className="w-full rounded-lg border-0"
       />
       {query && (
         <button
