@@ -76,10 +76,16 @@ function fitBounds(newBounds, map) {
     const polygon = L.geoJSON(newBounds, { color: getPrimaryColor() }).addTo(
       map,
     );
+
+    // Check if screen is mobile (768px breakpoint)
+    const isMobile = window.innerWidth < 768;
+
     map.flyToBounds(polygon.getBounds(), {
       animate: true,
-      padding: [150, 250],
-      maxZoom: 10,
+      // Less padding on mobile for closer view
+      padding: isMobile ? [50, 50] : [150, 250],
+      // Higher max zoom on mobile for closer view
+      maxZoom: isMobile ? 13 : 10,
       duration: 0.3,
     });
   }
