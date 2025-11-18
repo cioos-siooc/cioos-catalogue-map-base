@@ -149,7 +149,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
         </div>
 
         <div
-          className="prose relative mt-4 mb-4 flex-grow text-sm"
+          className="prose prose-sm dark:prose-invert relative mt-4 mb-4 max-w-none flex-grow text-black dark:text-white"
           id="dataset-description"
           dangerouslySetInnerHTML={{ __html: describtion_html }}
         ></div>
