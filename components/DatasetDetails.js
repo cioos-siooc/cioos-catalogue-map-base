@@ -166,6 +166,76 @@ export function DatasetDetails({ dataSetInfo, lang }) {
           id="dataset-description"
           dangerouslySetInnerHTML={{ __html: describtion_html }}
         ></div>
+
+        {/* Resources Section */}
+        {dataSetInfo?.resources && dataSetInfo.resources.length > 0 && (
+          <div className="mb-4">
+            <h3 className="mb-2 text-sm font-semibold">{t.resources}</h3>
+            <div className="flex flex-col gap-2">
+              {(() => {
+                // Filter resources to show only current language or language-neutral ones
+                const filteredResources = dataSetInfo.resources.filter(
+                  (resource) => {
+                    // If resource has no language field, include it
+                    if (!resource.language) return true;
+                    // If resource language matches current language, include it
+                    if (Array.isArray(resource.language)) {
+                      return resource.language.includes(lang);
+                    }
+                    return resource.language === lang;
+                  },
+                );
+
+                // Deduplicate resources by URL
+                const uniqueResources = [];
+                const seenUrls = new Set();
+                filteredResources.forEach((resource) => {
+                  if (!seenUrls.has(resource.url)) {
+                    seenUrls.add(resource.url);
+                    uniqueResources.push(resource);
+                  }
+                });
+
+                return uniqueResources.map((resource, index) => {
+                  const resourceName =
+                    resource.name_translated?.[lang] || resource.name;
+                  const resourceDesc =
+                    resource.description_translated?.[lang] ||
+                    resource.description;
+                  return (
+                    <a
+                      key={resource.id || index}
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-primary-50 dark:bg-primary-800 group hover:bg-primary-100 dark:hover:bg-primary-700 flex flex-col gap-1 rounded-md p-2 text-xs transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{resourceName}</span>
+                            {resource.format && (
+                              <span className="bg-primary-100 dark:bg-primary-700 rounded px-1.5 py-0.5 text-xs font-medium">
+                                {resource.format}
+                              </span>
+                            )}
+                          </div>
+                          {resourceDesc && (
+                            <p className="mt-1 text-xs opacity-80">
+                              {resourceDesc}
+                            </p>
+                          )}
+                        </div>
+                        <GoLinkExternal className="mt-0.5 h-3 w-3 flex-shrink-0 opacity-60" />
+                      </div>
+                    </a>
+                  );
+                });
+              })()}
+            </div>
+          </div>
+        )}
+
         <Citation dataSetInfo={dataSetInfo} lang={lang} />
       </DrawerItems>
     </Drawer>
