@@ -167,6 +167,8 @@ jobs:
 
       # Create/update index page listing all deployments
       - name: Create index page
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd gh-pages-branch
 
@@ -182,7 +184,15 @@ jobs:
               DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Development Branch</a> <span class=\"deployment-type branch\">branch</span></div>"
             elif [[ "$dir" == pr-* ]]; then
               PR_NUM=${dir#pr-}
-              DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Pull Request #$PR_NUM</a> <span class=\"deployment-type pr\">PR</span></div>"
+              # Fetch PR title from GitHub API
+              PR_TITLE=$(gh pr view $PR_NUM --json title --jq '.title' 2>/dev/null || echo "")
+              if [ -n "$PR_TITLE" ]; then
+                # Escape HTML special characters in PR title
+                PR_TITLE=$(echo "$PR_TITLE" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g')
+                DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Pull Request #$PR_NUM</a> <span class=\"deployment-type pr\">PR</span><div class=\"pr-title\">$PR_TITLE</div></div>"
+              else
+                DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Pull Request #$PR_NUM</a> <span class=\"deployment-type pr\">PR</span></div>"
+              fi
             fi
           done
 
