@@ -20,7 +20,7 @@
         "en": "CIOOS-Atlantic"
       },
       "name": "cioos-atlantic",
-      "image_local": "organizations/cioos-atlantic/logo.png"
+      "image_local": null
     },
     "temporal_extent": {
       "begin": "2016-01-22",
@@ -75,7 +75,7 @@
         "en": "CIOOS-Atlantic"
       },
       "name": "cioos-atlantic",
-      "image_local": "organizations/cioos-atlantic/logo.png"
+      "image_local": null
     },
     "temporal_extent": {
       "begin": "2018-07-10",
@@ -110,7 +110,7 @@
         "en": "CIOOS-Atlantic"
       },
       "name": "cioos-atlantic",
-      "image_local": "organizations/cioos-atlantic/logo.png"
+      "image_local": null
     },
     "temporal_extent": {
       "begin": "2015-09-14",
