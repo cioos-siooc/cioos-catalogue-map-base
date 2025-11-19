@@ -5,6 +5,7 @@ import {
   Modal,
   ModalBody,
   ModalHeader,
+  ModalFooter,
   FloatingLabel,
   Select,
   Datepicker,
@@ -361,7 +362,6 @@ export const FilterItems = memo(function FilterItems({
   badges,
 }) {
   const [openModal, setOpenModal] = useState(false);
-  const modalRef = useRef(null);
 
   const t = getLocale(lang);
   const [query, setQuery] = useState([]);
@@ -391,7 +391,21 @@ export const FilterItems = memo(function FilterItems({
   // Keep count in sync with query length
   const count = query.length;
 
-  function onCloseModal() {
+  function onCloseModal(event) {
+    // If event is provided, check if it's a backdrop click
+    if (event?.target) {
+      // Check if click is on a react-select dropdown element
+      const isSelectDropdown =
+        event.target.closest('[class*="react-select"]') ||
+        event.target.closest('[id*="-listbox"]') ||
+        event.target.closest('[id*="-option"]');
+
+      // Prevent closing if clicking on dropdown
+      if (isSelectDropdown) {
+        return;
+      }
+    }
+
     if (query.length === 0) {
       setOpenModal(false);
       setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: [] }));
@@ -401,32 +415,14 @@ export const FilterItems = memo(function FilterItems({
     setOpenModal(false);
   }
 
-  // Handle outside click/touch to close modal
-  useEffect(() => {
-    const handleOutsideClick = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setOpenModal(false);
-      }
-    };
-
-    if (openModal) {
-      // Listen to both mouse and touch events for better mobile support
-      document.addEventListener("mousedown", handleOutsideClick);
-      document.addEventListener("touchstart", handleOutsideClick);
-      return () => {
-        document.removeEventListener("mousedown", handleOutsideClick);
-        document.removeEventListener("touchstart", handleOutsideClick);
-      };
-    }
-  }, [openModal]);
-
   const handleKeyDown = (e) => {
     if (e.key === "Escape") {
-      setOpenModal(false);
+      onCloseModal();
     }
     if (e.key === "Enter") {
       if (query.length === 0) {
         setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: [] }));
+        setOpenModal(false);
         return;
       }
       setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: query }));
@@ -481,7 +477,6 @@ export const FilterItems = memo(function FilterItems({
         {count === 0 && <div>{t[filter_type]}</div>}
       </Button>
       <Modal
-        ref={modalRef}
         dismissible
         show={openModal}
         size="lg"
@@ -491,7 +486,7 @@ export const FilterItems = memo(function FilterItems({
         <ModalHeader>
           {t.filter_by} {t[filter_type].toLowerCase()}
         </ModalHeader>
-        <ModalBody>
+        <ModalBody className="pb-2">
           <SelectReactComponent
             filter_type={filter_type}
             options={options}
@@ -501,6 +496,25 @@ export const FilterItems = memo(function FilterItems({
             handleKeyDown={handleKeyDown}
           />
         </ModalBody>
+        <ModalFooter className="flex justify-end gap-2 pt-2">
+          <Button
+            color="gray"
+            size="sm"
+            onClick={() => {
+              setQuery([]);
+              setBadges((prev) => {
+                const next = { ...prev };
+                delete next[filter_type];
+                return next;
+              });
+            }}
+          >
+            {t.clear}
+          </Button>
+          <Button color="blue" size="sm" onClick={onCloseModal}>
+            {t.apply}
+          </Button>
+        </ModalFooter>
       </Modal>
     </>
   );
