@@ -9,7 +9,7 @@ import {
   Select,
   Datepicker,
 } from "flowbite-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { getLocale } from "@/app/get-locale";
 import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
@@ -22,7 +22,12 @@ function toYMD(iso) {
   return iso.slice(0, 10);
 }
 
-export function SearchFilter({ lang, setBadges, badges }) {
+export const SearchFilter = memo(function SearchFilter({
+  lang,
+  setBadges,
+  badges,
+}) {
+  const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
   const debounceTimerRef = useRef(null);
 
@@ -134,9 +139,14 @@ export function SearchFilter({ lang, setBadges, badges }) {
       )}
     </div>
   );
-}
+});
 
-function TimeFilter({ lang, setBadges, setSelectedOption, badges }) {
+const TimeFilter = memo(function TimeFilter({
+  lang,
+  setBadges,
+  setSelectedOption,
+  badges,
+}) {
   const [openModal, setOpenModal] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -341,9 +351,15 @@ function TimeFilter({ lang, setBadges, setSelectedOption, badges }) {
       </Modal>
     </>
   );
-}
+});
 
-export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
+export const FilterItems = memo(function FilterItems({
+  filter_type,
+  lang,
+  setBadges,
+  options,
+  badges,
+}) {
   const [openModal, setOpenModal] = useState(false);
   const modalRef = useRef(null);
 
@@ -488,9 +504,9 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
       </Modal>
     </>
   );
-}
+});
 
-export default function FilterSection({
+const FilterSection = memo(function FilterSection({
   lang,
   badges,
   setBadges,
@@ -503,6 +519,22 @@ export default function FilterSection({
 }) {
   const t = getLocale(lang);
   const [isAccordionOpen, setIsAccordionOpen] = useState(isOpen || false);
+
+  // Memoize options to prevent re-creating them on every render
+  const orgOptions = useMemo(
+    () => orgList.map((org) => ({ label: org, value: org })),
+    [orgList],
+  );
+
+  const projOptions = useMemo(
+    () => projList.map((proj) => ({ label: proj, value: proj })),
+    [projList],
+  );
+
+  const eovOptions = useMemo(
+    () => eovList.map((eov) => ({ label: eov[1], value: eov[0] })),
+    [eovList],
+  );
 
   // Count active filters
   const countActiveFilters = () => {
@@ -538,9 +570,9 @@ export default function FilterSection({
 
   return (
     <div
-      className={`overflow-visible transition-all duration-300 ${
+      className={`overflow-visible ${
         isAccordionOpen
-          ? "border-primary-300 dark:border-primary-600 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100"
+          ? "border-primary-300 dark:border-primary-600 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100 transition-all duration-200"
           : "pointer-events-none max-h-0 -translate-y-4 opacity-0"
       }`}
     >
@@ -550,21 +582,21 @@ export default function FilterSection({
             filter_type="organization"
             lang={lang}
             setBadges={setBadges}
-            options={orgList.map((org) => ({ label: org, value: org }))}
+            options={orgOptions}
             badges={badges}
           />
           <FilterItems
             filter_type="projects"
             lang={lang}
             setBadges={setBadges}
-            options={projList.map((proj) => ({ label: proj, value: proj }))}
+            options={projOptions}
             badges={badges}
           />
           <FilterItems
             filter_type="eov"
             lang={lang}
             setBadges={setBadges}
-            options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))}
+            options={eovOptions}
             badges={badges}
           />
           <TimeFilter
@@ -587,4 +619,6 @@ export default function FilterSection({
       </div>
     </div>
   );
-}
+});
+
+export default FilterSection;

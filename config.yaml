@@ -5,7 +5,15 @@ base_query: ""
 map:
   center: [65, -110]
   zoom: 4
-  zoom_mobile: 5
+  # Mobile zoom level (optional) - used when screen width is less than 1024px
+  zoom_mobile: 2
+  # Default bounding box (optional) - defines the initial visible area on map load
+  # Format: [[south, west], [north, east]] (latitude, longitude)
+  # Example for Canada: [[48, -133], [70, -55]]
+  # If set, this will override center and zoom settings.
+  # This area will be fitted to the map view on initial load.
+  # Leave empty or comment out to use center/zoom instead
+  default_bounds: [[48, -133], [70, -55]]
 
 default_language: en
 
