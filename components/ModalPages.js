@@ -56,7 +56,7 @@ export default function ModalPages({
             onClose={() => setOpenKey(null)}
             className="bg-primary-50/50 dark:bg-primary-900/50"
           >
-            <div className="relative overflow-hidden rounded-lg">
+            <div className="relative overflow-hidden rounded-2xl">
               <button
                 type="button"
                 aria-label="Close"
@@ -65,7 +65,7 @@ export default function ModalPages({
               >
                 <IoMdClose />
               </button>
-              <ModalBody className="bg-primary-50 dark:bg-primary-800">
+              <ModalBody className="bg-primary-50 dark:bg-primary-800 custom-scrollbar max-h-[90vh] overflow-y-auto">
                 <div
                   className="prose prose-sm prose-gray dark:prose-invert max-w-none"
                   dangerouslySetInnerHTML={{

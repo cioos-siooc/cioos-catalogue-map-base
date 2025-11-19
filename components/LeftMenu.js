@@ -4,7 +4,7 @@ import ItemsList from "@/components/ItemsList";
 import ModalPages from "@/components/ModalPages";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
-import FilterSection from "./FilterSection";
+import FilterSection, { SearchFilter } from "./FilterSection";
 import Logo from "./Logo";
 import { BsDatabase } from "react-icons/bs";
 import {
@@ -116,7 +116,7 @@ export function Sidebar({
         setOpenKey={setAboutPageIndex}
       />
 
-      <div className="bg-primary-100 dark:bg-primary-700 mx-2 mt-2 mb-3 rounded-md py-1">
+      <div className="bg-primary-200 dark:bg-primary-700 mx-2 mt-2 rounded-md py-1">
         <div className="flex flex-row items-center justify-center gap-2 overflow-visible">
           <div className="group relative">
             <button
@@ -164,6 +164,10 @@ export function Sidebar({
           isOpen={filterOpen}
           setIsOpen={setFilterOpen}
         />
+      </div>
+
+      <div className="bg-primary-200 dark:bg-primary-700 border-primary-500 mx-2 my-2 rounded-md p-1">
+        <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
       </div>
 
       <div className="bg-primary-200 dark:bg-primary-700 mx-2 flex items-center gap-2 rounded-t-md p-2 px-2">

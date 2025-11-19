@@ -5,15 +5,15 @@ import {
   Modal,
   ModalBody,
   ModalHeader,
+  ModalFooter,
   FloatingLabel,
   Select,
   Datepicker,
 } from "flowbite-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { getLocale } from "@/app/get-locale";
 import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
-import { MdClose } from "react-icons/md";
 import { updateURLWithBadges } from "@/components/UrlParametrization";
 
 // Helper to format an ISO date to YYYY-MM-DD (machine-friendly)
@@ -23,30 +23,64 @@ function toYMD(iso) {
   return iso.slice(0, 10);
 }
 
-export function SearchFilter({ lang, setBadges, badges }) {
+export const SearchFilter = memo(function SearchFilter({
+  lang,
+  setBadges,
+  badges,
+}) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
+  const debounceTimerRef = useRef(null);
 
   const t = getLocale(lang);
 
-  function onCloseModal() {
-    setOpenModal(false);
-  }
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      // Close modal and add badge
-      setBadges((prevBadges) => ({
-        ...prevBadges,
-        search: query,
-      }));
-      setOpenModal(false);
+      // Add badge on Enter
+      if (query.trim()) {
+        setBadges((prevBadges) => ({
+          ...prevBadges,
+          search: query,
+        }));
+      }
     }
   };
 
-  // Keep local query in sync with URL/app state when badges.search changes
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    // Clear existing timeout
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Set new debounced timeout
+    debounceTimerRef.current = setTimeout(() => {
+      if (value.trim()) {
+        setBadges((prevBadges) => ({
+          ...prevBadges,
+          search: value,
+        }));
+      } else {
+        // Clear search badge if input is empty
+        setBadges((prev) => {
+          const next = { ...prev };
+          delete next.search;
+          return next;
+        });
+      }
+    }, 500); // 500ms debounce delay
+  };
+
+  // Keep local query in sync with URL/app state when badges.search changes externally
+  // Only sync if the local query doesn't match badges.search (to avoid conflicts during typing)
   useEffect(() => {
-    if (badges && typeof badges.search === "string") {
+    if (
+      badges &&
+      typeof badges.search === "string" &&
+      query !== badges.search
+    ) {
       setQuery(badges.search);
     } else if (!badges?.search && query !== "") {
       // If search was removed elsewhere, clear local query
@@ -54,6 +88,15 @@ export function SearchFilter({ lang, setBadges, badges }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [badges?.search]);
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   const clearSearchBadge = (e) => {
     if (e) e.stopPropagation();
@@ -65,75 +108,46 @@ export function SearchFilter({ lang, setBadges, badges }) {
     setQuery("");
   };
 
-  return (
-    <>
-      <Button
-        className="bg-primary-500 gap-1 border border-white/20 px-3 transition-all duration-200 hover:-translate-y-0.5 hover:cursor-pointer hover:shadow-lg"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
-        {badges?.search ? (
-          <>
-            <span className="bg-accent-500 h-4 w-4 rounded-full border-0 text-center text-xs leading-4 text-black">
-              1
-            </span>
-            <div>{t.search}</div>
-            <span className="max-w-[120px] truncate text-xs opacity-90">
-              : {badges.search}
-            </span>
-            <span
-              role="button"
-              tabIndex={0}
-              className="hover:text-accent-500 group relative m-0 cursor-pointer border-0 bg-transparent p-0 pl-1 text-lg"
-              onClick={clearSearchBadge}
-              aria-label={t.remove_filter}
-            >
-              <FiDelete />
-              <span className="absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs whitespace-nowrap text-white shadow-lg group-hover:block">
-                {t.remove_filter}
-              </span>
-            </span>
-          </>
-        ) : (
-          <div>{t.search}</div>
-        )}
-      </Button>
-      <Modal
-        dismissible
-        show={openModal}
-        size="xl"
-        onClose={onCloseModal}
-        popup
-        className="rounded-lg border-0 text-lg"
-      >
-        <div className="relative">
-          <FloatingLabel
-            id="query-input"
-            variant="filled"
-            label={t.search}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="rounded-lg border-0 pr-10 text-lg text-black focus:text-black dark:text-white focus:dark:text-white"
-          />
-          {query && (
-            <button
-              type="button"
-              className="hover:text-accent-500 absolute top-1/2 right-2 -translate-y-1/2 rounded px-1 py-0.5 text-gray-500"
-              aria-label={t.remove_filter}
-              onClick={() => clearSearchBadge()}
-            >
-              <FiDelete />
-            </button>
-          )}
-        </div>
-      </Modal>
-    </>
-  );
-}
+  const inputRef = useRef(null);
 
-function TimeFilter({ lang, setBadges, setSelectedOption, badges }) {
+  const handleBoxClick = (e) => {
+    // Don't focus if clicking the delete button
+    if (e.target.closest("button")) return;
+    inputRef.current?.focus();
+  };
+
+  return (
+    <div className="relative w-full cursor-text" onClick={handleBoxClick}>
+      <FloatingLabel
+        ref={inputRef}
+        id="query-input"
+        variant="filled"
+        label={t.search}
+        value={query}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        className="w-full rounded-lg border-0"
+      />
+      {query && (
+        <button
+          type="button"
+          className="hover:text-accent-500 absolute top-1/2 right-2 -translate-y-1/2 rounded px-1 py-0.5 text-gray-500"
+          aria-label={t.remove_filter}
+          onClick={clearSearchBadge}
+        >
+          <FiDelete />
+        </button>
+      )}
+    </div>
+  );
+});
+
+const TimeFilter = memo(function TimeFilter({
+  lang,
+  setBadges,
+  setSelectedOption,
+  badges,
+}) {
   const [openModal, setOpenModal] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -309,7 +323,7 @@ function TimeFilter({ lang, setBadges, setSelectedOption, badges }) {
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xs opacity-80">
               {selectedType && (
-                <span className="bg-primary-100 dark:bg-primary-900 mr-2 inline-block rounded px-2 py-0.5">
+                <span className="bg-primary-200 dark:bg-primary-900 mr-2 inline-block rounded px-2 py-0.5">
                   {t[selectedType] || selectedType}
                 </span>
               )}
@@ -338,9 +352,15 @@ function TimeFilter({ lang, setBadges, setSelectedOption, badges }) {
       </Modal>
     </>
   );
-}
+});
 
-export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
+export const FilterItems = memo(function FilterItems({
+  filter_type,
+  lang,
+  setBadges,
+  options,
+  badges,
+}) {
   const [openModal, setOpenModal] = useState(false);
 
   const t = getLocale(lang);
@@ -371,7 +391,21 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
   // Keep count in sync with query length
   const count = query.length;
 
-  function onCloseModal() {
+  function onCloseModal(event) {
+    // If event is provided, check if it's a backdrop click
+    if (event?.target) {
+      // Check if click is on a react-select dropdown element
+      const isSelectDropdown =
+        event.target.closest('[class*="react-select"]') ||
+        event.target.closest('[id*="-listbox"]') ||
+        event.target.closest('[id*="-option"]');
+
+      // Prevent closing if clicking on dropdown
+      if (isSelectDropdown) {
+        return;
+      }
+    }
+
     if (query.length === 0) {
       setOpenModal(false);
       setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: [] }));
@@ -383,11 +417,12 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
 
   const handleKeyDown = (e) => {
     if (e.key === "Escape") {
-      setOpenModal(false);
+      onCloseModal();
     }
     if (e.key === "Enter") {
       if (query.length === 0) {
         setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: [] }));
+        setOpenModal(false);
         return;
       }
       setBadges((prevBadges) => ({ ...prevBadges, [filter_type]: query }));
@@ -451,7 +486,7 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
         <ModalHeader>
           {t.filter_by} {t[filter_type].toLowerCase()}
         </ModalHeader>
-        <ModalBody>
+        <ModalBody className="pb-2">
           <SelectReactComponent
             filter_type={filter_type}
             options={options}
@@ -461,12 +496,31 @@ export function FilterItems({ filter_type, lang, setBadges, options, badges }) {
             handleKeyDown={handleKeyDown}
           />
         </ModalBody>
+        <ModalFooter className="flex justify-end gap-2 pt-2">
+          <Button
+            color="gray"
+            size="sm"
+            onClick={() => {
+              setQuery([]);
+              setBadges((prev) => {
+                const next = { ...prev };
+                delete next[filter_type];
+                return next;
+              });
+            }}
+          >
+            {t.clear}
+          </Button>
+          <Button color="blue" size="sm" onClick={onCloseModal}>
+            {t.apply}
+          </Button>
+        </ModalFooter>
       </Modal>
     </>
   );
-}
+});
 
-export default function FilterSection({
+const FilterSection = memo(function FilterSection({
   lang,
   badges,
   setBadges,
@@ -479,6 +533,22 @@ export default function FilterSection({
 }) {
   const t = getLocale(lang);
   const [isAccordionOpen, setIsAccordionOpen] = useState(isOpen || false);
+
+  // Memoize options to prevent re-creating them on every render
+  const orgOptions = useMemo(
+    () => orgList.map((org) => ({ label: org, value: org })),
+    [orgList],
+  );
+
+  const projOptions = useMemo(
+    () => projList.map((proj) => ({ label: proj, value: proj })),
+    [projList],
+  );
+
+  const eovOptions = useMemo(
+    () => eovList.map((eov) => ({ label: eov[1], value: eov[0] })),
+    [eovList],
+  );
 
   // Count active filters
   const countActiveFilters = () => {
@@ -514,34 +584,33 @@ export default function FilterSection({
 
   return (
     <div
-      className={`overflow-visible transition-all duration-300 ${
+      className={`overflow-visible ${
         isAccordionOpen
-          ? "border-primary-300 dark:border-primary-600 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100"
+          ? "border-primary-300 dark:border-primary-600 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100 transition-all duration-200"
           : "pointer-events-none max-h-0 -translate-y-4 opacity-0"
       }`}
     >
       <div className="flex flex-col gap-2">
         <div className="flex flex-row flex-wrap items-center justify-center gap-1.5">
-          <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
           <FilterItems
             filter_type="organization"
             lang={lang}
             setBadges={setBadges}
-            options={orgList.map((org) => ({ label: org, value: org }))}
+            options={orgOptions}
             badges={badges}
           />
           <FilterItems
             filter_type="projects"
             lang={lang}
             setBadges={setBadges}
-            options={projList.map((proj) => ({ label: proj, value: proj }))}
+            options={projOptions}
             badges={badges}
           />
           <FilterItems
             filter_type="eov"
             lang={lang}
             setBadges={setBadges}
-            options={eovList.map((eov) => ({ label: eov[1], value: eov[0] }))}
+            options={eovOptions}
             badges={badges}
           />
           <TimeFilter
@@ -554,7 +623,7 @@ export default function FilterSection({
         {activeFilterCount > 0 && (
           <div className="flex justify-center">
             <button
-              className="text-accent-500 hover:text-accent-600 dark:text-accent-400 dark:hover:text-accent-500 flex items-center gap-1 text-xs font-medium underline transition-colors duration-200"
+              className="text-primary-800 hover:text-primary-300 dark:text-primary-100 dark:hover:text-primary-900 flex items-center gap-1 text-xs font-medium underline transition-colors duration-200 hover:cursor-pointer"
               onClick={clearAllFilters}
             >
               {t.clear_all_filters}
@@ -564,4 +633,6 @@ export default function FilterSection({
       </div>
     </div>
   );
-}
+});
+
+export default FilterSection;

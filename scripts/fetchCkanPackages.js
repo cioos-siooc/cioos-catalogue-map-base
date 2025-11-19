@@ -108,10 +108,20 @@ async function fetchAllPackages() {
         const fullRecord = await fetchDatasetFullRecord(item.id);
         let orgImageLocal = null;
         const org = fullRecord.organization || {};
-        if (org.image_url) {
-          const imageUrl = org.image_url.startsWith("http")
-            ? org.image_url
-            : `${config.catalogue_url}${org.image_url}`;
+        // Try to get image URL from multiple sources
+        let imageUrl = org.image_url;
+        if (!imageUrl && org.image_url_translated) {
+          // Prefer English, fallback to French or any available language
+          imageUrl =
+            org.image_url_translated.en ||
+            org.image_url_translated.fr ||
+            Object.values(org.image_url_translated)[0];
+        }
+
+        if (imageUrl) {
+          imageUrl = imageUrl.startsWith("http")
+            ? imageUrl
+            : `${config.catalogue_url}${imageUrl}`;
           const orgFolder = path.join(
             orgDir,
             org.name ||

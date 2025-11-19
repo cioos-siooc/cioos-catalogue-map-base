@@ -4,6 +4,10 @@
 @source "../.flowbite-react/class-list.json";
 @import "./theme.css";
 
+@utility -translate-x-90 {
+  transform: translateX(-22.5rem);
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -63,12 +67,12 @@ body {
   color: var(--color-accent-50) !important;
 }
 .marker-cluster-large {
-  background-color: var(--color-accent-500) !important;
-  color: var(--color-black) !important;
+  background-color: var(--color-primary-900) !important;
+  color: var(--color-white) !important;
 }
 .marker-cluster-large div {
-  background-color: var(--color-accent-400) !important;
-  color: var(--color-black) !important;
+  background-color: var(--color-primary-800) !important;
+  color: var(--color-white) !important;
 }
 
 /* Make sure the Leaflet attribution control is visible above UI overlays */
