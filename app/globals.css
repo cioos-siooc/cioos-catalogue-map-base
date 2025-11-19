@@ -27,12 +27,6 @@
   }
 }
 
-@media (max-width: 375px) {
-  .leaflet-top.leaflet-right .leaflet-control-zoom {
-    margin-top: 120px !important;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -47,39 +41,6 @@ body {
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
-}
-
-/* Leaflet Marker Clusters CSS */
-.marker-cluster-small {
-  background-color: var(--color-primary-200) !important;
-  color: var(--color-black) !important;
-}
-.marker-cluster-small div {
-  background-color: var(--color-primary-100) !important;
-  color: var(--color-black) !important;
-}
-.marker-cluster-medium {
-  background-color: var(--color-primary-500) !important;
-  color: var(--color-accent-50) !important;
-}
-.marker-cluster-medium div {
-  background-color: var(--color-primary-400) !important;
-  color: var(--color-accent-50) !important;
-}
-.marker-cluster-large {
-  background-color: var(--color-accent-500) !important;
-  color: var(--color-black) !important;
-}
-.marker-cluster-large div {
-  background-color: var(--color-accent-400) !important;
-  color: var(--color-black) !important;
-}
-
-/* Make sure the Leaflet attribution control is visible above UI overlays */
-.leaflet-control-attribution {
-  z-index: 1000; /* higher than most app overlays */
-  background: rgba(255, 255, 255, 0.9) !important;
-  color: #111 !important;
 }
 
 /* Custom minimal scrollbar styling */
