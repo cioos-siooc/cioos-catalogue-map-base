@@ -64,17 +64,18 @@ function AppContent({ lang, setLang }) {
   const [allItems, setAllItems] = useState([]); // Store the full list
   const [badges, setBadges] = useState({}); // Store current filters
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
   const [datasetSpatial, setDatasetSpatial] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [aboutPageIndex, setAboutPageIndex] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
   const mapRef = useRef();
   const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();
+  const hasSidebarInitialized = useRef(false);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
@@ -140,6 +141,16 @@ function AppContent({ lang, setLang }) {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Open sidebar on large screens immediately after mount
+  useEffect(() => {
+    if (!hasSidebarInitialized.current) {
+      hasSidebarInitialized.current = true;
+      if (window.innerWidth >= 1024) {
+        setIsSidebarOpen(true);
+      }
+    }
+  }, []);
 
   // When badges or allItems change, update filteredItems
   useEffect(() => {
