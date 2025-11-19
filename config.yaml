@@ -15,6 +15,11 @@ map:
   # Leave empty or comment out to use center/zoom instead
   default_bounds: [[48, -133], [70, -55]]
 
+  # MapLibre projection (optional) - enables different map projections
+  # Options: "mercator" (default), "globe", "equalEarth", "lambertConformal", "azimuthalEqualArea"
+  # Use "globe" for 3D globe view with full polar support
+  projection: "mercator"
+
 default_language: en
 
 # Title shown on the navigation bar below the main logo
@@ -108,12 +113,20 @@ bottom_logo:
 
 basemaps:
   - name:
+      fr: "OpenStreetMap"
+      en: "OpenStreetMap"
+    key: "osm"
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+    attribution: "&copy; OpenStreetMap contributors"
+    checked: true
+    maxZoom: 19
+  - name:
       fr: "Bathymétrie"
       en: "Bathymetry"
     key: "bathymetry"
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
     attribution: "Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri"
-    checked: true
+    checked: false
     maxZoom: 10
   - name:
       fr: "Satellite"
@@ -121,6 +134,7 @@ basemaps:
     key: "satellite"
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
     attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
+    checked: false
 
 overlays:
   - name:

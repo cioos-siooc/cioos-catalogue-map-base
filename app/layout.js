@@ -37,8 +37,8 @@ const geistMono = Geist_Mono({
 
 const basePath = process.env.BASE_PATH || "";
 
-// Import map with dynamic import (no ssr) and memoization
-const MapComponent = dynamic(() => import("@/components/Map"), {
+// Import MapLibre map with dynamic import (no ssr) and memoization
+const MapComponent = dynamic(() => import("@/components/MapLibreMap"), {
   ssr: false,
   loading: () => (
     <div className="bg-primary-200 flex h-full w-full items-center justify-center">
