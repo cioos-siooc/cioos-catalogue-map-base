@@ -133,6 +133,35 @@ jobs:
             git remote add origin https://github.com/${{ github.repository }}.git
           fi
 
+      # Clean up closed/merged PR deployments
+      - name: Clean up closed PR deployments
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd gh-pages-branch
+
+          # Find all pr-* directories
+          for dir in pr-*/ ; do
+            if [ -d "$dir" ]; then
+              PR_NUM=${dir#pr-}
+              PR_NUM=${PR_NUM%/}
+
+              echo "Checking PR #$PR_NUM..."
+
+              # Check if PR is still open
+              PR_STATE=$(gh pr view $PR_NUM --json state --jq '.state' 2>/dev/null || echo "NOT_FOUND")
+
+              if [ "$PR_STATE" != "OPEN" ]; then
+                echo "PR #$PR_NUM is $PR_STATE, removing deployment..."
+                rm -rf "pr-$PR_NUM"
+              else
+                echo "PR #$PR_NUM is still open, keeping deployment"
+              fi
+            fi
+          done
+
+          cd ..
+
       # Create or update the deployment directory
       - name: Prepare deployment directory
         run: |
