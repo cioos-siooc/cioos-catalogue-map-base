@@ -281,7 +281,11 @@ const Map = forwardRef(function Map(
     },
     recenterToDefault: () => {
       if (mapRef.current) {
-        mapRef.current.setView(config.map.center, config.map.zoom);
+        if (config.map.default_bounds) {
+          mapRef.current.fitBounds(config.map.default_bounds);
+        } else {
+          mapRef.current.setView(config.map.center, config.map.zoom);
+        }
       }
     },
     updateBounds: (newBounds, setDatasetSpatial) => {
@@ -303,12 +307,15 @@ const Map = forwardRef(function Map(
     <>
       <MapContainer
         className="h-full w-full"
-        center={config.map.center}
+        center={config.map.default_bounds ? undefined : config.map.center}
         zoom={
-          typeof window !== "undefined" && window.innerWidth < 600
-            ? config.map.zoom_mobile
-            : config.map.zoom
+          config.map.default_bounds
+            ? undefined
+            : typeof window !== "undefined" && window.innerWidth < 1024
+              ? config.map.zoom_mobile
+              : config.map.zoom
         }
+        bounds={config.map.default_bounds}
         zoomControl={false}
         scrollWheelZoom={true}
         boundsOptions={{ padding: [1, 1] }}
