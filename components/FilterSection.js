@@ -13,7 +13,6 @@ import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { getLocale } from "@/app/get-locale";
 import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
-import { MdClose } from "react-icons/md";
 import { updateURLWithBadges } from "@/components/UrlParametrization";
 
 // Helper to format an ISO date to YYYY-MM-DD (machine-friendly)
@@ -30,27 +29,57 @@ export const SearchFilter = memo(function SearchFilter({
 }) {
   const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
+  const debounceTimerRef = useRef(null);
 
   const t = getLocale(lang);
 
-  function onCloseModal() {
-    setOpenModal(false);
-  }
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      // Close modal and add badge
-      setBadges((prevBadges) => ({
-        ...prevBadges,
-        search: query,
-      }));
-      setOpenModal(false);
+      // Add badge on Enter
+      if (query.trim()) {
+        setBadges((prevBadges) => ({
+          ...prevBadges,
+          search: query,
+        }));
+      }
     }
   };
 
-  // Keep local query in sync with URL/app state when badges.search changes
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    // Clear existing timeout
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Set new debounced timeout
+    debounceTimerRef.current = setTimeout(() => {
+      if (value.trim()) {
+        setBadges((prevBadges) => ({
+          ...prevBadges,
+          search: value,
+        }));
+      } else {
+        // Clear search badge if input is empty
+        setBadges((prev) => {
+          const next = { ...prev };
+          delete next.search;
+          return next;
+        });
+      }
+    }, 500); // 500ms debounce delay
+  };
+
+  // Keep local query in sync with URL/app state when badges.search changes externally
+  // Only sync if the local query doesn't match badges.search (to avoid conflicts during typing)
   useEffect(() => {
-    if (badges && typeof badges.search === "string") {
+    if (
+      badges &&
+      typeof badges.search === "string" &&
+      query !== badges.search
+    ) {
       setQuery(badges.search);
     } else if (!badges?.search && query !== "") {
       // If search was removed elsewhere, clear local query
@@ -58,6 +87,15 @@ export const SearchFilter = memo(function SearchFilter({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [badges?.search]);
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   const clearSearchBadge = (e) => {
     if (e) e.stopPropagation();
@@ -69,71 +107,37 @@ export const SearchFilter = memo(function SearchFilter({
     setQuery("");
   };
 
+  const inputRef = useRef(null);
+
+  const handleBoxClick = (e) => {
+    // Don't focus if clicking the delete button
+    if (e.target.closest("button")) return;
+    inputRef.current?.focus();
+  };
+
   return (
-    <>
-      <Button
-        className="bg-primary-500 gap-1 border border-white/20 px-3 transition-all duration-200 hover:-translate-y-0.5 hover:cursor-pointer hover:shadow-lg"
-        pill
-        size="xs"
-        onClick={() => setOpenModal(true)}
-      >
-        {badges?.search ? (
-          <>
-            <span className="bg-accent-500 h-4 w-4 rounded-full border-0 text-center text-xs leading-4 text-black">
-              1
-            </span>
-            <div>{t.search}</div>
-            <span className="max-w-[120px] truncate text-xs opacity-90">
-              : {badges.search}
-            </span>
-            <span
-              role="button"
-              tabIndex={0}
-              className="hover:text-accent-500 group relative m-0 cursor-pointer border-0 bg-transparent p-0 pl-1 text-lg"
-              onClick={clearSearchBadge}
-              aria-label={t.remove_filter}
-            >
-              <FiDelete />
-              <span className="absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 rounded bg-gray-800 px-2 py-1 text-xs whitespace-nowrap text-white shadow-lg group-hover:block">
-                {t.remove_filter}
-              </span>
-            </span>
-          </>
-        ) : (
-          <div>{t.search}</div>
-        )}
-      </Button>
-      <Modal
-        dismissible
-        show={openModal}
-        size="xl"
-        onClose={onCloseModal}
-        popup
-        className="rounded-lg border-0 text-lg"
-      >
-        <div className="relative">
-          <FloatingLabel
-            id="query-input"
-            variant="filled"
-            label={t.search}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="rounded-lg border-0 pr-10 text-lg text-black focus:text-black dark:text-white focus:dark:text-white"
-          />
-          {query && (
-            <button
-              type="button"
-              className="hover:text-accent-500 absolute top-1/2 right-2 -translate-y-1/2 rounded px-1 py-0.5 text-gray-500"
-              aria-label={t.remove_filter}
-              onClick={() => clearSearchBadge()}
-            >
-              <FiDelete />
-            </button>
-          )}
-        </div>
-      </Modal>
-    </>
+    <div className="relative w-full cursor-text" onClick={handleBoxClick}>
+      <FloatingLabel
+        ref={inputRef}
+        id="query-input"
+        variant="filled"
+        label={t.search}
+        value={query}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        className="w-full rounded-lg border-0"
+      />
+      {query && (
+        <button
+          type="button"
+          className="hover:text-accent-500 absolute top-1/2 right-2 -translate-y-1/2 rounded px-1 py-0.5 text-gray-500"
+          aria-label={t.remove_filter}
+          onClick={clearSearchBadge}
+        >
+          <FiDelete />
+        </button>
+      )}
+    </div>
   );
 });
 
@@ -574,7 +578,6 @@ const FilterSection = memo(function FilterSection({
     >
       <div className="flex flex-col gap-2">
         <div className="flex flex-row flex-wrap items-center justify-center gap-1.5">
-          <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
           <FilterItems
             filter_type="organization"
             lang={lang}
