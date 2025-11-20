@@ -103,11 +103,11 @@ export function DatasetDetails({ dataSetInfo, lang }) {
               return (
                 img && (
                   <Image
-                    className="max-h-24 w-auto max-w-[180px] rounded-sm bg-white p-1"
+                    className="max-h-40 w-auto max-w-xs rounded-sm bg-white p-1"
                     src={img}
                     alt={`${dataSetInfo.organization.title_translated[lang]} logo`}
                     width={0}
-                    height={24}
+                    height={160}
                   />
                 )
               );
