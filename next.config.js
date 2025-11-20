@@ -67,13 +67,9 @@ generateTheme();
 
 // Determine base path from environment variable (set by GitHub Actions) or GitHub repository
 // Priority: BASE_PATH env var > GITHUB_PAGES_URL > GITHUB_REPOSITORY
-let basePath;
+let basePath = process.env.BASE_PATH;
 
-// Check if BASE_PATH is explicitly set (including empty string)
-if (process.env.BASE_PATH !== undefined) {
-  basePath = process.env.BASE_PATH;
-  console.log(`Using explicit BASE_PATH: ${basePath || "<empty>"}`);
-} else if (process.env.GITHUB_PAGES_URL) {
+if (!basePath && process.env.GITHUB_PAGES_URL) {
   // Extract base path from GitHub Pages URL
   // Examples:
   //   - https://username.github.io/repo-name/ -> /repo-name (subdomain deployment)
@@ -95,17 +91,14 @@ if (process.env.BASE_PATH !== undefined) {
     }
   } catch (e) {
     console.warn("Failed to parse GITHUB_PAGES_URL:", e);
-    basePath = undefined;
   }
-} else if (process.env.GITHUB_REPOSITORY) {
-  basePath = `/${process.env.GITHUB_REPOSITORY.split("/")[1]}`;
-  console.log(`Using GITHUB_REPOSITORY fallback - basePath: ${basePath}`);
-} else {
-  basePath = "";
-  console.log("No deployment info found - basePath: <empty>");
 }
 
-// Ensure basePath is always a string
+if (!basePath && process.env.GITHUB_REPOSITORY) {
+  basePath = `/${process.env.GITHUB_REPOSITORY.split("/")[1]}`;
+  console.log(`Using GITHUB_REPOSITORY fallback - basePath: ${basePath}`);
+}
+
 basePath = basePath || "";
 
 if (basePath) {
