@@ -1,0 +1,87 @@
+name: Cleanup PR Deployments
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - development
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Remove PR deployment directory
+        run: |
+          PR_DIR="pr-${{ github.event.pull_request.number }}"
+
+          if [ -d "$PR_DIR" ]; then
+            echo "Removing deployment directory: $PR_DIR"
+            rm -rf "$PR_DIR"
+          else
+            echo "Directory $PR_DIR does not exist, nothing to clean up"
+          fi
+
+      - name: Checkout main branch to get template
+        uses: actions/checkout@v4
+        with:
+          path: repo
+
+      - name: Update index page
+        run: |
+          # Get list of all directories (deployments)
+          DEPLOYMENTS=$(find . -maxdepth 1 -type d ! -name '.' ! -name '.git' ! -name '.github' | sed 's|./||' | sort)
+
+          # Generate deployment items HTML
+          DEPLOYMENT_ITEMS=""
+          for dir in $DEPLOYMENTS; do
+            if [ "$dir" = "main" ]; then
+              DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Main Branch</a> <span class=\"deployment-type branch\">branch</span></div>"
+            elif [ "$dir" = "development" ]; then
+              DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Development Branch</a> <span class=\"deployment-type branch\">branch</span></div>"
+            elif [[ "$dir" == pr-* ]]; then
+              PR_NUM=${dir#pr-}
+              DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Pull Request #$PR_NUM</a> <span class=\"deployment-type pr\">PR</span></div>"
+            fi
+          done
+
+          # Use template and replace placeholder
+          sed "s|<!-- DEPLOYMENTS_PLACEHOLDER -->|${DEPLOYMENT_ITEMS}|g" ../repo/.github/workflows/index-template.html > index.html
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Remove PR #${{ github.event.pull_request.number }} deployment"
+            git push origin gh-pages
+          fi
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const comment = `## 🧹 Deployment Cleaned Up
+
+            The preview deployment for PR #${prNumber} has been removed from GitHub Pages.`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: comment
+            });

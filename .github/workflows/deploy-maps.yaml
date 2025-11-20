@@ -1,0 +1,290 @@
+name: Build and Deploy Maps
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - development
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  pull-requests: write
+
+# Allow only one concurrent deployment per branch/PR
+concurrency:
+  group: pages-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Note: Intentionally NOT caching .next/cache for static exports
+      # Caching .next/cache can cause build hash mismatches where HTML references
+      # different chunk hashes than what's actually built, leading to 404s
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Cache CKAN packages data
+        id: cache-packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            public/packages.json
+            public/dataset-cache
+          # Cache based on the fetch script and config - data is shared across branches
+          key: ${{ runner.os }}-ckan-data-${{ hashFiles('scripts/fetchCkanPackages.js', 'config.yaml') }}
+
+      - name: Fetch CKAN packages (if not cached)
+        if: steps.cache-packages.outputs.cache-hit != 'true'
+        run: node scripts/fetchCkanPackages.js
+
+      - name: Verify packages data exists
+        run: |
+          if [ ! -f "public/packages.json" ]; then
+            echo "ERROR: public/packages.json not found. Cache or fetch failed."
+            exit 1
+          fi
+          echo "packages.json verified in public directory"
+          ls -lh public/packages.json
+
+      - name: Run Lint
+        run: npm run lint
+
+      # Determine the deployment path based on event type
+      - name: Set deployment path
+        id: set-path
+        run: |
+          # Extract repository name for base path
+          REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "DEPLOY_PATH=pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+            echo "BASE_PATH=/${REPO_NAME}/pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" == "main" ]; then
+            echo "DEPLOY_PATH=main" >> $GITHUB_ENV
+            echo "BASE_PATH=/${REPO_NAME}/main" >> $GITHUB_ENV
+          elif [ "${{ github.ref_name }}" == "development" ]; then
+            echo "DEPLOY_PATH=development" >> $GITHUB_ENV
+            echo "BASE_PATH=/${REPO_NAME}/development" >> $GITHUB_ENV
+          fi
+
+      - name: Clean previous build
+        run: |
+          echo "Cleaning previous build artifacts..."
+          rm -rf out .next
+          echo "Clean complete"
+
+      - name: Build with Next.js
+        env:
+          BASE_PATH: ${{ env.BASE_PATH }}
+          SKIP_FETCH: true
+        run: npm run build
+
+      # Verify build output contains required files
+      - name: Verify build output
+        run: |
+          echo "Checking build output..."
+          ls -la out/
+          if [ ! -f "out/packages.json" ]; then
+            echo "ERROR: packages.json not found in out directory"
+            exit 1
+          fi
+          if [ ! -d "out/_next" ]; then
+            echo "ERROR: _next directory not found in out directory"
+            exit 1
+          fi
+          echo "Build output verified successfully"
+
+      # Checkout gh-pages branch to prepare deployment
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-branch
+        continue-on-error: true
+
+      # Initialize gh-pages branch if it doesn't exist
+      - name: Initialize gh-pages branch if needed
+        run: |
+          if [ ! -d "gh-pages-branch/.git" ]; then
+            echo "gh-pages branch doesn't exist, creating it..."
+            mkdir -p gh-pages-branch
+            cd gh-pages-branch
+            git init
+            git checkout -b gh-pages
+            git remote add origin https://github.com/${{ github.repository }}.git
+          fi
+
+      # Clean up closed/merged PR deployments
+      - name: Clean up closed PR deployments
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd gh-pages-branch
+
+          # Find all pr-* directories
+          for dir in pr-*/ ; do
+            if [ -d "$dir" ]; then
+              PR_NUM=${dir#pr-}
+              PR_NUM=${PR_NUM%/}
+
+              echo "Checking PR #$PR_NUM..."
+
+              # Check if PR is still open
+              PR_STATE=$(gh pr view $PR_NUM --json state --jq '.state' 2>/dev/null || echo "NOT_FOUND")
+
+              if [ "$PR_STATE" != "OPEN" ]; then
+                echo "PR #$PR_NUM is $PR_STATE, removing deployment..."
+                rm -rf "pr-$PR_NUM"
+              else
+                echo "PR #$PR_NUM is still open, keeping deployment"
+              fi
+            fi
+          done
+
+          cd ..
+
+      # Create or update the deployment directory
+      - name: Prepare deployment directory
+        run: |
+          echo "Preparing deployment directory: ${{ env.DEPLOY_PATH }}"
+
+          # Completely remove and recreate deployment directory for clean slate
+          rm -rf gh-pages-branch/${{ env.DEPLOY_PATH }}
+          mkdir -p gh-pages-branch/${{ env.DEPLOY_PATH }}
+
+          # Copy all built files
+          cp -r out/* gh-pages-branch/${{ env.DEPLOY_PATH }}/
+
+          # Add .nojekyll file to ensure GitHub Pages serves files starting with _
+          touch gh-pages-branch/.nojekyll
+
+          echo "Deployment directory prepared successfully"
+
+          # Verify the deployment directory has necessary files
+          echo "Verifying deployment directory..."
+          if [ ! -f "gh-pages-branch/${{ env.DEPLOY_PATH }}/packages.json" ]; then
+            echo "ERROR: packages.json not found in deployment directory"
+            exit 1
+          fi
+          if [ ! -d "gh-pages-branch/${{ env.DEPLOY_PATH }}/_next" ]; then
+            echo "ERROR: _next directory not found in deployment directory"
+            exit 1
+          fi
+          echo "Deployment directory structure:"
+          ls -la "gh-pages-branch/${{ env.DEPLOY_PATH }}/"
+          echo "Contents of _next directory:"
+          ls -la "gh-pages-branch/${{ env.DEPLOY_PATH }}/_next/"
+
+      # Create/update index page listing all deployments
+      - name: Create index page
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd gh-pages-branch
+
+          # Get list of all directories (deployments)
+          DEPLOYMENTS=$(find . -maxdepth 1 -type d ! -name '.' ! -name '.git' ! -name '.github' | sed 's|./||' | sort)
+
+          # Generate deployment items HTML
+          DEPLOYMENT_ITEMS=""
+          for dir in $DEPLOYMENTS; do
+            if [ "$dir" = "main" ]; then
+              DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Main Branch</a> <span class=\"deployment-type branch\">branch</span></div>"
+            elif [ "$dir" = "development" ]; then
+              DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Development Branch</a> <span class=\"deployment-type branch\">branch</span></div>"
+            elif [[ "$dir" == pr-* ]]; then
+              PR_NUM=${dir#pr-}
+              # Fetch PR title from GitHub API
+              PR_TITLE=$(gh pr view $PR_NUM --json title --jq '.title' 2>/dev/null || echo "")
+              if [ -n "$PR_TITLE" ]; then
+                # Escape HTML special characters in PR title
+                PR_TITLE=$(echo "$PR_TITLE" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g')
+                DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Pull Request #$PR_NUM</a> <span class=\"deployment-type pr\">PR</span><div class=\"pr-title\">$PR_TITLE</div></div>"
+              else
+                DEPLOYMENT_ITEMS="${DEPLOYMENT_ITEMS}<div class=\"deployment-item\"><a href=\"$dir/\">Pull Request #$PR_NUM</a> <span class=\"deployment-type pr\">PR</span></div>"
+              fi
+            fi
+          done
+
+          # Use template and replace placeholder
+          cd ..
+          sed "s|<!-- DEPLOYMENTS_PLACEHOLDER -->|${DEPLOYMENT_ITEMS}|g" .github/workflows/index-template.html > gh-pages-branch/index.html
+
+      # Commit and push to gh-pages
+      - name: Deploy to GitHub Pages
+        run: |
+          cd gh-pages-branch
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+
+          if git diff --staged --quiet; then
+            echo "No changes to deploy"
+          else
+            git commit -m "Deploy ${{ env.DEPLOY_PATH }} from ${{ github.sha }}"
+            git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
+          fi
+
+      # Add comment to PR with deployment URL
+      - name: Comment PR with deployment URL
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const deployUrl = `https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${prNumber}/`;
+
+            const comment = `## 🗺️ Preview Deployment
+
+            Your map preview is ready!
+
+            🔗 **Preview URL:** ${deployUrl}
+
+            This deployment will be automatically cleaned up when the PR is closed.`;
+
+            // Check if we already commented
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Preview Deployment')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: comment
+              });
+            }

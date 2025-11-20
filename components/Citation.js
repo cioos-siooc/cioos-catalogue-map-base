@@ -37,7 +37,14 @@ export function Citation({ dataSetInfo, lang }) {
           setCitationHtml(null);
           return;
         }
-        setCitationURL(parsed_citation?.URL);
+
+        // Prioritize DOI, then fall back to URL
+        let url = parsed_citation?.URL;
+        if (parsed_citation?.DOI) {
+          url = `https://doi.org/${parsed_citation.DOI}`;
+        }
+        setCitationURL(url);
+
         const cite = new Cite(parsed_citation);
         // Format as a bibliography entry in APA style and output in HTML
         const formatted = cite.format("bibliography", {
@@ -77,18 +84,22 @@ export function Citation({ dataSetInfo, lang }) {
 
   return (
     <>
-      {citationHtml ? (
-        // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
-        <a
-          href={citationURL}
-          className="bg-primary-50 dark:bg-primary-800 relative mt-4 flex-shrink-0 rounded-md p-2 text-xs"
-        >
-          <SafeHTML content={citationHtml} />
-          <div className="absolute -top-4 flex flex-row items-center gap-1 rounded-md text-xs">
-            {t.citation} <GoLinkExternal />
-          </div>
-        </a>
-      ) : null}
+      {citationHtml && (
+        <div className="space-y-2 py-3">
+          <h3 className="text-sm font-semibold">{t.citation}</h3>
+          <a
+            href={citationURL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group bg-primary-50 hover:bg-primary-100 dark:bg-primary-800 dark:hover:bg-primary-700 flex items-start gap-2 rounded-md p-3 text-xs transition-colors"
+          >
+            <div className="flex-1">
+              <SafeHTML content={citationHtml} />
+            </div>
+            <GoLinkExternal className="mt-0.5 h-3 w-3 shrink-0 opacity-60" />
+          </a>
+        </div>
+      )}
     </>
   );
 }

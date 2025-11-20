@@ -1,7 +1,6 @@
 import SelectReact from "react-select";
 import makeAnimated from "react-select/animated";
 import { getLocale } from "@/app/get-locale";
-import colors from "tailwindcss/colors";
 
 export function SelectReactComponent({
   filter_type,
@@ -36,49 +35,38 @@ export function SelectReactComponent({
         hideSelectedOptions={false}
         menuPortalTarget={typeof window !== "undefined" ? document.body : null}
         menuPosition="fixed"
+        unstyled
         styles={{
-          menuPortal: (base) => ({
-            ...base,
-            zIndex: 9999,
-          }),
-          menu: (base) => ({
-            ...base,
-            backgroundColor:
-              typeof window !== "undefined" &&
-              window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? colors.slate[900]
-                : colors.white,
-            color:
-              typeof window !== "undefined" &&
-              window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? colors.gray[100]
-                : colors.black,
-          }),
-          option: (base, state) => ({
-            ...base,
-            backgroundColor: state.isFocused
-              ? typeof window !== "undefined" &&
-                window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? colors.slate[700]
-                : colors.blue[100]
-              : typeof window !== "undefined" &&
-                  window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? colors.slate[900]
-                : colors.white,
-            color:
-              typeof window !== "undefined" &&
-              window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? colors.gray[100]
-                : colors.black,
-          }),
-          multiValueRemove: (base) => ({
-            ...base,
-            color: colors.gray[600],
-            ":hover": {
-              backgroundColor: colors.slate[700],
-              color: colors.gray[400],
-            },
-          }),
+          menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+        }}
+        classNames={{
+          menu: () =>
+            "!bg-white dark:!bg-slate-900 !text-black dark:!text-gray-100 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mt-1 overflow-hidden",
+          menuList: () => "py-1 max-h-64 overflow-y-auto",
+          option: ({ isSelected, isFocused }) =>
+            `px-3 py-2 cursor-pointer transition-colors ${
+              isSelected
+                ? "bg-primary-100 dark:bg-primary-800"
+                : isFocused
+                  ? "bg-blue-100 dark:bg-slate-700"
+                  : "bg-white dark:bg-slate-900"
+            } hover:bg-primary-200 dark:hover:bg-primary-700`,
+          control: () =>
+            "!bg-gray-50 dark:!bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm",
+          multiValue: () =>
+            "bg-primary-100 dark:bg-primary-800 rounded items-center px-2 py-0.5 gap-1.5 flex",
+          multiValueLabel: () =>
+            "text-primary-800 dark:text-primary-100 text-sm leading-none p-1",
+          multiValueRemove: () =>
+            "text-gray-600 hover:bg-slate-700 hover:text-gray-400 rounded px-1 cursor-pointer",
+          placeholder: () => "text-gray-400 dark:text-gray-500 text-sm",
+          input: () => "text-black dark:text-white",
+          valueContainer: () => "gap-1 flex flex-wrap",
+          indicatorsContainer: () => "gap-1 flex",
+          clearIndicator: () =>
+            "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer p-1",
+          dropdownIndicator: () =>
+            "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer p-1",
         }}
       />
     </>

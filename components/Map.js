@@ -23,6 +23,7 @@ import {
   memo,
   useImperativeHandle,
   useMemo,
+  useState,
 } from "react";
 import L from "leaflet";
 import config from "@/app/config";
@@ -66,10 +67,16 @@ function fitBounds(newBounds, map) {
     const polygon = L.geoJSON(newBounds, { color: getPrimaryColor() }).addTo(
       map,
     );
+
+    // Check if screen is mobile (768px breakpoint)
+    const isMobile = window.innerWidth < 768;
+
     map.flyToBounds(polygon.getBounds(), {
       animate: true,
-      padding: [150, 250],
-      maxZoom: 10,
+      // Less padding on mobile for closer view
+      padding: isMobile ? [50, 50] : [150, 250],
+      // Higher max zoom on mobile for closer view
+      maxZoom: isMobile ? 13 : 10,
       duration: 0.3,
     });
   }
@@ -84,14 +91,19 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
     point = turf.pointOnFeature(record.spatial);
   }
 
-  const handleMarkerClick = (e) => {
-    removeLayer(e);
-    handleListItemClick(record);
-    openDrawer();
-  };
+  // Function to remove the polygon layer
+  function removeLayer(e) {
+    const map = e.target._map;
+    if (e.target._hoverPolygon) {
+      map.removeLayer(e.target._hoverPolygon);
+      e.target._hoverPolygon = null;
+    }
+  }
 
   const handleMouseOver = (e) => {
-    removeLayer(e);
+    // Only add polygon if it doesn't already exist
+    if (e.target._hoverPolygon) return;
+
     const map = e.target._map;
     const polygon = L.geoJSON(record.spatial, {
       style: {
@@ -110,14 +122,12 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
     // Remove the polygon layer when the mouse leaves the marker
     removeLayer(e);
   };
-  // Function to remove the polygon layer when the marker is removed
-  function removeLayer(e) {
-    const map = e.target._map;
-    if (e.target._hoverPolygon) {
-      map.removeLayer(e.target._hoverPolygon);
-      e.target._hoverPolygon = null;
-    }
-  }
+
+  const handleMarkerClick = (e) => {
+    removeLayer(e);
+    handleListItemClick(record);
+    openDrawer();
+  };
 
   return (
     <Marker
@@ -220,6 +230,91 @@ const Map = forwardRef(function Map(
       return `cluster-${filteredItems.length}`;
     }
   }, [filteredItems]);
+
+  // Calculate percentile thresholds for cluster coloring
+  const [clusterThresholds, setClusterThresholds] = useState({
+    p33: 10,
+    p66: 50,
+  });
+
+  // Update cluster thresholds when map or filteredItems change
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const calculateThresholds = () => {
+      if (!map || !map._layers) return;
+
+      const clusterCounts = [];
+
+      // Find the MarkerClusterGroup layer and get all cluster counts
+      Object.values(map._layers).forEach((layer) => {
+        if (
+          layer.getAllChildMarkers &&
+          typeof layer.getAllChildMarkers === "function"
+        ) {
+          // This is the cluster group layer
+          // Get visible clusters at current zoom
+          if (layer._featureGroup && layer._featureGroup._layers) {
+            Object.values(layer._featureGroup._layers).forEach(
+              (clusterOrMarker) => {
+                if (
+                  clusterOrMarker.getChildCount &&
+                  typeof clusterOrMarker.getChildCount === "function"
+                ) {
+                  clusterCounts.push(clusterOrMarker.getChildCount());
+                }
+              },
+            );
+          }
+        }
+      });
+
+      if (clusterCounts.length > 0) {
+        // Sort counts and calculate percentiles
+        clusterCounts.sort((a, b) => a - b);
+        const p33Index = Math.floor(clusterCounts.length * 0.33);
+        const p66Index = Math.floor(clusterCounts.length * 0.66);
+
+        setClusterThresholds({
+          p33: clusterCounts[p33Index] || clusterCounts[0],
+          p66:
+            clusterCounts[p66Index] || clusterCounts[clusterCounts.length - 1],
+        });
+      }
+    };
+
+    // Calculate thresholds on map events
+    map.on("zoomend moveend", calculateThresholds);
+
+    // Initial calculation
+    setTimeout(calculateThresholds, 100);
+
+    return () => {
+      map.off("zoomend moveend", calculateThresholds);
+    };
+  }, [filteredItems]);
+
+  // Custom icon creation function with percentile-based colors
+  const iconCreateFunction = useMemo(() => {
+    return (cluster) => {
+      const childCount = cluster.getChildCount();
+
+      // Assign class based on percentile thresholds
+      let className = "marker-cluster-small";
+      if (childCount >= clusterThresholds.p66) {
+        className = "marker-cluster-large";
+      } else if (childCount >= clusterThresholds.p33) {
+        className = "marker-cluster-medium";
+      }
+
+      return L.divIcon({
+        html: `<div><span>${childCount}</span></div>`,
+        className: `marker-cluster ${className}`,
+        iconSize: L.point(40, 40),
+      });
+    };
+  }, [clusterThresholds]);
   // Expose clearMapLayers to parent via ref
   useImperativeHandle(ref, () => ({
     clearMapLayers: () => {
@@ -229,7 +324,11 @@ const Map = forwardRef(function Map(
     },
     recenterToDefault: () => {
       if (mapRef.current) {
-        mapRef.current.setView(config.map.center, config.map.zoom);
+        if (config.map.default_bounds) {
+          mapRef.current.fitBounds(config.map.default_bounds);
+        } else {
+          mapRef.current.setView(config.map.center, config.map.zoom);
+        }
       }
     },
     updateBounds: (newBounds, setDatasetSpatial) => {
@@ -247,16 +346,19 @@ const Map = forwardRef(function Map(
   return (
     <MapContainer
       className="h-full w-full"
-      center={config.map.center}
+      center={config.map.default_bounds ? undefined : config.map.center}
       zoom={
-        typeof window !== "undefined" && window.innerWidth < 600
-          ? config.map.zoom_mobile
-          : config.map.zoom
+        config.map.default_bounds
+          ? undefined
+          : typeof window !== "undefined" && window.innerWidth < 1024
+            ? config.map.zoom_mobile
+            : config.map.zoom
       }
+      bounds={config.map.default_bounds}
       zoomControl={false}
       scrollWheelZoom={true}
       boundsOptions={{ padding: [1, 1] }}
-      attributionControl={true}
+      attributionControl={false}
       ref={mapRef}
       whenReady={(mapInstance) => {
         mapRef.current = mapInstance;
@@ -275,7 +377,10 @@ const Map = forwardRef(function Map(
         <Overlays overlays={config.overlays} lang={lang} />
         {bounds && <FitBounds key={bounds} bounds={bounds} />}
         <Overlay checked name={t.dataset_markers}>
-          <MarkerClusterGroup key={clusterKey}>
+          <MarkerClusterGroup
+            key={clusterKey}
+            iconCreateFunction={iconCreateFunction}
+          >
             {filteredItems.map((item) => (
               <DatasetMarker
                 key={item.id}
@@ -288,8 +393,88 @@ const Map = forwardRef(function Map(
           </MarkerClusterGroup>
         </Overlay>
       </LayersControl>
+      {/* Custom attribution toggle positioned near LayersControl (bottom-right) */}
+      <AttributionToggle />
     </MapContainer>
   );
 });
+
+// Attribution toggle component (no SSR dependencies beyond config)
+function AttributionToggle() {
+  const [hovered, setHovered] = useState(false);
+  const [attributions, setAttributions] = useState([]);
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+
+    const updateAttributions = () => {
+      const list = [];
+      try {
+        // Get active base layer attribution
+        for (const b of config.basemaps || []) {
+          const layer =
+            map._layers[
+              Object.keys(map._layers).find((key) => {
+                const l = map._layers[key];
+                return l.options && l.options.attribution === b.attribution;
+              })
+            ];
+          if (layer && map.hasLayer(layer) && b.attribution) {
+            list.push(b.attribution);
+            break; // Only one base layer should be active
+          }
+        }
+        // Get active overlay attributions
+        for (const o of config.overlays || []) {
+          const layer =
+            map._layers[
+              Object.keys(map._layers).find((key) => {
+                const l = map._layers[key];
+                return l.options && l.options.attribution === o.attribution;
+              })
+            ];
+          if (layer && map.hasLayer(layer) && o.attribution) {
+            list.push(o.attribution);
+          }
+        }
+      } catch {}
+      setAttributions([...new Set(list)]);
+    };
+
+    updateAttributions();
+
+    // Listen for layer add/remove events
+    map.on("layeradd layerremove", updateAttributions);
+
+    return () => {
+      map.off("layeradd layerremove", updateAttributions);
+    };
+  }, [map]);
+
+  if (!attributions.length) return null;
+  return (
+    <div
+      className="pointer-events-none absolute right-[64px] bottom-[20px] z-[600] flex flex-col items-end gap-2"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {hovered && (
+        <div className="pointer-events-auto max-h-40 w-64 overflow-y-auto rounded-md bg-black/40 p-2 text-[10px] leading-relaxed shadow-md backdrop-blur">
+          {attributions.map((a, i) => (
+            <div
+              key={i}
+              className="mb-1 last:mb-0"
+              dangerouslySetInnerHTML={{ __html: a }}
+            />
+          ))}
+        </div>
+      )}
+      <div className="bg-primary-500 dark:bg-primary-600 pointer-events-auto rounded-xl px-2 py-1 text-[11px] font-medium text-white shadow">
+        ?
+      </div>
+    </div>
+  );
+}
 
 export default Map;

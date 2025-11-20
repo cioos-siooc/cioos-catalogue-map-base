@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "node scripts/fetchCkanPackages.js && next build",
+    "build": "node -e \"process.env.SKIP_FETCH !== 'true' && require('child_process').execSync('node scripts/fetchCkanPackages.js', {stdio: 'inherit'})\" && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "flowbite-react patch",
@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@react-leaflet/core": "^3.0.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@turf/turf": "^7.2.0",
     "chroma-js": "^3.1.2",
     "citation-js": "^0.7.18",

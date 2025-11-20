@@ -5,7 +5,15 @@ base_query: ""
 map:
   center: [65, -110]
   zoom: 4
-  zoom_mobile: 5
+  # Mobile zoom level (optional) - used when screen width is less than 1024px
+  zoom_mobile: 2
+  # Default bounding box (optional) - defines the initial visible area on map load
+  # Format: [[south, west], [north, east]] (latitude, longitude)
+  # Example for Canada: [[48, -133], [70, -55]]
+  # If set, this will override center and zoom settings.
+  # This area will be fitted to the map view on initial load.
+  # Leave empty or comment out to use center/zoom instead
+  default_bounds: [[48, -133], [70, -55]]
 
 default_language: en
 
@@ -52,25 +60,25 @@ main_logo:
     lang: en
     mode: light
     alt: "CIOOS National"
-    className: "h-[75px] w-auto m-3"
+    # className: "h-[6vh] max-h-[65px] w-auto m-2"
     link: "https://cioos.ca"
   - url: "/Images/cioos-national_FR-01.png"
     lang: fr
     mode: light
     alt: "CIOOS National"
-    className: "h-[75px] w-auto m-3"
+    # className: "h-[6vh] max-h-[65px] w-auto m-2"
     link: "https://siooc.ca/fr"
   - url: "/Images/cioos-national_EN_W.svg"
     lang: en
     mode: dark
     alt: "CIOOS National"
-    className: "h-[75px] w-auto m-3"
+    # className: "h-[6vh] max-h-[65px] w-auto m-2"
     link: "https://cioos.ca"
   - url: "/Images/cioos-national_FR_W.svg"
     lang: fr
     mode: dark
     alt: "CIOOS National"
-    className: "h-[75px] w-auto m-3"
+    # className: "h-[6vh] max-h-[65px] w-auto m-2"
     link: "https://siooc.ca/fr"
 
 # bottom_logo: Specifies the footer or secondary logo,
@@ -80,23 +88,23 @@ bottom_logo:
   #   lang: en
   #   mode: light
   #   alt: "CIOOS National"
-  #   className: "max-h-[75px] h-auto m-3"
+  #   className: "h-[6vh] max-h-[50px] w-auto m-2"
   #   link: "/"
   # - url: "/Images/cioos-national_FR-01.png"
   #   lang: fr
   #   mode: light
   #   alt: "CIOOS National"
-  #   className: "max-h-[75px] h-auto m-3"
+  #   className: "h-[6vh] max-h-[50px] w-auto m-2"
   # - url: "/Images/cioos-national_EN_W.svg"
   #   lang: en
   #   mode: dark
   #   alt: "CIOOS National"
-  #   className: "max-h-[75px] h-auto m-3"
+  #   className: "h-[6vh] max-h-[50px] w-auto m-2"
   # - url: "/Images/cioos-national_FR_W.svg"
   #   lang: fr
   #   mode: dark
   #   alt: "CIOOS National"
-  #   className: "max-h-[75px] h-auto m-3"
+  #   className: "h-[6vh] max-h-[50px] w-auto m-2"
 
 basemaps:
   - name:

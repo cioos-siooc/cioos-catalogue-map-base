@@ -64,22 +64,18 @@ function AppContent({ lang, setLang }) {
   const [allItems, setAllItems] = useState([]); // Store the full list
   const [badges, setBadges] = useState({}); // Store current filters
   const [selectedDateFilterOption, setSelectedDateFilterOption] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [translatedEovList, setTranslatedEovList] = useState([]);
   const [datasetSpatial, setDatasetSpatial] = useState(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [aboutPageIndex, setAboutPageIndex] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
   const mapRef = useRef();
   const { isDrawerOpen, openDrawer, closeDrawer } = useDrawer();
-
-  // if window is greater than 600px, set isSidebarOpen to true
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth > 600) {
-      setIsSidebarOpen(true);
-    }
-  }, []);
+  const hasSidebarInitialized = useRef(false);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("preferredLanguage");
@@ -88,6 +84,23 @@ function AppContent({ lang, setLang }) {
       savedLanguage || browserLanguage || config.default_language;
     setLang(initialLanguage);
   }, [setLang]);
+
+  // Open sidebar on large screens on initial load
+  useEffect(() => {
+    const handleResize = () => {
+      if (typeof window !== "undefined") {
+        const isLargeScreen = window.innerWidth >= 1024; // lg breakpoint
+        setIsSidebarOpen(isLargeScreen);
+      }
+    };
+
+    // Set initial state on mount
+    handleResize();
+
+    // Add resize listener to handle window resize
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -128,6 +141,16 @@ function AppContent({ lang, setLang }) {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Open sidebar on large screens immediately after mount
+  useEffect(() => {
+    if (!hasSidebarInitialized.current) {
+      hasSidebarInitialized.current = true;
+      if (window.innerWidth >= 1024) {
+        setIsSidebarOpen(true);
+      }
+    }
+  }, []);
 
   // When badges or allItems change, update filteredItems
   useEffect(() => {
@@ -275,9 +298,22 @@ function AppContent({ lang, setLang }) {
 
   return (
     <>
-      <div className="relative flex h-screen overflow-hidden">
+      <div className="relative flex h-dvh flex-col overflow-hidden lg:flex-row">
+        {/* Top Banner - Above map on mobile, inside sidebar on desktop */}
+        <div className="bg-primary-50 dark:bg-primary-800 z-35 order-1 w-full lg:hidden">
+          <TopBanner
+            lang={lang}
+            setLang={setLang}
+            toggleSidebar={toggleSidebar}
+            isSidebarOpen={isSidebarOpen}
+            onFilterClick={() => setFilterOpen(!filterOpen)}
+            onAboutClick={() => setAboutPageIndex(0)}
+          />
+        </div>
+
+        {/* Sidebar */}
         <div
-          className={`absolute inset-y-0 left-0 w-90 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? "translate-x-0" : "w-0 -translate-x-full"} z-30`}
+          className={`absolute inset-y-0 left-0 overflow-hidden transition-all duration-300 ease-in-out ${isSidebarOpen ? "w-full translate-x-0 lg:w-90" : "w-full -translate-x-full lg:w-90 lg:-translate-x-90"} z-30`}
         >
           <Sidebar
             filteredItems={filteredItems}
@@ -297,19 +333,27 @@ function AppContent({ lang, setLang }) {
             setSelectedDateFilterOption={setSelectedDateFilterOption}
             toggleSidebar={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
+            filterOpen={filterOpen}
+            setFilterOpen={setFilterOpen}
+            aboutPageIndex={aboutPageIndex}
+            setAboutPageIndex={setAboutPageIndex}
           />
         </div>
-        <div className="absolute top-0 left-0 z-35">
+
+        {/* Top Banner - Desktop only - shown when sidebar is closed */}
+        <div className="bg-primary-50 dark:bg-primary-800 absolute top-0 left-0 z-40 mt-2 hidden w-90 rounded-r-3xl lg:block">
           <TopBanner
             lang={lang}
             setLang={setLang}
             toggleSidebar={toggleSidebar}
             isSidebarOpen={isSidebarOpen}
+            onFilterClick={() => setFilterOpen(!filterOpen)}
+            onAboutClick={() => setAboutPageIndex(0)}
           />
         </div>
-        <main
-          className={`relative z-20 flex-1 transform transition-transform duration-300 ease-in-out`}
-        >
+
+        {/* Main content area */}
+        <main className={`relative z-20 order-2 w-full flex-1 lg:order-3`}>
           <MapComponent
             bounds={bounds}
             filteredItems={filteredItems}
@@ -321,7 +365,7 @@ function AppContent({ lang, setLang }) {
         {isDrawerOpen && dataSetInfo && (
           <DatasetDetails dataSetInfo={dataSetInfo} lang={lang} />
         )}
-        <div className="bg-primary-50 dark:bg-primary-800 absolute bottom-0 left-0 z-25 flex w-90 items-center justify-center rounded-tr-xl pt-2 opacity-50">
+        <div className="justify-left absolute bottom-0 left-0 z-25 ml-2 flex w-90 items-center pt-2">
           <Logo logos={config.bottom_logo} lang={lang} default_width={220} />
         </div>
       </div>

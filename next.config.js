@@ -57,9 +57,13 @@ copyFavicon();
 // Generate theme colors
 generateTheme();
 
-// Determine base path from GitHub repository (if any)
-const githubRepository = process.env.GITHUB_REPOSITORY;
-const basePath = githubRepository ? `/${githubRepository.split("/")[1]}` : "";
+// Determine base path from environment variable (set by GitHub Actions) or GitHub repository
+// Priority: BASE_PATH env var > GITHUB_REPOSITORY
+const basePath =
+  process.env.BASE_PATH ||
+  (process.env.GITHUB_REPOSITORY
+    ? `/${process.env.GITHUB_REPOSITORY.split("/")[1]}`
+    : "");
 
 // Run markdown page existence check before build
 try {
@@ -77,5 +81,6 @@ module.exports = withFlowbiteReact({
   env: {
     CONFIG: JSON.stringify(config),
     BASE_PATH: basePath,
+    NEXT_PUBLIC_BASE_PATH: basePath,
   },
 });
