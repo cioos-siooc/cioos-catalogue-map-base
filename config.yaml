@@ -13,7 +13,7 @@ map:
   # If set, this will override center and zoom settings.
   # This area will be fitted to the map view on initial load.
   # Leave empty or comment out to use center/zoom instead
-  default_bounds: [[48, -133], [70, -55]]
+  # default_bounds: [[48, -133], [70, -55]]
 
 default_language: en
 
