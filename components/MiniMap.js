@@ -37,15 +37,6 @@ function FitBoundsToGeoJSON({ spatial }) {
 }
 
 export function MiniMap({ spatial, className = "" }) {
-  // Get primary color from CSS variables
-  const getPrimaryColor = () => {
-    if (typeof window === "undefined") return "#0891b2";
-    const primaryColor = getComputedStyle(document.documentElement)
-      .getPropertyValue("--color-primary-500")
-      .trim();
-    return primaryColor || "#0891b2";
-  };
-
   // Calculate initial center from spatial data
   const initialBounds = useMemo(() => {
     if (!spatial) return null;
@@ -65,7 +56,18 @@ export function MiniMap({ spatial, className = "" }) {
   // Validate spatial data and bounds - early returns after all hooks
   if (!spatial || !initialBounds) return null;
 
+  // Only render on client side to avoid SSR issues
+  if (typeof window === "undefined") return null;
+
   const center = initialBounds.getCenter();
+
+  // Get primary color from CSS variables
+  const getPrimaryColor = () => {
+    const primaryColor = getComputedStyle(document.documentElement)
+      .getPropertyValue("--color-primary-500")
+      .trim();
+    return primaryColor || "#0891b2";
+  };
 
   return (
     <div className={`relative overflow-hidden rounded-md ${className}`}>
