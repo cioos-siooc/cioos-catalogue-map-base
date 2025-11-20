@@ -14,6 +14,9 @@ Once in the container:
 2. Run project in development mode: `npm run dev`
 3. Test Static Deployment: `npm build`
 4. Static Deployment should be available under the `out` directory. You can then use either an extension like LiveServer to
+## Configuration
+
+For a detail documentation of the possible configuration, see [CONFIG.md](CONFIG.md).
 
 ## Continous Integration
 
