@@ -91,14 +91,19 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
     point = turf.pointOnFeature(record.spatial);
   }
 
-  const handleMarkerClick = (e) => {
-    removeLayer(e);
-    handleListItemClick(record);
-    openDrawer();
-  };
+  // Function to remove the polygon layer
+  function removeLayer(e) {
+    const map = e.target._map;
+    if (e.target._hoverPolygon) {
+      map.removeLayer(e.target._hoverPolygon);
+      e.target._hoverPolygon = null;
+    }
+  }
 
   const handleMouseOver = (e) => {
-    removeLayer(e);
+    // Only add polygon if it doesn't already exist
+    if (e.target._hoverPolygon) return;
+
     const map = e.target._map;
     const polygon = L.geoJSON(record.spatial, {
       style: {
@@ -117,14 +122,12 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
     // Remove the polygon layer when the mouse leaves the marker
     removeLayer(e);
   };
-  // Function to remove the polygon layer when the marker is removed
-  function removeLayer(e) {
-    const map = e.target._map;
-    if (e.target._hoverPolygon) {
-      map.removeLayer(e.target._hoverPolygon);
-      e.target._hoverPolygon = null;
-    }
-  }
+
+  const handleMarkerClick = (e) => {
+    removeLayer(e);
+    handleListItemClick(record);
+    openDrawer();
+  };
 
   return (
     <Marker
@@ -227,6 +230,91 @@ const Map = forwardRef(function Map(
       return `cluster-${filteredItems.length}`;
     }
   }, [filteredItems]);
+
+  // Calculate percentile thresholds for cluster coloring
+  const [clusterThresholds, setClusterThresholds] = useState({
+    p33: 10,
+    p66: 50,
+  });
+
+  // Update cluster thresholds when map or filteredItems change
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const calculateThresholds = () => {
+      if (!map || !map._layers) return;
+
+      const clusterCounts = [];
+
+      // Find the MarkerClusterGroup layer and get all cluster counts
+      Object.values(map._layers).forEach((layer) => {
+        if (
+          layer.getAllChildMarkers &&
+          typeof layer.getAllChildMarkers === "function"
+        ) {
+          // This is the cluster group layer
+          // Get visible clusters at current zoom
+          if (layer._featureGroup && layer._featureGroup._layers) {
+            Object.values(layer._featureGroup._layers).forEach(
+              (clusterOrMarker) => {
+                if (
+                  clusterOrMarker.getChildCount &&
+                  typeof clusterOrMarker.getChildCount === "function"
+                ) {
+                  clusterCounts.push(clusterOrMarker.getChildCount());
+                }
+              },
+            );
+          }
+        }
+      });
+
+      if (clusterCounts.length > 0) {
+        // Sort counts and calculate percentiles
+        clusterCounts.sort((a, b) => a - b);
+        const p33Index = Math.floor(clusterCounts.length * 0.33);
+        const p66Index = Math.floor(clusterCounts.length * 0.66);
+
+        setClusterThresholds({
+          p33: clusterCounts[p33Index] || clusterCounts[0],
+          p66:
+            clusterCounts[p66Index] || clusterCounts[clusterCounts.length - 1],
+        });
+      }
+    };
+
+    // Calculate thresholds on map events
+    map.on("zoomend moveend", calculateThresholds);
+
+    // Initial calculation
+    setTimeout(calculateThresholds, 100);
+
+    return () => {
+      map.off("zoomend moveend", calculateThresholds);
+    };
+  }, [filteredItems]);
+
+  // Custom icon creation function with percentile-based colors
+  const iconCreateFunction = useMemo(() => {
+    return (cluster) => {
+      const childCount = cluster.getChildCount();
+
+      // Assign class based on percentile thresholds
+      let className = "marker-cluster-small";
+      if (childCount >= clusterThresholds.p66) {
+        className = "marker-cluster-large";
+      } else if (childCount >= clusterThresholds.p33) {
+        className = "marker-cluster-medium";
+      }
+
+      return L.divIcon({
+        html: `<div><span>${childCount}</span></div>`,
+        className: `marker-cluster ${className}`,
+        iconSize: L.point(40, 40),
+      });
+    };
+  }, [clusterThresholds]);
   // Expose clearMapLayers to parent via ref
   useImperativeHandle(ref, () => ({
     clearMapLayers: () => {
@@ -289,7 +377,10 @@ const Map = forwardRef(function Map(
         <Overlays overlays={config.overlays} lang={lang} />
         {bounds && <FitBounds key={bounds} bounds={bounds} />}
         <Overlay checked name={t.dataset_markers}>
-          <MarkerClusterGroup key={clusterKey}>
+          <MarkerClusterGroup
+            key={clusterKey}
+            iconCreateFunction={iconCreateFunction}
+          >
             {filteredItems.map((item) => (
               <DatasetMarker
                 key={item.id}

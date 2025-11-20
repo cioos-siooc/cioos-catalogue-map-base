@@ -1,6 +1,6 @@
 "use client";
 
-import { Drawer, DrawerHeader, DrawerItems } from "flowbite-react";
+import { Drawer, DrawerItems } from "flowbite-react";
 import { DrawerContext } from "../app/context/DrawerContext";
 import Image from "next/image";
 import { parseCitation, Citation } from "@/components/Citation";
@@ -11,35 +11,42 @@ import DOMPurify from "dompurify";
 import { IoMdClose } from "react-icons/io";
 import { GoLinkExternal } from "react-icons/go";
 import { marked } from "marked";
+import dynamic from "next/dynamic";
 
-/**
- * Converts Markdown to HTML (basic implementation).
- * @param {string} markdown - The Markdown input text.
- * @returns {string} The converted HTML string.
- */
+// Dynamically import MiniMap to avoid SSR issues with Leaflet
+const MiniMap = dynamic(
+  () => import("@/components/MiniMap").then((mod) => mod.MiniMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[200px] w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-700" />
+    ),
+  },
+);
 
-function Item({ label, value, href, className = "" }) {
+function MetadataItem({ label, value, href, className = "" }) {
   if (!value) return null;
+
   return (
-    <div className="group flex flex-row gap-2">
-      {label ? <span>{label}:</span> : null}
+    <div
+      className={`flex items-start gap-1 text-xs font-semibold wrap-normal ${className}`}
+    >
+      {label && (
+        <span className="text-gray-700 dark:text-gray-300">{label}:</span>
+      )}
       {href ? (
         <a
           href={href}
           target="_blank"
-          className={`hover:underline ${className}`}
+          rel="noopener noreferrer"
+          className="hover:text-primary-600 dark:hover:text-primary-400 group inline-flex items-center gap-1 text-black hover:underline dark:text-white"
+          title={value}
         >
           {value}
-          <span className="ml-1 inline-flex h-2 w-2 items-baseline">
-            <GoLinkExternal />
-          </span>
+          <GoLinkExternal className="h-3 w-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-70" />
         </a>
       ) : (
-        <span
-          className={`flex flex-row items-center gap-1 hover:underline ${className}`}
-        >
-          {value}
-        </span>
+        <span className="text-black dark:text-white">{value}</span>
       )}
     </div>
   );
@@ -87,154 +94,199 @@ export function DatasetDetails({ dataSetInfo, lang }) {
       onClose={closeDrawer}
       position="right"
       backdrop={false}
-      className="bg-primary-50/50 dark:bg-primary-800/50 h-screen w-screen backdrop-blur-sm md:w-96 dark:text-white"
+      className="bg-primary-50/50 dark:bg-primary-800/50 h-[100dvh] w-screen px-0 py-1 backdrop-blur-sm md:w-96 dark:text-white"
     >
-      <DrawerItems className="custom-scrollbar flex h-full flex-grow flex-col overflow-y-auto">
+      <DrawerItems className="flex h-full flex-grow flex-col overflow-y-auto px-4">
         <button
-          className="absolute top-0 right-0 z-10 p-4"
+          className="absolute top-0 right-0 z-10 p-1"
           onClick={closeDrawer}
           aria-label="Close Dataset Details"
           title="Close Dataset Details"
         >
           <IoMdClose className="text-3xl" />
         </button>
-        <div id="top" className="flex-shrink-0 pr-12">
-          {dataSetInfo && dataSetInfo.organization ? (
+
+        {/* Header Section */}
+        <div className="shrink-0 space-y-2">
+          {/* Organization Logo */}
+          {dataSetInfo?.organization &&
             (() => {
               const img = resolveOrgImage(dataSetInfo, lang);
-              return img ? (
-                <Image
-                  className="max-h-40 w-auto max-w-[300px] rounded-sm bg-white p-1"
-                  src={img}
-                  alt="Organization Logo"
-                  width={0}
-                  height={40}
-                />
-              ) : (
-                <p>No image available</p>
+              return (
+                img && (
+                  <Image
+                    className="max-h-40 w-auto max-w-xs rounded-sm bg-white p-1"
+                    src={img}
+                    alt={`${dataSetInfo.organization.title_translated[lang]} logo`}
+                    width={0}
+                    height={160}
+                  />
+                )
               );
-            })()
-          ) : (
-            <p>No image available</p>
-          )}
-          <div className="mt-4 flex flex-col gap-1">
-            <Item
-              value={dataSetInfo?.title_translated[lang]}
-              href={citation?.URL}
-              className="text-md font-bold"
-            />
-            <div className="text-xs">
-              <Item
-                value={dataSetInfo?.organization.title_translated[lang]}
+            })()}
+
+          {/* Dataset Title */}
+          <h2 className="text-base font-bold text-black dark:text-white">
+            {dataSetInfo?.title_translated[lang]}
+          </h2>
+
+          {/* Metadata Section */}
+          <div className="bg-primary-50 dark:bg-primary-800 space-y-1 rounded-md p-2 text-xs">
+            {dataSetInfo?.organization && (
+              <MetadataItem
+                label={t.organization || "Organization"}
+                value={dataSetInfo.organization.title_translated[lang]}
                 href={add_base_url(
                   dataSetInfo?.organization?.external_home_url,
                 )}
               />
-              <hr className="my-1 border-gray-800 dark:border-gray-200" />
-              <Item
-                label={t.source}
-                value={citation?.URL.replace(/^https?:\/\//, "").split("/")[0]}
-                href={citation?.URL}
+            )}
+            {dataSetInfo?.name && (
+              <MetadataItem
+                label="Catalogue"
+                value={
+                  config.catalogue_url.replace(/^https?:\/\//, "").split("/")[0]
+                }
+                href={`${config.catalogue_url}/dataset/${dataSetInfo.name}?local=${lang}`}
               />
-              <Item
-                label={t.license}
-                value={dataSetInfo?.license_title}
+            )}
+            {(() => {
+              const originDomain = citation?.URL?.replace(
+                /^https?:\/\//,
+                "",
+              ).split("/")[0];
+              const catalogueDomain = config.catalogue_url
+                .replace(/^https?:\/\//, "")
+                .split("/")[0];
+              return (
+                originDomain &&
+                originDomain !== catalogueDomain && (
+                  <MetadataItem
+                    label="Origin"
+                    value={originDomain}
+                    href={citation?.URL}
+                  />
+                )
+              );
+            })()}
+            {citation?.DOI && (
+              <MetadataItem
+                label="DOI"
+                value={citation.DOI}
+                href={`https://doi.org/${citation.DOI}`}
+              />
+            )}
+            {dataSetInfo?.license_title && (
+              <MetadataItem
+                label={t.license || "License"}
+                value={dataSetInfo.license_title}
                 href={dataSetInfo?.license_url}
               />
-              <Item
-                label="DOI"
-                value={citation?.DOI}
-                href={`https://doi.org/${citation?.DOI}`}
-              />
-            </div>
+            )}
           </div>
-
-          {/* View in Catalogue Button */}
-          <a
-            href={`${config.catalogue_url}/dataset/${dataSetInfo?.name}?local=${lang}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 mt-4 flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
-          >
-            {t.view_in_catalogue}
-            <GoLinkExternal className="h-4 w-4" />
-          </a>
         </div>
 
-        <div
-          className="prose prose-sm dark:prose-invert relative mt-4 mb-4 max-w-none flex-grow text-black dark:text-white"
-          id="dataset-description"
-          dangerouslySetInnerHTML={{ __html: describtion_html }}
-        ></div>
+        {/* View in Catalogue Button */}
+        {dataSetInfo?.name && (
+          <div className="shrink-0 py-3">
+            <a
+              href={`${config.catalogue_url}/dataset/${dataSetInfo.name}?local=${lang}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 group flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors"
+            >
+              {t.view_in_catalogue || "View in Catalogue"}
+              <GoLinkExternal className="h-4 w-4 shrink-0" />
+            </a>
+          </div>
+        )}
+
+        {/* Spatial Coverage Map - Only show on mobile/full width */}
+        {dataSetInfo?.spatial && (
+          <div className="shrink-0 space-y-2 py-3 md:hidden">
+            <h3 className="text-sm font-semibold">
+              {t.spatial || "Spatial Coverage"}
+            </h3>
+            <MiniMap spatial={dataSetInfo.spatial} className="h-[200px]" />
+          </div>
+        )}
+
+        {/* Description Section */}
+        <div className="space-y-2 py-3">
+          <h3 className="text-sm font-semibold">
+            {t.description || "Description"}
+          </h3>
+          <div
+            className="prose prose-sm dark:prose-invert max-w-none text-sm text-black dark:text-white"
+            id="dataset-description"
+            dangerouslySetInnerHTML={{ __html: describtion_html }}
+          ></div>
+        </div>
 
         {/* Resources Section */}
-        {dataSetInfo?.resources && dataSetInfo.resources.length > 0 && (
-          <div className="mb-4">
-            <h3 className="mb-2 text-sm font-semibold">{t.resources}</h3>
-            <div className="flex flex-col gap-2">
-              {(() => {
-                // Filter resources to show only current language or language-neutral ones
-                const filteredResources = dataSetInfo.resources.filter(
-                  (resource) => {
-                    // If resource has no language field, include it
-                    if (!resource.language) return true;
-                    // If resource language matches current language, include it
-                    if (Array.isArray(resource.language)) {
-                      return resource.language.includes(lang);
-                    }
-                    return resource.language === lang;
-                  },
-                );
+        {dataSetInfo?.resources &&
+          dataSetInfo.resources.length > 0 &&
+          (() => {
+            // Filter resources to show only current language or language-neutral ones
+            const filteredResources = dataSetInfo.resources.filter(
+              (resource) => {
+                if (!resource.language) return true;
+                if (Array.isArray(resource.language)) {
+                  return resource.language.includes(lang);
+                }
+                return resource.language === lang;
+              },
+            );
 
-                // Deduplicate resources by URL
-                const uniqueResources = [];
-                const seenUrls = new Set();
-                filteredResources.forEach((resource) => {
-                  if (!seenUrls.has(resource.url)) {
-                    seenUrls.add(resource.url);
-                    uniqueResources.push(resource);
-                  }
-                });
+            // Deduplicate resources by URL
+            const uniqueResources = [];
+            const seenUrls = new Set();
+            filteredResources.forEach((resource) => {
+              if (!seenUrls.has(resource.url)) {
+                seenUrls.add(resource.url);
+                uniqueResources.push(resource);
+              }
+            });
 
-                return uniqueResources.map((resource, index) => {
-                  const resourceName =
-                    resource.name_translated?.[lang] || resource.name;
-                  const resourceDesc =
-                    resource.description_translated?.[lang] ||
-                    resource.description;
-                  return (
-                    <a
-                      key={resource.id || index}
-                      href={resource.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-primary-50 dark:bg-primary-800 group hover:bg-primary-100 dark:hover:bg-primary-700 flex flex-col gap-1 rounded-md p-2 text-xs transition-all"
-                    >
-                      <div className="flex items-start justify-between gap-2">
+            return uniqueResources.length > 0 ? (
+              <div className="space-y-2 py-3">
+                <h3 className="text-sm font-semibold">{t.resources}</h3>
+                <div className="flex flex-col gap-2">
+                  {uniqueResources.map((resource, index) => {
+                    const resourceName =
+                      resource.name_translated?.[lang] || resource.name;
+                    const resourceDesc =
+                      resource.description_translated?.[lang] ||
+                      resource.description;
+                    return (
+                      <a
+                        key={resource.id || index}
+                        href={resource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group bg-primary-50 hover:bg-primary-100 dark:bg-primary-800 dark:hover:bg-primary-700 flex items-start gap-2 rounded-md p-2 text-xs transition-colors"
+                      >
                         <div className="flex-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <span className="font-medium">{resourceName}</span>
                             {resource.format && (
-                              <span className="bg-primary-100 dark:bg-primary-700 rounded px-1.5 py-0.5 text-xs font-medium">
+                              <span className="bg-primary-100 dark:bg-primary-700 rounded px-2 py-0.5 text-xs font-medium">
                                 {resource.format}
                               </span>
                             )}
                           </div>
                           {resourceDesc && (
-                            <p className="mt-1 text-xs opacity-80">
-                              {resourceDesc}
-                            </p>
+                            <p className="mt-1 opacity-75">{resourceDesc}</p>
                           )}
                         </div>
-                        <GoLinkExternal className="mt-0.5 h-3 w-3 flex-shrink-0 opacity-60" />
-                      </div>
-                    </a>
-                  );
-                });
-              })()}
-            </div>
-          </div>
-        )}
+                        <GoLinkExternal className="mt-0.5 h-3 w-3 shrink-0 opacity-60" />
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null;
+          })()}
 
         <Citation dataSetInfo={dataSetInfo} lang={lang} />
       </DrawerItems>
