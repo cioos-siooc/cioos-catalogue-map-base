@@ -8,6 +8,7 @@ import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Sidebar, TopBanner } from "@/components/LeftMenu";
 import { DatasetDetails } from "@/components/DatasetDetails";
+import { Banner } from "@/components/Banner";
 import Logo from "@/components/Logo";
 import dynamic from "next/dynamic";
 import React from "react";
@@ -298,6 +299,9 @@ function AppContent({ lang, setLang }) {
 
   return (
     <>
+      {/* Temporary Banner - Appears above everything when enabled */}
+      <Banner lang={lang} />
+
       <div className="relative flex h-dvh flex-col overflow-hidden lg:flex-row">
         {/* Top Banner - Above map on mobile, inside sidebar on desktop */}
         <div className="bg-primary-50 dark:bg-primary-800 z-35 order-1 w-full lg:hidden">
