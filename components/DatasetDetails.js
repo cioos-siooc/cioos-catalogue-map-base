@@ -11,6 +11,7 @@ import DOMPurify from "dompurify";
 import { IoMdClose } from "react-icons/io";
 import { GoLinkExternal } from "react-icons/go";
 import { marked } from "marked";
+import { MiniMap } from "@/components/MiniMap";
 
 function MetadataItem({ label, value, href, className = "" }) {
   if (!value) return null;
@@ -186,6 +187,16 @@ export function DatasetDetails({ dataSetInfo, lang }) {
               {t.view_in_catalogue || "View in Catalogue"}
               <GoLinkExternal className="h-4 w-4 shrink-0" />
             </a>
+          </div>
+        )}
+
+        {/* Spatial Coverage Map - Only show on mobile/full width */}
+        {dataSetInfo?.spatial && (
+          <div className="shrink-0 space-y-2 py-3 md:hidden">
+            <h3 className="text-sm font-semibold">
+              {t.spatial || "Spatial Coverage"}
+            </h3>
+            <MiniMap spatial={dataSetInfo.spatial} className="h-[200px]" />
           </div>
         )}
 
