@@ -77,20 +77,22 @@ export function Citation({ dataSetInfo, lang }) {
 
   return (
     <>
-      {citationHtml ? (
-        // The citation is returned as HTML, so we use dangerouslySetInnerHTML to render it.
-        <>
-          <h3 className="mb-2 flex flex-row items-center gap-2 text-sm font-semibold">
-            {t.citation} <GoLinkExternal />
-          </h3>
+      {citationHtml && (
+        <div className="space-y-2 py-3">
+          <h3 className="text-sm font-semibold">{t.citation}</h3>
           <a
             href={citationURL}
-            className="bg-primary-50 dark:bg-primary-800 relative flex-shrink-0 rounded-md p-2 text-xs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group bg-primary-50 hover:bg-primary-100 dark:bg-primary-800 dark:hover:bg-primary-700 flex items-start gap-2 rounded-md p-3 text-xs transition-colors"
           >
-            <SafeHTML content={citationHtml} />
+            <div className="flex-1">
+              <SafeHTML content={citationHtml} />
+            </div>
+            <GoLinkExternal className="mt-0.5 h-3 w-3 shrink-0 opacity-60" />
           </a>
-        </>
-      ) : null}
+        </div>
+      )}
     </>
   );
 }
