@@ -82,7 +82,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
       onClose={closeDrawer}
       position="right"
       backdrop={false}
-      className="bg-primary-50/50 dark:bg-primary-800/50 h-screen w-screen px-0 py-1 backdrop-blur-sm md:w-96 dark:text-white"
+      className="bg-primary-50/50 dark:bg-primary-800/50 h-[100dvh] w-screen px-0 py-1 backdrop-blur-sm md:w-96 dark:text-white"
     >
       <DrawerItems className="flex h-full flex-grow flex-col overflow-y-auto px-4">
         <button
