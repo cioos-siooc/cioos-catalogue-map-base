@@ -82,11 +82,11 @@ export function DatasetDetails({ dataSetInfo, lang }) {
       onClose={closeDrawer}
       position="right"
       backdrop={false}
-      className="bg-primary-50/50 dark:bg-primary-800/50 h-screen w-screen backdrop-blur-sm md:w-96 dark:text-white"
+      className="bg-primary-50/50 dark:bg-primary-800/50 h-screen w-screen px-0 py-1 backdrop-blur-sm md:w-96 dark:text-white"
     >
-      <DrawerItems className="custom-scrollbar flex h-full flex-grow flex-col overflow-y-auto">
+      <DrawerItems className="flex h-full flex-grow flex-col overflow-y-auto px-4">
         <button
-          className="absolute top-0 right-0 z-10 p-4"
+          className="absolute top-0 right-0 z-10 p-1"
           onClick={closeDrawer}
           aria-label="Close Dataset Details"
           title="Close Dataset Details"
