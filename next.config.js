@@ -58,12 +58,46 @@ copyFavicon();
 generateTheme();
 
 // Determine base path from environment variable (set by GitHub Actions) or GitHub repository
-// Priority: BASE_PATH env var > GITHUB_REPOSITORY
-const basePath =
-  process.env.BASE_PATH ||
-  (process.env.GITHUB_REPOSITORY
-    ? `/${process.env.GITHUB_REPOSITORY.split("/")[1]}`
-    : "");
+// Priority: BASE_PATH env var > GITHUB_PAGES_URL > GITHUB_REPOSITORY
+let basePath = process.env.BASE_PATH;
+
+if (!basePath && process.env.GITHUB_PAGES_URL) {
+  // Extract base path from GitHub Pages URL
+  // Examples:
+  //   - https://username.github.io/repo-name/ -> /repo-name (subdomain deployment)
+  //   - https://cataloguemap.cioos.ca/ -> "" (custom domain - no basePath)
+  try {
+    const pagesUrl = new URL(process.env.GITHUB_PAGES_URL);
+
+    // Only use basePath if it's a github.io subdomain deployment
+    // Custom domains should have empty basePath
+    if (pagesUrl.hostname.endsWith(".github.io")) {
+      basePath = pagesUrl.pathname.replace(/\/$/, ""); // Remove trailing slash
+      console.log(`GitHub.io subdomain detected - basePath: ${basePath}`);
+    } else {
+      // Custom domain - no basePath needed
+      basePath = "";
+      console.log(
+        `Custom domain detected (${pagesUrl.hostname}) - basePath: <empty>`,
+      );
+    }
+  } catch (e) {
+    console.warn("Failed to parse GITHUB_PAGES_URL:", e);
+  }
+}
+
+if (!basePath && process.env.GITHUB_REPOSITORY) {
+  basePath = `/${process.env.GITHUB_REPOSITORY.split("/")[1]}`;
+  console.log(`Using GITHUB_REPOSITORY fallback - basePath: ${basePath}`);
+}
+
+basePath = basePath || "";
+
+if (basePath) {
+  console.log(`Final basePath configuration: ${basePath}`);
+} else {
+  console.log("Final basePath configuration: <empty> (root deployment)");
+}
 
 // Run markdown page existence check before build
 try {

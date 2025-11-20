@@ -40,9 +40,35 @@ runs:
       run: npm run lint
       shell: bash
 
+    - name: Detect GitHub Pages domain
+      id: pages-domain
+      shell: bash
+      run: |
+        # Retrieve the GitHub Pages domain
+        PAGES_URL=$(gh api repos/${{ github.repository }}/pages --jq '.html_url' 2>/dev/null || echo "")
+
+        if [ -n "$PAGES_URL" ]; then
+          echo "GITHUB_PAGES_URL=$PAGES_URL" >> $GITHUB_ENV
+          echo "GitHub Pages URL detected: $PAGES_URL"
+
+          # Detect if this is a custom domain or github.io subdomain
+          if echo "$PAGES_URL" | grep -q "\.github\.io/"; then
+            echo "Deployment type: GitHub Pages subdomain (with repository path)"
+          else
+            echo "Deployment type: Custom domain"
+          fi
+        else
+          echo "Warning: Unable to retrieve GitHub Pages URL from API"
+          echo "The build will proceed using fallback logic (GITHUB_REPOSITORY)"
+        fi
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+
     - name: Build Static Files
       run: npm run build
       shell: bash
+      env:
+        GITHUB_PAGES_URL: ${{ env.GITHUB_PAGES_URL }}
     
     - name: Setup Pages
       uses: actions/configure-pages@v5
