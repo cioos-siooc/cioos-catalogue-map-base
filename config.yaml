@@ -22,6 +22,20 @@ title:
   en:
   fr:
 
+# Temporary banner configuration
+# Display a banner at the top of the page with an optional expiration date
+# The banner appears above all content and can be dismissed by the user
+# Message content supports markdown formatting (links, bold, italic, etc.)
+# banner:
+#   enabled: true
+#   message:
+#     en: "**Important:** This site will undergo maintenance on Dec 31. [Learn more](https://example.com)"
+#     fr: "**Important :** Ce site sera en maintenance le 31 déc. [En savoir plus](https://example.com)"
+#   # Optional: Date after which the banner will no longer be displayed (YYYY-MM-DD)
+#   # expires: "2025-12-31"
+#   # Optional: Banner syling classes (Tailwind CSS)
+#   # className: "bg-accent-500 text-black"
+
 metadata:
   en:
     title: CIOOS Catalogue Map
