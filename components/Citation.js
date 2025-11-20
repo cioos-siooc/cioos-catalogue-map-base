@@ -37,7 +37,14 @@ export function Citation({ dataSetInfo, lang }) {
           setCitationHtml(null);
           return;
         }
-        setCitationURL(parsed_citation?.URL);
+
+        // Prioritize DOI, then fall back to URL
+        let url = parsed_citation?.URL;
+        if (parsed_citation?.DOI) {
+          url = `https://doi.org/${parsed_citation.DOI}`;
+        }
+        setCitationURL(url);
+
         const cite = new Cite(parsed_citation);
         // Format as a bibliography entry in APA style and output in HTML
         const formatted = cite.format("bibliography", {
