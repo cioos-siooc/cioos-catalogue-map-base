@@ -11,7 +11,18 @@ import DOMPurify from "dompurify";
 import { IoMdClose } from "react-icons/io";
 import { GoLinkExternal } from "react-icons/go";
 import { marked } from "marked";
-import { MiniMap } from "@/components/MiniMap";
+import dynamic from "next/dynamic";
+
+// Dynamically import MiniMap to avoid SSR issues with Leaflet
+const MiniMap = dynamic(
+  () => import("@/components/MiniMap").then((mod) => mod.MiniMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[200px] w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-700" />
+    ),
+  },
+);
 
 function MetadataItem({ label, value, href, className = "" }) {
   if (!value) return null;
