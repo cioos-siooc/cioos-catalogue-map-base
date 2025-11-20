@@ -1,5 +1,5 @@
 cioos-siooc/cioos-catalogue-map-template:
-  - CONFIG.MD
+  - CONFIG.md
   - config.yaml
   - public/about.md
   - public/a-propos.md
