@@ -393,6 +393,10 @@ function RootLayout({ children }) {
         {meta.description && (
           <meta name="description" content={meta.description} />
         )}
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        />
         {/* Plausible Analytics */}
         <Script
           strategy="lazyOnload"
