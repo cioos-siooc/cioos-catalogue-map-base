@@ -18,13 +18,15 @@ import {
 export const TopBanner = ({ lang, toggleSidebar, isSidebarOpen }) => {
   return (
     <div className="flex flex-row items-center justify-between gap-1 p-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <Logo logos={config.main_logo} lang={lang} default_width={120} />
-        <span className="text-center text-xl font-semibold">
+      <div className="flex min-w-0 flex-1 flex-row items-center gap-2 lg:flex-col">
+        <div className="shrink-0">
+          <Logo logos={config.main_logo} lang={lang} default_width={120} />
+        </div>
+        <h1 className="min-w-0 flex-1 text-left text-lg font-semibold break-words md:text-left">
           {config.title[lang]}
-        </span>
+        </h1>
       </div>
-      <div className="group relative">
+      <div className="group relative shrink-0">
         <button
           className="hover:bg-primary-500 flex cursor-pointer items-center justify-center rounded-md p-1 text-3xl transition-colors duration-200 hover:text-white"
           onClick={toggleSidebar}
