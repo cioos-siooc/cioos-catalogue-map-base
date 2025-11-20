@@ -18,7 +18,7 @@ import {
 export const TopBanner = ({ lang, toggleSidebar, isSidebarOpen }) => {
   return (
     <div className="flex flex-row items-center justify-between gap-1 p-2">
-      <div className="flex min-w-0 flex-1 flex-row items-center gap-2 lg:flex-col">
+      <div className="flex min-w-0 flex-1 flex-row items-start gap-2 lg:flex-col">
         <div className="shrink-0">
           <Logo logos={config.main_logo} lang={lang} default_width={120} />
         </div>
