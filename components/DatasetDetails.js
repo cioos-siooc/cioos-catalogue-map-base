@@ -95,7 +95,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
         </button>
 
         {/* Header Section */}
-        <div className="shrink-0 space-y-2 border-b border-gray-200 pb-3 dark:border-gray-700">
+        <div className="shrink-0 space-y-2">
           {/* Organization Logo */}
           {dataSetInfo?.organization &&
             (() => {
@@ -119,7 +119,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
           </h2>
 
           {/* Metadata Section */}
-          <div className="space-y-1 text-xs">
+          <div className="bg-primary-50 dark:bg-primary-800 space-y-1 rounded-md p-2 text-xs">
             {dataSetInfo?.organization && (
               <MetadataItem
                 label={t.organization || "Organization"}
@@ -173,6 +173,21 @@ export function DatasetDetails({ dataSetInfo, lang }) {
             )}
           </div>
         </div>
+
+        {/* View in Catalogue Button */}
+        {dataSetInfo?.name && (
+          <div className="shrink-0 py-3">
+            <a
+              href={`${config.catalogue_url}/dataset/${dataSetInfo.name}?local=${lang}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 group flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors"
+            >
+              {t.view_in_catalogue || "View in Catalogue"}
+              <GoLinkExternal className="h-4 w-4 shrink-0" />
+            </a>
+          </div>
+        )}
 
         {/* Description Section */}
         <div className="space-y-2 py-3">
