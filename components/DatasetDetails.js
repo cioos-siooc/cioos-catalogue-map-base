@@ -114,7 +114,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
             })()}
 
           {/* Dataset Title */}
-          <h2 className="text-base font-extrabold text-black dark:text-white">
+          <h2 className="text-base font-bold text-black dark:text-white">
             {dataSetInfo?.title_translated[lang]}
           </h2>
 
