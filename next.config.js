@@ -22,9 +22,15 @@ const generateTheme = () => {
   };
 
   // Generate CSS content with both palettes
+  const themeConfig = config.theme;
+  const lightBg = themeConfig?.background?.light || "#ffffff";
+  const darkBg = themeConfig?.background?.dark || "#0a0a0a";
+
   const cssContent = `@theme {
     ${generatePalette(primary_color, "primary")}
     ${generatePalette(accent_color, "accent")}
+    --color-background-light: ${lightBg};
+    --color-background-dark: ${darkBg};
   }\n`;
 
   // Write to file

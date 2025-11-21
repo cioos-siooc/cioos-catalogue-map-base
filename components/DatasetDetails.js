@@ -94,7 +94,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
       onClose={closeDrawer}
       position="right"
       backdrop={false}
-      className="bg-primary-50/50 dark:bg-primary-800/50 h-[100dvh] w-screen px-0 py-1 backdrop-blur-sm md:w-96 dark:text-white"
+      className="bg-background-light/50 dark:bg-background-dark/50 h-[100dvh] w-screen px-0 py-1 backdrop-blur-sm md:w-96 dark:text-white"
     >
       <DrawerItems className="flex h-full flex-grow flex-col overflow-y-auto px-4">
         <button
@@ -131,7 +131,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
           </h2>
 
           {/* Metadata Section */}
-          <div className="bg-primary-50 dark:bg-primary-800 space-y-1 rounded-md p-2 text-xs">
+          <div className="bg-background-light dark:bg-background-dark space-y-1 rounded-md p-2 text-xs">
             {dataSetInfo?.organization && (
               <MetadataItem
                 label={t.organization || "Organization"}
@@ -264,7 +264,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
                         href={resource.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group bg-primary-50 hover:bg-primary-100 dark:bg-primary-800 dark:hover:bg-primary-700 flex items-start gap-2 rounded-md p-2 text-xs transition-colors"
+                        className="group bg-background-light hover:bg-primary-100 dark:bg-background-dark dark:hover:bg-primary-700 flex items-start gap-2 rounded-md p-2 text-xs transition-colors"
                       >
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2">
