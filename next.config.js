@@ -33,6 +33,8 @@ const generateTheme = () => {
     --color-background-dark: ${darkBg};
     --color-ui-light: ${themeConfig?.ui?.light || "--color-primary-200"};
     --color-ui-dark: ${themeConfig?.ui?.dark || "--color-primary-700"};
+    --color-ui-text-light: ${themeConfig?.ui?.text_light || "--color-black"};
+    --color-ui-text-dark: ${themeConfig?.ui?.text_dark || "--color-white"};
   }\n`;
 
   // Write to file

@@ -120,7 +120,7 @@ export function Sidebar({
         setOpenKey={setAboutPageIndex}
       />
 
-      <div className="bg-ui-light dark:bg-ui-dark mx-2 mt-2 rounded-md py-1">
+      <div className="text-ui-text-light dark:text-ui-text-dark bg-ui-light dark:bg-ui-dark mx-2 mt-2 rounded-md py-1">
         <div className="flex flex-row items-center justify-center gap-2 overflow-visible">
           <div className="group relative">
             <button
@@ -174,7 +174,7 @@ export function Sidebar({
         <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
       </div>
 
-      <div className="bg-ui-light dark:bg-ui-dark mx-2 flex items-center gap-2 rounded-t-md p-2 px-2">
+      <div className="text-ui-text-light dark:text-ui-text-dark bg-ui-light dark:bg-ui-dark mx-2 flex items-center gap-2 rounded-t-md p-2 px-2">
         <BsDatabase className="text-xl" />
         {t.datasets}
         {generateDatasetsLabel(

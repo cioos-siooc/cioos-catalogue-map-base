@@ -193,7 +193,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
               href={`${config.catalogue_url}/dataset/${dataSetInfo.name}?local=${lang}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-ui-light hover:bg-primary-500 dark:bg-ui-dark group flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-black hover:text-white dark:text-white"
+              className="text-ui-text-light dark:text-ui-text-dark bg-ui-light hover:bg-primary-500 dark:bg-ui-dark group flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium hover:text-white"
             >
               {t.view_in_catalogue || "View in Catalogue"}
               <GoLinkExternal className="h-4 w-4 shrink-0" />

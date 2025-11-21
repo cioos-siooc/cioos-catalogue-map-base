@@ -28,7 +28,6 @@ export const SearchFilter = memo(function SearchFilter({
   setBadges,
   badges,
 }) {
-  const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
   const debounceTimerRef = useRef(null);
 
@@ -126,7 +125,7 @@ export const SearchFilter = memo(function SearchFilter({
         value={query}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        className="focus:border-primary-500 border-0 bg-white focus:border"
+        className="focus:border-primary-500 dark:bg-background-dark border-0 bg-white focus:border"
       />
       {query && (
         <button
@@ -623,7 +622,7 @@ const FilterSection = memo(function FilterSection({
         {activeFilterCount > 0 && (
           <div className="flex justify-center">
             <button
-              className="text-primary-800 hover:text-primary-300 dark:text-primary-100 dark:hover:text-primary-900 flex items-center gap-1 text-xs font-medium underline transition-colors duration-200 hover:cursor-pointer"
+              className="text-ui-text-light dark:text-ui-text-dark dark:hover:text-ui-text-light flex items-center gap-1 text-xs font-medium underline transition-colors duration-200 hover:cursor-pointer"
               onClick={clearAllFilters}
             >
               {t.clear_all_filters}

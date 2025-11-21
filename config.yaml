@@ -47,14 +47,16 @@ metadata:
 theme:
   light: "#ffffff"
   dark: "#000000"
+  primary_color: "#e31937"
+  accent_color: "#FFB601"
   background:
-    light: "var(--color-primary-50)"
-    dark: "var(--color-primary-800)"
+    light: "var(--color-white)"
+    dark: "var(--color-neutral-900)"
   ui:
-    light: "var(--color-primary-300)"
-    dark: "var(--color-primary-600)"
-  primary_color: "#52a79b"
-  accent_color: "#fa7268"
+    light: "var(--color-primary-200)"
+    dark: "var(--color-primary-700)"
+    text_light: "var(--color-neutral-950)"
+    text_dark: "var(--color-neutral-50)"
 
 # Path to the favicon file, relative to the public directory.
 favicon: "./favicon.ico"
