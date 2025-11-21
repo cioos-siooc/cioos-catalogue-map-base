@@ -54,7 +54,7 @@ export default function ModalPages({
             dismissible
             show={openKey === idx}
             onClose={() => setOpenKey(null)}
-            className="bg-slate-900/75"
+            className="bg-neutral-900/75"
           >
             <div className="relative overflow-hidden rounded-lg">
               <button
