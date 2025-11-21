@@ -22,9 +22,11 @@ export const TopBanner = ({ lang, toggleSidebar, isSidebarOpen }) => {
         <div className="shrink-0">
           <Logo logos={config.main_logo} lang={lang} default_width={120} />
         </div>
-        <h1 className="min-w-0 flex-1 text-left text-lg font-semibold break-words md:text-left">
-          {config.title[lang]}
-        </h1>
+        {config.title?.[lang] && (
+          <h1 className="min-w-0 flex-1 text-left text-lg font-semibold wrap-break-word md:text-left">
+            {config.title[lang]}
+          </h1>
+        )}
       </div>
       <div className="group relative shrink-0">
         <button
