@@ -106,7 +106,7 @@ export function Sidebar({
   };
 
   return (
-    <div className="bg-primary-50 dark:bg-primary-800 flex h-screen flex-col overflow-visible">
+    <div className="bg-background-light dark:bg-background-dark flex h-screen flex-col overflow-visible">
       <TopBanner
         lang={lang}
         toggleSidebar={toggleSidebar}

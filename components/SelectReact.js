@@ -46,7 +46,7 @@ export function SelectReactComponent({
           option: ({ isSelected, isFocused }) =>
             `px-3 py-2 cursor-pointer transition-colors ${
               isSelected
-                ? "bg-primary-100 dark:bg-primary-800"
+                ? "bg-primary-100 dark:bg-background-dark"
                 : isFocused
                   ? "bg-blue-100 dark:bg-slate-700"
                   : "bg-white dark:bg-slate-900"
@@ -54,7 +54,7 @@ export function SelectReactComponent({
           control: () =>
             "!bg-gray-50 dark:!bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm",
           multiValue: () =>
-            "bg-primary-100 dark:bg-primary-800 rounded items-center px-2 py-0.5 gap-1.5 flex",
+            "bg-primary-100 dark:bg-background-dark rounded items-center px-2 py-0.5 gap-1.5 flex",
           multiValueLabel: () =>
             "text-primary-800 dark:text-primary-100 text-sm leading-none p-1",
           multiValueRemove: () =>

@@ -323,7 +323,7 @@ const TimeFilter = memo(function TimeFilter({
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xs opacity-80">
               {selectedType && (
-                <span className="bg-primary-200 dark:bg-primary-900 mr-2 inline-block rounded px-2 py-0.5">
+                <span className="bg-background-light dark:bg-background-dark mr-2 inline-block rounded px-2 py-0.5">
                   {t[selectedType] || selectedType}
                 </span>
               )}
