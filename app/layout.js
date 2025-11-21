@@ -42,7 +42,7 @@ const basePath = process.env.BASE_PATH || "";
 const MapComponent = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
-    <div className="bg-primary-200 flex h-full w-full items-center justify-center">
+    <div className="bg-ui-light flex h-full w-full items-center justify-center">
       <p className="text-primary-500">Loading map...</p>
     </div>
   ),
@@ -304,7 +304,7 @@ function AppContent({ lang, setLang }) {
 
       <div className="relative flex h-dvh flex-col overflow-hidden lg:flex-row">
         {/* Top Banner - Above map on mobile, inside sidebar on desktop */}
-        <div className="bg-primary-50 dark:bg-primary-800 z-35 order-1 w-full lg:hidden">
+        <div className="bg-background-light dark:bg-background-dark z-35 order-1 w-full lg:hidden">
           <TopBanner
             lang={lang}
             setLang={setLang}
@@ -345,7 +345,7 @@ function AppContent({ lang, setLang }) {
         </div>
 
         {/* Top Banner - Desktop only - shown when sidebar is closed */}
-        <div className="bg-primary-50 dark:bg-primary-800 absolute top-0 left-0 z-40 mt-2 hidden w-90 rounded-r-3xl lg:block">
+        <div className="bg-background-light dark:bg-background-dark absolute top-0 left-0 z-40 mt-2 hidden w-90 rounded-r-3xl lg:block">
           <TopBanner
             lang={lang}
             setLang={setLang}

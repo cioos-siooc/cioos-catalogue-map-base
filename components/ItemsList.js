@@ -12,7 +12,7 @@ export default function ItemsList({
   const t = getLocale(lang);
   if (loading) {
     return (
-      <div className="bg-primary-200 dark:bg-primary-700 flex h-full w-full flex-col items-center justify-center rounded-md text-gray-500 dark:text-gray-400">
+      <div className="bg-ui-light dark:bg-ui-dark flex h-full w-full flex-col items-center justify-center rounded-md text-gray-500 dark:text-gray-400">
         <p>{t.load_datasets} ...</p>
         <br />
         <ImSpinner2
@@ -24,7 +24,7 @@ export default function ItemsList({
   }
   if (!itemsList || itemsList.length === 0) {
     return (
-      <div className="bg-primary-200 dark:bg-primary-700 flex h-full w-full flex-col items-center justify-center rounded-md text-gray-500 dark:text-gray-400">
+      <div className="bg-ui-light dark:bg-ui-dark flex h-full w-full flex-col items-center justify-center rounded-md text-gray-500 dark:text-gray-400">
         <p>{t.no_datasets}</p>
       </div>
     );
@@ -38,7 +38,7 @@ export default function ItemsList({
         {itemsList.map(
           (item) => (
             <li
-              className="hover:bg-primary-500 bg-primary-100 dark:bg-primary-900 mx-2 cursor-pointer rounded-md p-2 text-sm hover:text-white"
+              className="hover:bg-primary-500 bg-background-light dark:bg-background-dark mx-2 cursor-pointer rounded-md p-2 text-sm hover:text-white"
               onClick={() => onItemClick(item)}
               onDoubleClick={() => onItemDoubleClick(item)}
               key={item.id}

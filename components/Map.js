@@ -470,7 +470,7 @@ function AttributionToggle() {
           ))}
         </div>
       )}
-      <div className="bg-primary-500 dark:bg-primary-600 pointer-events-auto rounded-xl px-2 py-1 text-[11px] font-medium text-white shadow">
+      <div className="bg-primary-500 dark:bg-background-dark pointer-events-auto rounded-xl px-2 py-1 text-[11px] font-medium text-white shadow">
         ?
       </div>
     </div>

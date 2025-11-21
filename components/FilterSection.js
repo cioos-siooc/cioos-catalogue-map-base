@@ -28,7 +28,6 @@ export const SearchFilter = memo(function SearchFilter({
   setBadges,
   badges,
 }) {
-  const [openModal, setOpenModal] = useState(false);
   const [query, setQuery] = useState("");
   const debounceTimerRef = useRef(null);
 
@@ -121,17 +120,17 @@ export const SearchFilter = memo(function SearchFilter({
       <FloatingLabel
         ref={inputRef}
         id="query-input"
-        variant="filled"
+        variant="outlined"
         label={t.search}
         value={query}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        className="w-full rounded-lg border-0"
+        className="focus:border-primary-500 dark:bg-background-dark border-0 bg-white focus:border"
       />
       {query && (
         <button
           type="button"
-          className="hover:text-accent-500 absolute top-1/2 right-2 -translate-y-1/2 rounded px-1 py-0.5 text-gray-500"
+          className="hover:text-accent-500 absolute top-1/2 right-2 -translate-y-1/2 rounded-lg px-1 py-0.5 text-black"
           aria-label={t.remove_filter}
           onClick={clearSearchBadge}
         >
@@ -323,7 +322,7 @@ const TimeFilter = memo(function TimeFilter({
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-xs opacity-80">
               {selectedType && (
-                <span className="bg-primary-200 dark:bg-primary-900 mr-2 inline-block rounded px-2 py-0.5">
+                <span className="bg-background-light dark:bg-background-dark mr-2 inline-block rounded px-2 py-0.5">
                   {t[selectedType] || selectedType}
                 </span>
               )}
@@ -586,7 +585,7 @@ const FilterSection = memo(function FilterSection({
     <div
       className={`overflow-visible ${
         isAccordionOpen
-          ? "border-primary-300 dark:border-primary-600 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100 transition-all duration-200"
+          ? "border-background-light dark:border-background-dark mx-1 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100 transition-all duration-200"
           : "pointer-events-none max-h-0 -translate-y-4 opacity-0"
       }`}
     >
@@ -623,7 +622,7 @@ const FilterSection = memo(function FilterSection({
         {activeFilterCount > 0 && (
           <div className="flex justify-center">
             <button
-              className="text-primary-800 hover:text-primary-300 dark:text-primary-100 dark:hover:text-primary-900 flex items-center gap-1 text-xs font-medium underline transition-colors duration-200 hover:cursor-pointer"
+              className="text-ui-text-light dark:text-ui-text-dark dark:hover:text-ui-text-light flex items-center gap-1 text-xs font-medium underline transition-colors duration-200 hover:cursor-pointer"
               onClick={clearAllFilters}
             >
               {t.clear_all_filters}

@@ -22,9 +22,11 @@ export const TopBanner = ({ lang, toggleSidebar, isSidebarOpen }) => {
         <div className="shrink-0">
           <Logo logos={config.main_logo} lang={lang} default_width={120} />
         </div>
-        <h1 className="min-w-0 flex-1 text-left text-lg font-semibold break-words md:text-left">
-          {config.title[lang]}
-        </h1>
+        {config.title?.[lang] && (
+          <h1 className="min-w-0 flex-1 text-left text-lg font-semibold wrap-break-word md:text-left">
+            {config.title[lang]}
+          </h1>
+        )}
       </div>
       <div className="group relative shrink-0">
         <button
@@ -99,14 +101,14 @@ export function Sidebar({
       content = `${count} / ${total}`;
     }
     return (
-      <div className="bg-primary-500 rounded-full px-1.5 py-0.5 text-xs font-extralight text-white">
+      <div className="bg-accent-500 text-accent-text rounded-full px-1.5 py-0.5 text-xs font-extralight">
         {content}
       </div>
     );
   };
 
   return (
-    <div className="bg-primary-50 dark:bg-primary-800 flex h-screen flex-col overflow-visible">
+    <div className="bg-background-light dark:bg-background-dark flex h-screen flex-col overflow-visible">
       <TopBanner
         lang={lang}
         toggleSidebar={toggleSidebar}
@@ -118,7 +120,7 @@ export function Sidebar({
         setOpenKey={setAboutPageIndex}
       />
 
-      <div className="bg-primary-200 dark:bg-primary-700 mx-2 mt-2 rounded-md py-1">
+      <div className="text-ui-text-light dark:text-ui-text-dark bg-ui-light dark:bg-ui-dark mx-2 mt-2 rounded-md py-1">
         <div className="flex flex-row items-center justify-center gap-2 overflow-visible">
           <div className="group relative">
             <button
@@ -146,7 +148,7 @@ export function Sidebar({
               <div className="relative">
                 <MdFilterList className="text-2xl" />
                 {activeFilterCount > 0 && (
-                  <span className="bg-accent-500 absolute -top-1 -right-3 rounded-full px-1 text-xs text-black">
+                  <span className="bg-accent-500 text-accent-text absolute -top-1 -right-3 rounded-full px-1 text-xs text-black">
                     {activeFilterCount}
                   </span>
                 )}
@@ -168,11 +170,11 @@ export function Sidebar({
         />
       </div>
 
-      <div className="bg-primary-200 dark:bg-primary-700 border-primary-500 mx-2 my-2 rounded-md p-1">
+      <div className="bg-ui-light dark:bg-ui-dark border-primary-500 mx-2 my-2 rounded-md p-1">
         <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
       </div>
 
-      <div className="bg-primary-200 dark:bg-primary-700 mx-2 flex items-center gap-2 rounded-t-md p-2 px-2">
+      <div className="text-ui-text-light dark:text-ui-text-dark bg-ui-light dark:bg-ui-dark mx-2 flex items-center gap-2 rounded-t-md p-2 px-2">
         <BsDatabase className="text-xl" />
         {t.datasets}
         {generateDatasetsLabel(
@@ -182,7 +184,7 @@ export function Sidebar({
           t.results,
         )}
       </div>
-      <ul className="custom-scrollbar bg-primary-200 dark:bg-primary-700 mx-2 flex-grow overflow-y-auto rounded-b-md">
+      <ul className="custom-scrollbar bg-ui-light dark:bg-ui-dark mx-2 flex-grow overflow-y-auto rounded-b-md">
         <ItemsList
           itemsList={filteredItems}
           onItemClick={onLeftMenuItemClick}
