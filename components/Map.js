@@ -91,6 +91,12 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
     point = turf.pointOnFeature(record.spatial);
   }
 
+  // Wrap longitude based on map center
+  let [lng, lat] = point.geometry.coordinates;
+  const centerLng = config.map.center[1];
+  while (lng - centerLng > 180) lng -= 360;
+  while (lng - centerLng < -180) lng += 360;
+
   // Function to remove the polygon layer
   function removeLayer(e) {
     const map = e.target._map;
@@ -132,7 +138,7 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
   return (
     <Marker
       key={record.id}
-      position={[point.geometry.coordinates[1], point.geometry.coordinates[0]]}
+      position={[lat, lng]}
       eventHandlers={{
         click: handleMarkerClick,
         mouseover: handleMouseOver,
