@@ -2,68 +2,107 @@
 
 This document explains all the configuration options available in [config.yaml](config.yaml) for the CIOOS Catalogue Map application.
 
-## Quick Reference Table
+## Quick Reference (Grouped)
 
-| Property                                                  | Type                | Required | Default        | Description                                   |
-| --------------------------------------------------------- | ------------------- | -------- | -------------- | --------------------------------------------- |
-| **[Basic Settings](#basic-settings)**                     |
-| [`catalogue_url`](#catalogue_url)                         | String              | Yes      | -              | URL of the CIOOS catalogue                    |
-| [`base_query`](#base_query)                               | String              | No       | `""`           | Base query string to filter catalogue results |
-| **[Map Configuration](#map-configuration)**               |
-| [`map.center`](#center)                                   | Array [lat, lng]    | Yes\*    | -              | Initial map center coordinates                |
-| [`map.zoom`](#zoom)                                       | Number              | Yes\*    | -              | Initial zoom level (desktop)                  |
-| [`map.zoom_mobile`](#zoom_mobile)                         | Number              | No       | Same as `zoom` | Zoom level for mobile devices (<1024px)       |
-| [`map.default_bounds`](#default_bounds)                   | Array [[S,W],[N,E]] | No       | -              | Bounding box (overrides center/zoom)          |
-| **[Language Settings](#language-settings)**               |
-| [`default_language`](#default_language)                   | String              | Yes      | -              | Default language (`en` or `fr`)               |
-| **[Title Configuration](#title-configuration)**           |
-| [`title.{lang}`](#title)                                  | String              | No       | -              | Custom title below main logo                  |
-| **[Temporary Banner](#temporary-banner)**                 |
-| [`banner.enabled`](#bannerenabled)                        | Boolean             | No       | `false`        | Show/hide banner                              |
-| [`banner.message.{lang}`](#bannermessage)                 | String              | Yes\*\*  | -              | Banner message (supports markdown)            |
-| [`banner.expires`](#bannerexpires)                        | String (YYYY-MM-DD) | No       | -              | Banner expiration date                        |
-| [`banner.className`](#bannerclassname)                    | String              | No       | -              | Tailwind CSS classes for styling              |
-| **[Metadata](#metadata)**                                 |
-| [`metadata.{lang}.title`](#metadatalangtitle)             | String              | Yes      | -              | Page title for browser/SEO                    |
-| [`metadata.{lang}.description`](#metadatalangdescription) | String              | Yes      | -              | Page description for SEO                      |
-| **[Theme](#theme)**                                       |
-| [`theme.light`](#themelight)                              | String (Hex)        | Yes      | -              | Light mode background color                   |
-| [`theme.dark`](#themedark)                                | String (Hex)        | Yes      | -              | Dark mode background color                    |
-| [`theme.primary_color`](#themeprimary_color)              | String (Hex)        | Yes      | -              | Primary brand color                           |
-| [`theme.accent_color`](#themeaccent_color)                | String (Hex)        | Yes      | -              | Accent color for highlights                   |
-| **[Favicon](#favicon)**                                   |
-| [`favicon`](#favicon-1)                                   | String              | Yes      | -              | Path to favicon file                          |
-| **[Logo Configuration](#logo-configuration)**             |
-| [`main_logo[].url`](#url)                                 | String              | Yes      | -              | Path or URL to logo image                     |
-| [`main_logo[].lang`](#lang)                               | String              | Yes      | -              | Language (`en` or `fr`)                       |
-| [`main_logo[].mode`](#mode)                               | String              | Yes      | -              | Theme mode (`light` or `dark`)                |
-| [`main_logo[].alt`](#alt)                                 | String              | Yes      | -              | Alt text for accessibility                    |
-| [`main_logo[].className`](#classname)                     | String              | No       | `"h-auto"`     | Tailwind CSS classes                          |
-| [`main_logo[].width`](#width)                             | String/Number       | No       | -              | Logo width                                    |
-| [`main_logo[].link`](#link)                               | String              | No       | -              | Click destination URL                         |
-| [`bottom_logo[].*`](#bottom_logo)                         | Same as above       | No       | -              | Footer/secondary logos                        |
-| **[Basemaps](#basemaps) / [Overlays](#overlays)**         |
-| [`basemaps[].name.{lang}`](#name)                         | String              | Yes      | -              | Display name                                  |
-| [`basemaps[].key`](#key)                                  | String              | Yes      | -              | Unique identifier                             |
-| [`basemaps[].url`](#url-1)                                | String              | Yes      | -              | Tile server URL template                      |
-| [`basemaps[].attribution`](#attribution)                  | String              | Yes      | -              | Attribution text                              |
-| [`basemaps[].checked`](#checked)                          | Boolean             | No       | `false`        | Default selected                              |
-| [`basemaps[].maxZoom`](#maxzoom)                          | Number              | No       | -              | Maximum zoom level                            |
-| [`overlays[].*`](#overlays)                               | Same as above       | -        | -              | Transparent layers                            |
-| **[Pages](#pages)**                                       |
-| [`pages[].label.{lang}`](#label)                          | String              | Yes      | -              | Page link label                               |
-| [`pages[].icon`](#icon)                                   | String              | No       | -              | Icon identifier                               |
-| [`pages[].markdown_content.{lang}`](#markdown_content)    | String              | No†      | -              | Path to markdown file                         |
-| [`pages[].content.{lang}`](#content)                      | String              | No†      | -              | Direct text content                           |
+### Basic Settings
+
+| Property                 | Type                | Required | Default | Description                                                    |
+| ------------------------ | ------------------- | -------- | ------- | -------------------------------------------------------------- |
+| `catalogue_url`          | String              | Yes      | -       | Base CKAN catalogue URL.                                       |
+| `fallback_catalogue_url` | String              | No       | -       | Secondary CKAN used if primary fails (harvest + API fallback). |
+| `base_query`             | String              | No       | `""`    | Solr query segment to pre-filter datasets.                     |
+| `default_language`       | String (`en`\|`fr`) | Yes      | -       | Initial UI language.                                           |
+| `title.{lang}`           | String              | No       | -       | Optional short title displayed below main logo.                |
+
+### Map
+
+| Property             | Type          | Required | Default    | Description                                       |
+| -------------------- | ------------- | -------- | ---------- | ------------------------------------------------- |
+| `map.center`         | [lat, lng]    | Yes\*    | -          | Initial center (ignored if `map.default_bounds`). |
+| `map.zoom`           | Number        | Yes\*    | -          | Initial zoom (desktop).                           |
+| `map.zoom_mobile`    | Number        | No       | `map.zoom` | Alternate zoom on narrow screens (<1024px).       |
+| `map.default_bounds` | [[S,W],[N,E]] | No       | -          | Fit bounds instead of center/zoom.                |
+
+### Banner
+
+| Property                | Type                 | Required | Default                    | Description                            |
+| ----------------------- | -------------------- | -------- | -------------------------- | -------------------------------------- |
+| `banner.enabled`        | Boolean              | No       | `false`                    | Show/hide the temporary banner.        |
+| `banner.message.{lang}` | String (markdown)    | Yes\*\*  | -                          | Banner text per locale.                |
+| `banner.expires`        | Date `YYYY-MM-DD`    | No       | -                          | Date after which banner is suppressed. |
+| `banner.className`      | String (CSS classes) | No       | `bg-accent-500 text-black` | Styling override.                      |
+
+### Metadata
+
+| Property                      | Type   | Required | Default | Description             |
+| ----------------------------- | ------ | -------- | ------- | ----------------------- |
+| `metadata.{lang}.title`       | String | Yes      | -       | Page `<title>` text.    |
+| `metadata.{lang}.description` | String | Yes      | -       | SEO/social description. |
+
+### Theme
+
+| Property                  | Type           | Required | Default | Description                       |
+| ------------------------- | -------------- | -------- | ------- | --------------------------------- |
+| `theme.light`             | String (color) | Yes      | -       | Base light background color.      |
+| `theme.dark`              | String (color) | Yes      | -       | Base dark background color.       |
+| `theme.primary_color`     | String (color) | Yes      | -       | Primary brand color.              |
+| `theme.accent_color`      | String (color) | Yes      | -       | Accent / emphasis color.          |
+| `theme.accent_text_color` | String (color) | No       | `black` | Text color on accent backgrounds. |
+| `theme.background.light`  | String         | No       | -       | Surface background (light).       |
+| `theme.background.dark`   | String         | No       | -       | Surface background (dark).        |
+| `theme.ui.light`          | String         | No       | -       | Panels / navigation (light mode). |
+| `theme.ui.dark`           | String         | No       | -       | Panels / navigation (dark mode).  |
+| `theme.ui.text_light`     | String         | No       | -       | Text color for light UI panels.   |
+| `theme.ui.text_dark`      | String         | No       | -       | Text color for dark UI panels.    |
+
+### Favicon
+
+| Property  | Type          | Required | Default | Description                            |
+| --------- | ------------- | -------- | ------- | -------------------------------------- |
+| `favicon` | String (path) | Yes      | -       | Path under `/public` to favicon asset. |
+
+### Logos
+
+| Property                | Type            | Required | Default  | Description                                  |
+| ----------------------- | --------------- | -------- | -------- | -------------------------------------------- |
+| `main_logo[].url`       | String          | Yes      | -        | Path/URL to logo image.                      |
+| `main_logo[].lang`      | `en`\|`fr`      | Yes      | -        | Language variant.                            |
+| `main_logo[].mode`      | `light`\|`dark` | Yes      | -        | Theme mode applicability.                    |
+| `main_logo[].alt`       | String          | Yes      | -        | Alt text for accessibility.                  |
+| `main_logo[].className` | String          | No       | `h-auto` | Tailwind classes override.                   |
+| `main_logo[].width`     | String/Number   | No       | -        | Explicit width (optional).                   |
+| `main_logo[].link`      | String (URL)    | No       | -        | Click destination (external opens new tab).  |
+| `bottom_logo[].*`       | —               | No       | -        | Same fields as `main_logo` for footer logos. |
+
+### Basemaps & Overlays
+
+| Property                 | Type    | Required | Default | Description                                   |
+| ------------------------ | ------- | -------- | ------- | --------------------------------------------- |
+| `basemaps[].name.{lang}` | String  | Yes      | -       | Display name per locale.                      |
+| `basemaps[].key`         | String  | Yes      | -       | Unique identifier key.                        |
+| `basemaps[].url`         | String  | Yes      | -       | Tile URL template.                            |
+| `basemaps[].attribution` | String  | Yes      | -       | Required provider attribution.                |
+| `basemaps[].checked`     | Boolean | No       | `false` | Pre-selected basemap.                         |
+| `basemaps[].maxZoom`     | Number  | No       | -       | Max zoom extent.                              |
+| `basemaps[].minZoom`     | Number  | No       | `0`     | Min zoom extent.                              |
+| `overlays[].*`           | —       | No       | -       | Same structure as basemaps; stackable layers. |
+
+### Pages
+
+| Property                          | Type          | Required | Default | Description                            |
+| --------------------------------- | ------------- | -------- | ------- | -------------------------------------- |
+| `pages[].label.{lang}`            | String        | Yes      | -       | Menu/modal label.                      |
+| `pages[].icon`                    | String        | No       | -       | Icon key.                              |
+| `pages[].markdown_content.{lang}` | String (path) | No†      | -       | Markdown file path (takes precedence). |
+| `pages[].content.{lang}`          | String        | No†      | -       | Inline content fallback.               |
 
 **Notes:**
 
-- \* `map.center` and `map.zoom` are required unless `map.default_bounds` is set
-- \*\* `banner.message` is required if `banner.enabled` is `true`
-- \*\*\* Logo arrays require at least one entry for `main_logo`
-- \*\*\*\* Same properties apply to both `basemaps` and `overlays` arrays
-- \*\*\*\*\* Either `markdown_content` or `content` is required (markdown_content takes precedence)
-- † At least one content field required per page
+- `map.center` and `map.zoom` required unless `map.default_bounds` is set.
+- `banner.message` required if `banner.enabled` is true.
+- Logo arrays require at least one entry for `main_logo`.
+- Basemap properties also apply to overlays unless otherwise noted.
+- † For each page, supply at least one of `markdown_content` or `content` per locale; markdown takes precedence.
 
 ## Table of Contents
 
@@ -86,6 +125,14 @@ This document explains all the configuration options available in [config.yaml](
 ## Basic Settings
 
 ### `catalogue_url`
+
+### `fallback_catalogue_url`
+
+**Type:** String (URL)
+**Required:** No
+**Example:** `https://backup.catalogue.cioos.ca`
+
+Secondary CKAN catalogue root used only by harvesting scripts (`scripts/fetchCkanPackages.js`) and data requests when the primary `catalogue_url` fails. If unset, the application will not attempt a fallback.
 
 **Type:** String
 **Required:** Yes
@@ -283,6 +330,31 @@ Primary brand color used throughout the application for main interactive element
 
 ### `theme.accent_color`
 
+### `theme.accent_text_color`
+
+**Type:** String (CSS color)
+**Required:** No
+**Default:** `"black"`
+Text color chosen to ensure sufficient contrast when rendered atop `theme.accent_color` backgrounds (used in banners/buttons).
+
+### `theme.background.light` / `theme.background.dark`
+
+**Type:** String (CSS color or variable)
+**Required:** No
+Optional surface background colors for light/dark modes. If omitted, primary/light & dark colors are used.
+
+### `theme.ui.light` / `theme.ui.dark`
+
+**Type:** String (CSS color or variable)
+**Required:** No
+Panel / navigation UI background colors distinct from overall page background.
+
+### `theme.ui.text_light` / `theme.ui.text_dark`
+
+**Type:** String (CSS color)
+**Required:** No
+Explicit text colors for UI panels to guarantee readability independent of global theme.
+
 **Type:** String (Hex color)
 **Required:** Yes
 **Example:** `"#fa7268"`
@@ -309,7 +381,7 @@ Logos can be configured for different languages and theme modes (light/dark). Ea
 
 ### Logo Properties
 
-#### `url`
+#### Tile layer `url`
 
 **Type:** String
 **Required:** Yes
