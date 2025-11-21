@@ -586,7 +586,7 @@ const FilterSection = memo(function FilterSection({
     <div
       className={`overflow-visible ${
         isAccordionOpen
-          ? "border-primary-300 dark:border-primary-600 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100 transition-all duration-200"
+          ? "border-background-light dark:border-background-dark mx-1 mt-1 max-h-[500px] translate-y-0 border-t p-2 opacity-100 transition-all duration-200"
           : "pointer-events-none max-h-0 -translate-y-4 opacity-0"
       }`}
     >
