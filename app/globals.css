@@ -9,8 +9,8 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--color-background-light);
+  --foreground: var(--color-black);
 }
 
 @theme inline {
@@ -22,8 +22,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: var(--color-background-dark);
+    --foreground: var(--color-white);
   }
 }
 
