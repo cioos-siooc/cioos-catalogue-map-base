@@ -31,6 +31,8 @@ const generateTheme = () => {
     ${generatePalette(accent_color, "accent")}
     --color-background-light: ${lightBg};
     --color-background-dark: ${darkBg};
+    --color-ui-light: ${themeConfig?.ui?.light || "--color-primary-200"};
+    --color-ui-dark: ${themeConfig?.ui?.dark || "--color-primary-700"};
   }\n`;
 
   // Write to file

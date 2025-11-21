@@ -99,7 +99,7 @@ export function Sidebar({
       content = `${count} / ${total}`;
     }
     return (
-      <div className="bg-primary-500 rounded-full px-1.5 py-0.5 text-xs font-extralight text-white">
+      <div className="bg-accent-500 rounded-full px-1.5 py-0.5 text-xs font-extralight text-white">
         {content}
       </div>
     );
@@ -118,7 +118,7 @@ export function Sidebar({
         setOpenKey={setAboutPageIndex}
       />
 
-      <div className="bg-primary-200 dark:bg-primary-700 mx-2 mt-2 rounded-md py-1">
+      <div className="bg-ui-light dark:bg-ui-dark mx-2 mt-2 rounded-md py-1">
         <div className="flex flex-row items-center justify-center gap-2 overflow-visible">
           <div className="group relative">
             <button
@@ -168,11 +168,11 @@ export function Sidebar({
         />
       </div>
 
-      <div className="bg-primary-200 dark:bg-primary-700 border-primary-500 mx-2 my-2 rounded-md p-1">
+      <div className="bg-ui-light dark:bg-ui-dark border-primary-500 mx-2 my-2 rounded-md p-1">
         <SearchFilter lang={lang} setBadges={setBadges} badges={badges} />
       </div>
 
-      <div className="bg-primary-200 dark:bg-primary-700 mx-2 flex items-center gap-2 rounded-t-md p-2 px-2">
+      <div className="bg-ui-light dark:bg-ui-dark mx-2 flex items-center gap-2 rounded-t-md p-2 px-2">
         <BsDatabase className="text-xl" />
         {t.datasets}
         {generateDatasetsLabel(
@@ -182,7 +182,7 @@ export function Sidebar({
           t.results,
         )}
       </div>
-      <ul className="custom-scrollbar bg-primary-200 dark:bg-primary-700 mx-2 flex-grow overflow-y-auto rounded-b-md">
+      <ul className="custom-scrollbar bg-ui-light dark:bg-ui-dark mx-2 flex-grow overflow-y-auto rounded-b-md">
         <ItemsList
           itemsList={filteredItems}
           onItemClick={onLeftMenuItemClick}

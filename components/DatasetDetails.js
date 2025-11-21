@@ -193,7 +193,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
               href={`${config.catalogue_url}/dataset/${dataSetInfo.name}?local=${lang}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-600 group flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors"
+              className="bg-ui-light hover:bg-primary-500 dark:bg-ui-dark group flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-black hover:text-white dark:text-white"
             >
               {t.view_in_catalogue || "View in Catalogue"}
               <GoLinkExternal className="h-4 w-4 shrink-0" />
@@ -264,13 +264,13 @@ export function DatasetDetails({ dataSetInfo, lang }) {
                         href={resource.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group bg-background-light hover:bg-primary-100 dark:bg-background-dark dark:hover:bg-primary-700 flex items-start gap-2 rounded-md p-2 text-xs transition-colors"
+                        className="group bg-background-light hover:bg-primary-100 dark:bg-background-dark dark:hover:bg-ui-dark flex items-start gap-2 rounded-md p-2 text-xs transition-colors"
                       >
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-medium">{resourceName}</span>
                             {resource.format && (
-                              <span className="bg-primary-100 dark:bg-primary-700 rounded px-2 py-0.5 text-xs font-medium">
+                              <span className="bg-accent-500 rounded px-2 py-0.5 text-xs font-medium">
                                 {resource.format}
                               </span>
                             )}

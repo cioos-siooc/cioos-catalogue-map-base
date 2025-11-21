@@ -42,7 +42,7 @@ const basePath = process.env.BASE_PATH || "";
 const MapComponent = dynamic(() => import("@/components/Map"), {
   ssr: false,
   loading: () => (
-    <div className="bg-primary-200 flex h-full w-full items-center justify-center">
+    <div className="bg-ui-light flex h-full w-full items-center justify-center">
       <p className="text-primary-500">Loading map...</p>
     </div>
   ),

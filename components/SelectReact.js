@@ -50,7 +50,7 @@ export function SelectReactComponent({
                 : isFocused
                   ? "bg-blue-100 dark:bg-slate-700"
                   : "bg-white dark:bg-slate-900"
-            } hover:bg-primary-200 dark:hover:bg-primary-700`,
+            } hover:bg-ui-light dark:hover:bg-ui-dark`,
           control: () =>
             "!bg-gray-50 dark:!bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm",
           multiValue: () =>
