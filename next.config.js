@@ -22,9 +22,20 @@ const generateTheme = () => {
   };
 
   // Generate CSS content with both palettes
+  const themeConfig = config.theme;
+  const lightBg = themeConfig?.background?.light || "#ffffff";
+  const darkBg = themeConfig?.background?.dark || "#0a0a0a";
+
   const cssContent = `@theme {
     ${generatePalette(primary_color, "primary")}
     ${generatePalette(accent_color, "accent")}
+    --color-background-light: ${lightBg};
+    --color-background-dark: ${darkBg};
+    --color-ui-light: ${themeConfig?.ui?.light || "--color-primary-200"};
+    --color-ui-dark: ${themeConfig?.ui?.dark || "--color-primary-700"};
+    --color-ui-text-light: ${themeConfig?.ui?.text_light || "--color-black"};
+    --color-ui-text-dark: ${themeConfig?.ui?.text_dark || "--color-white"};
+    --color-accent-text: ${themeConfig?.accent_text_color || "black"};
   }\n`;
 
   // Write to file

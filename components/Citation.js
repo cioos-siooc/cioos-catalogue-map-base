@@ -91,7 +91,7 @@ export function Citation({ dataSetInfo, lang }) {
             href={citationURL}
             target="_blank"
             rel="noopener noreferrer"
-            className="group bg-primary-50 hover:bg-primary-100 dark:bg-primary-800 dark:hover:bg-primary-700 flex items-start gap-2 rounded-md p-3 text-xs transition-colors"
+            className="group bg-background-light hover:bg-primary-100 dark:bg-background-dark dark:hover:bg-ui-dark flex items-start gap-2 rounded-md p-3 text-xs transition-colors"
           >
             <div className="flex-1">
               <SafeHTML content={citationHtml} />
