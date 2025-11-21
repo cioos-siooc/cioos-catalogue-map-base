@@ -65,7 +65,7 @@ export function Banner({ lang }) {
 
   return (
     <div
-      className={`relative z-50 flex items-center justify-between gap-2 px-4 py-2 text-sm shadow-md ${config.banner.className || "bg-accent-500 text-black"}`}
+      className={`fixed bottom-4 left-1/2 z-40 flex w-auto max-w-[90%] -translate-x-1/2 items-center justify-between gap-2 rounded-lg px-4 py-2 text-sm shadow-md transition-all duration-300 md:top-4 md:bottom-auto md:z-50 md:max-w-2xl ${config.banner.className || "bg-accent-500 text-black"}`}
     >
       <div
         className="banner-content flex-1 text-center [&_a]:underline [&_a]:hover:opacity-80 [&_p]:m-0"
