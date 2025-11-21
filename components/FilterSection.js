@@ -121,17 +121,17 @@ export const SearchFilter = memo(function SearchFilter({
       <FloatingLabel
         ref={inputRef}
         id="query-input"
-        variant="filled"
+        variant="outlined"
         label={t.search}
         value={query}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        className="w-full rounded-lg border-0"
+        className="focus:border-primary-500 border-0 bg-white focus:border"
       />
       {query && (
         <button
           type="button"
-          className="hover:text-accent-500 absolute top-1/2 right-2 -translate-y-1/2 rounded px-1 py-0.5 text-gray-500"
+          className="hover:text-accent-500 absolute top-1/2 right-2 -translate-y-1/2 rounded-lg px-1 py-0.5 text-black"
           aria-label={t.remove_filter}
           onClick={clearSearchBadge}
         >
