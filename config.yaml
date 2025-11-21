@@ -49,6 +49,7 @@ theme:
   dark: "#000000"
   primary_color: "#e31937"
   accent_color: "#FFB601"
+  accent_text_color: "black"
   background:
     light: "var(--color-white)"
     dark: "var(--color-neutral-900)"

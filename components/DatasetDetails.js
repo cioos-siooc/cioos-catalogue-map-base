@@ -270,7 +270,7 @@ export function DatasetDetails({ dataSetInfo, lang }) {
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-medium">{resourceName}</span>
                             {resource.format && (
-                              <span className="bg-accent-500 rounded px-2 py-0.5 text-xs font-medium text-white">
+                              <span className="bg-accent-500 text-accent-text rounded px-2 py-0.5 text-xs font-medium">
                                 {resource.format}
                               </span>
                             )}

@@ -101,7 +101,7 @@ export function Sidebar({
       content = `${count} / ${total}`;
     }
     return (
-      <div className="bg-accent-500 rounded-full px-1.5 py-0.5 text-xs font-extralight text-white">
+      <div className="bg-accent-500 text-accent-text rounded-full px-1.5 py-0.5 text-xs font-extralight">
         {content}
       </div>
     );
@@ -148,7 +148,7 @@ export function Sidebar({
               <div className="relative">
                 <MdFilterList className="text-2xl" />
                 {activeFilterCount > 0 && (
-                  <span className="bg-accent-500 absolute -top-1 -right-3 rounded-full px-1 text-xs text-black">
+                  <span className="bg-accent-500 text-accent-text absolute -top-1 -right-3 rounded-full px-1 text-xs text-black">
                     {activeFilterCount}
                   </span>
                 )}
