@@ -47,12 +47,12 @@ metadata:
 theme:
   light: "#ffffff"
   dark: "#000000"
-  primary_color: "#e31937"
-  accent_color: "#FFB601"
+  primary_color: "#52a79b"
+  accent_color: "#fa7268"
   accent_text_color: "black"
   background:
-    light: "var(--color-white)"
-    dark: "var(--color-neutral-900)"
+    light: "var(--color-primary-50)"
+    dark: "var(--color-primary-800)"
   ui:
     light: "var(--color-primary-200)"
     dark: "var(--color-primary-700)"
