@@ -23,18 +23,15 @@ const generateTheme = () => {
 
   // Generate CSS content with both palettes
   const themeConfig = config.theme;
-  const lightBg = themeConfig?.background?.light || "#ffffff";
-  const darkBg = themeConfig?.background?.dark || "#0a0a0a";
-
   const cssContent = `@theme {
     ${generatePalette(primary_color, "primary")}
     ${generatePalette(accent_color, "accent")}
-    --color-background-light: ${lightBg};
-    --color-background-dark: ${darkBg};
+    --color-background-light:  ${themeConfig?.background?.light || "--color-primary-50"};
+    --color-background-dark: ${themeConfig?.background?.dark || "--color-primary-800"};
     --color-ui-light: ${themeConfig?.ui?.light || "--color-primary-200"};
     --color-ui-dark: ${themeConfig?.ui?.dark || "--color-primary-700"};
-    --color-ui-text-light: ${themeConfig?.ui?.text_light || "--color-black"};
-    --color-ui-text-dark: ${themeConfig?.ui?.text_dark || "--color-white"};
+    --color-ui-text-light: ${themeConfig?.ui?.text_light || "--color-neutral-950"};
+    --color-ui-text-dark: ${themeConfig?.ui?.text_dark || "--color-neutral-50"};
     --color-accent-text: ${themeConfig?.accent_text_color || "black"};
   }\n`;
 
