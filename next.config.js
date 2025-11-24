@@ -26,12 +26,12 @@ const generateTheme = () => {
   const cssContent = `@theme {
     ${generatePalette(primary_color, "primary")}
     ${generatePalette(accent_color, "accent")}
-    --color-background-light:  ${themeConfig?.background?.light || "--color-primary-50"};
-    --color-background-dark: ${themeConfig?.background?.dark || "--color-primary-800"};
-    --color-ui-light: ${themeConfig?.ui?.light || "--color-primary-200"};
-    --color-ui-dark: ${themeConfig?.ui?.dark || "--color-primary-700"};
-    --color-ui-text-light: ${themeConfig?.ui?.text_light || "--color-neutral-950"};
-    --color-ui-text-dark: ${themeConfig?.ui?.text_dark || "--color-neutral-50"};
+    --color-background-light:  ${themeConfig?.background?.light || "var(--color-primary-50)"};
+    --color-background-dark: ${themeConfig?.background?.dark || "var(--color-primary-800)"};
+    --color-ui-light: ${themeConfig?.ui?.light || "var(--color-primary-200)"};
+    --color-ui-dark: ${themeConfig?.ui?.dark || "var(--color-primary-700)"};
+    --color-ui-text-light: ${themeConfig?.ui?.text_light || "var(--color-neutral-950)"};
+    --color-ui-text-dark: ${themeConfig?.ui?.text_dark || "var(--color-neutral-50)"};
     --color-accent-text: ${themeConfig?.accent_text_color || "black"};
   }\n`;
 
