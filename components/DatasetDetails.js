@@ -141,31 +141,6 @@ export function DatasetDetails({ dataSetInfo, lang }) {
                 )}
               />
             )}
-            {dataSetInfo?.groups &&
-              dataSetInfo.groups.length > 0 &&
-              (() => {
-                // Filter to show only responsible organizations (type: resorg)
-                const resorgGroups = dataSetInfo.groups.filter(
-                  (g) => g.type === "resorg",
-                );
-                return resorgGroups.length > 0 ? (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                      {t.responsible_organizations ||
-                        "Responsible Organizations"}
-                      :
-                    </span>
-                    {resorgGroups.map((group) => (
-                      <span
-                        key={group.id}
-                        className="pl-2 text-xs text-black dark:text-white"
-                      >
-                        • {group.title_translated?.[lang] || group.display_name}
-                      </span>
-                    ))}
-                  </div>
-                ) : null;
-              })()}
             {dataSetInfo?.name && (
               <MetadataItem
                 label="Catalogue"
@@ -209,6 +184,49 @@ export function DatasetDetails({ dataSetInfo, lang }) {
               />
             )}
           </div>
+
+          {/* Responsible Organizations Section */}
+          {dataSetInfo?.groups &&
+            dataSetInfo.groups.length > 0 &&
+            (() => {
+              const resorgGroups = dataSetInfo.groups.filter(
+                (g) => g.type === "resorg",
+              );
+              return resorgGroups.length > 0 ? (
+                <div className="space-y-2 py-3">
+                  <h3 className="text-sm font-semibold">
+                    {t.responsible_organizations || "Responsible Organizations"}
+                  </h3>
+                  <div className="flex flex-col gap-2">
+                    {resorgGroups.map((group) => {
+                      const groupImage = group.image_local
+                        ? `${basePath}/${group.image_local}`
+                        : null;
+                      return (
+                        <div
+                          key={group.id}
+                          className="bg-background-light dark:bg-background-dark flex items-center gap-3 rounded-md p-2"
+                        >
+                          {groupImage && (
+                            <Image
+                              className="h-12 w-auto max-w-[80px] rounded-sm bg-white object-contain p-1"
+                              src={groupImage}
+                              alt={`${group.title_translated?.[lang] || group.display_name} logo`}
+                              width={80}
+                              height={48}
+                            />
+                          )}
+                          <span className="flex-1 text-xs font-medium">
+                            {group.title_translated?.[lang] ||
+                              group.display_name}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null;
+            })()}
         </div>
 
         {/* View in Catalogue Button */}

@@ -150,14 +150,50 @@ async function fetchAllPackages() {
         const datasetPath = path.join(datasetsDir, `${item.name}.json`);
         fs.writeFileSync(datasetPath, JSON.stringify(fullRecord), "utf8");
 
-        // Extract all groups
-        const groups = (fullRecord.groups || []).map((g) => ({
-          id: g.id,
-          name: g.name,
-          type: g.type,
-          title_translated: g.title_translated,
-          display_name: g.display_name,
-        }));
+        // Extract all groups and download their logos
+        const groups = [];
+        for (const g of fullRecord.groups || []) {
+          let groupImageLocal = null;
+          // Try to get image URL from multiple sources
+          let groupImageUrl = g.image_url || g.image_display_url;
+          if (!groupImageUrl && g.image_url_translated) {
+            groupImageUrl =
+              g.image_url_translated.en ||
+              g.image_url_translated.fr ||
+              Object.values(g.image_url_translated)[0];
+          }
+
+          if (groupImageUrl) {
+            groupImageUrl = groupImageUrl.startsWith("http")
+              ? groupImageUrl
+              : `${config.catalogue_url}${groupImageUrl}`;
+            const groupFolder = path.join(
+              "public",
+              "groups",
+              g.name ||
+                createHash("md5")
+                  .update(g.display_name || g.id || "")
+                  .digest("hex"),
+            );
+            ensureDir(groupFolder);
+            const ext = path.extname(groupImageUrl.split("?")[0]) || ".png";
+            const localLogoPath = path.join(groupFolder, `logo${ext}`);
+            const downloaded = await downloadFile(groupImageUrl, localLogoPath);
+            if (downloaded)
+              groupImageLocal = path
+                .relative("public", downloaded)
+                .replace(/\\/g, "/");
+          }
+
+          groups.push({
+            id: g.id,
+            name: g.name,
+            type: g.type,
+            title_translated: g.title_translated,
+            display_name: g.display_name,
+            image_local: groupImageLocal,
+          });
+        }
 
         summaries.push({
           id: item.id,
