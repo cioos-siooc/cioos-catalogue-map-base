@@ -32,7 +32,7 @@ export default function ItemsList({
   return (
     <div
       id="drawer-navigation"
-      className="grid-flow-rowtransition-transform z-50 grid duration-300 ease-in-out"
+      className="z-50 grid grid-flow-row transition-transform duration-300 ease-in-out"
     >
       <ul className="space-y-2 font-medium">
         {itemsList.map(

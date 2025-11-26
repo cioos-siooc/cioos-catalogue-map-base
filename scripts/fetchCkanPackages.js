@@ -149,6 +149,16 @@ async function fetchAllPackages() {
         }
         const datasetPath = path.join(datasetsDir, `${item.name}.json`);
         fs.writeFileSync(datasetPath, JSON.stringify(fullRecord), "utf8");
+
+        // Extract all groups
+        const groups = (fullRecord.groups || []).map((g) => ({
+          id: g.id,
+          name: g.name,
+          type: g.type,
+          title_translated: g.title_translated,
+          display_name: g.display_name,
+        }));
+
         summaries.push({
           id: item.id,
           name: item.name,
@@ -162,6 +172,7 @@ async function fetchAllPackages() {
             name: fullRecord.organization?.name,
             image_local: orgImageLocal || null,
           },
+          groups: groups,
           temporal_extent: { begin, end },
           spatial: item.spatial,
         });

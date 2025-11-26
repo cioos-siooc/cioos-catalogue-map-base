@@ -141,6 +141,31 @@ export function DatasetDetails({ dataSetInfo, lang }) {
                 )}
               />
             )}
+            {dataSetInfo?.groups &&
+              dataSetInfo.groups.length > 0 &&
+              (() => {
+                // Filter to show only responsible organizations (type: resorg)
+                const resorgGroups = dataSetInfo.groups.filter(
+                  (g) => g.type === "resorg",
+                );
+                return resorgGroups.length > 0 ? (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                      {t.responsible_organizations ||
+                        "Responsible Organizations"}
+                      :
+                    </span>
+                    {resorgGroups.map((group) => (
+                      <span
+                        key={group.id}
+                        className="pl-2 text-xs text-black dark:text-white"
+                      >
+                        • {group.title_translated?.[lang] || group.display_name}
+                      </span>
+                    ))}
+                  </div>
+                ) : null;
+              })()}
             {dataSetInfo?.name && (
               <MetadataItem
                 label="Catalogue"

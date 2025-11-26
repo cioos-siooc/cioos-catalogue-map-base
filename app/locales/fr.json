@@ -36,5 +36,6 @@
   "clear_all_filters": "Effacer tous les filtres",
   "view_in_catalogue": "Voir dans le Catalogue",
   "resources": "Ressources",
-  "no_resources": "Aucune ressource disponible"
+  "no_resources": "Aucune ressource disponible",
+  "responsible_organizations": "Organisations Responsables"
 }
