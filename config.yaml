@@ -79,25 +79,25 @@ favicon: "./favicon.ico"
 # main_logo: This logo is typically used as the main branding
 #           element in the application.
 main_logo:
-  - url: "/Images/cioos-national_EN-01.png"
+  - url: "./Images/cioos-national_EN-01.png"
     lang: en
     mode: light
     alt: "CIOOS National"
     # className: "h-[6vh] max-h-[65px] w-auto m-2"
     link: "https://cioos.ca"
-  - url: "/Images/cioos-national_FR-01.png"
+  - url: "./Images/cioos-national_FR-01.png"
     lang: fr
     mode: light
     alt: "CIOOS National"
     # className: "h-[6vh] max-h-[65px] w-auto m-2"
     link: "https://siooc.ca/fr"
-  - url: "/Images/cioos-national_EN_W.svg"
+  - url: "./Images/cioos-national_EN_W.svg"
     lang: en
     mode: dark
     alt: "CIOOS National"
     # className: "h-[6vh] max-h-[65px] w-auto m-2"
     link: "https://cioos.ca"
-  - url: "/Images/cioos-national_FR_W.svg"
+  - url: "./Images/cioos-national_FR_W.svg"
     lang: fr
     mode: dark
     alt: "CIOOS National"
@@ -107,23 +107,23 @@ main_logo:
 # bottom_logo: Specifies the footer or secondary logo,
 #  often used for additional branding or partner logos.
 bottom_logo:
-  # - url: "/Images/cioos-national_EN-01.png"
+  # - url: "./Images/cioos-national_EN-01.png"
   #   lang: en
   #   mode: light
   #   alt: "CIOOS National"
   #   className: "h-[6vh] max-h-[50px] w-auto m-2"
   #   link: "/"
-  # - url: "/Images/cioos-national_FR-01.png"
+  # - url: "./Images/cioos-national_FR-01.png"
   #   lang: fr
   #   mode: light
   #   alt: "CIOOS National"
   #   className: "h-[6vh] max-h-[50px] w-auto m-2"
-  # - url: "/Images/cioos-national_EN_W.svg"
+  # - url: "./Images/cioos-national_EN_W.svg"
   #   lang: en
   #   mode: dark
   #   alt: "CIOOS National"
   #   className: "h-[6vh] max-h-[50px] w-auto m-2"
-  # - url: "/Images/cioos-national_FR_W.svg"
+  # - url: "./Images/cioos-national_FR_W.svg"
   #   lang: fr
   #   mode: dark
   #   alt: "CIOOS National"

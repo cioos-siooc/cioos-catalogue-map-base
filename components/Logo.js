@@ -69,28 +69,29 @@ const Logo = ({ logos, lang, default_width, force_mode }) => {
   );
 
   // Fallback to the first logo if no match is found
-  const logoURL = matchingLogo
-    ? matchingLogo.url.startsWith("/")
-      ? `${basePath}${matchingLogo.url}` // Prepend basePath if the URL starts with "/"
-      : matchingLogo.url
-    : availableLogos[0]?.url;
-  const logoAlt = matchingLogo ? matchingLogo.alt : "Default Logo";
+  const selectedLogo = matchingLogo || availableLogos[0];
+  const logoURL = selectedLogo
+    ? selectedLogo.url.startsWith("/")
+      ? `${basePath}${selectedLogo.url}` // Prepend basePath if the URL starts with "/"
+      : selectedLogo.url
+    : null;
+  const logoAlt = selectedLogo ? selectedLogo.alt : "Default Logo";
 
   return (
     <>
       {logoURL && (
         <a
-          href={matchingLogo?.link || undefined}
-          target={matchingLogo?.link ? "_blank" : undefined}
-          rel={matchingLogo?.link ? "noopener noreferrer" : undefined}
+          href={selectedLogo?.link || undefined}
+          target={selectedLogo?.link ? "_blank" : undefined}
+          rel={selectedLogo?.link ? "noopener noreferrer" : undefined}
         >
           <Image
             src={logoURL}
             alt={logoAlt}
             className={
-              matchingLogo?.className || "m-1 h-[6vh] max-h-[65px] w-auto"
+              selectedLogo?.className || "m-1 h-[6vh] max-h-[65px] w-auto"
             }
-            width={matchingLogo?.width || default_width}
+            width={selectedLogo?.width || default_width}
             height={0}
           />
         </a>
