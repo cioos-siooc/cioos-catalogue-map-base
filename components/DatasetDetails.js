@@ -1,17 +1,17 @@
 "use client";
 
-import { Drawer, DrawerItems } from "flowbite-react";
-import { DrawerContext } from "../app/context/DrawerContext";
-import Image from "next/image";
-import { parseCitation, Citation } from "@/components/Citation";
-import { useContext } from "react";
-import { getLocale } from "@/app/get-locale.js";
 import config from "@/app/config.js";
+import { getLocale } from "@/app/get-locale.js";
+import { Citation, parseCitation } from "@/components/Citation";
 import DOMPurify from "dompurify";
-import { IoMdClose } from "react-icons/io";
-import { GoLinkExternal } from "react-icons/go";
+import { Drawer, DrawerItems } from "flowbite-react";
 import { marked } from "marked";
 import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useContext } from "react";
+import { GoLinkExternal } from "react-icons/go";
+import { IoMdClose } from "react-icons/io";
+import { DrawerContext } from "../app/context/DrawerContext";
 
 // Dynamically import MiniMap to avoid SSR issues with Leaflet
 const MiniMap = dynamic(

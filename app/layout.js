@@ -1,30 +1,26 @@
 "use client";
 
-import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
-import "./globals.css";
-import config from "./config.js";
-import { DrawerProvider, DrawerContext } from "./context/DrawerContext";
-import { useState, useEffect, useCallback, useRef } from "react";
-import { Sidebar, TopBanner } from "@/components/LeftMenu";
-import { DatasetDetails } from "@/components/DatasetDetails";
 import { Banner } from "@/components/Banner";
-import Logo from "@/components/Logo";
-import dynamic from "next/dynamic";
-import React from "react";
+import { DatasetDetails } from "@/components/DatasetDetails";
 import {
+  fetchDataSetInfo,
+  fillOrganizationAndProjectLists,
+} from "@/components/FetchItemsListManagement";
+import { filterItemsByBadges } from "@/components/FilterManagement";
+import { Sidebar, TopBanner } from "@/components/LeftMenu";
+import Logo from "@/components/Logo";
+import {
+  initURLUpdateProcess,
   manageURLParametersOnLoad,
   updateURLWithSelectedItem,
-  initURLUpdateProcess,
 } from "@/components/UrlParametrization";
-import {
-  filterItemsByBadges,
-  fetchAndFilterEovsTranslated,
-} from "@/components/FilterManagement";
-import {
-  fillOrganizationAndProjectLists,
-  fetchDataSetInfo,
-} from "@/components/FetchItemsListManagement";
+import dynamic from "next/dynamic";
+import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import config from "./config.js";
+import { DrawerContext, DrawerProvider } from "./context/DrawerContext";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

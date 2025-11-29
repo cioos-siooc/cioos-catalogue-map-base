@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { MdClose } from "react-icons/md";
 import config from "@/app/config.js";
-import { marked } from "marked";
 import DOMPurify from "dompurify";
+import { marked } from "marked";
+import { useEffect, useState } from "react";
+import { MdClose } from "react-icons/md";
 
 /**
  * Banner component that displays a temporary message with optional expiration date

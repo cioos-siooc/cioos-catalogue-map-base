@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { getLocale } from "@/app/get-locale";
 import Cite from "citation-js"; // Import Citation.js
 import DOMPurify from "dompurify";
+import { useEffect, useState } from "react";
 import { GoLinkExternal } from "react-icons/go";
-import { getLocale } from "@/app/get-locale";
 
 export function parseCitation(citation) {
   try {

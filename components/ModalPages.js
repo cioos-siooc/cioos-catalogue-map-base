@@ -1,9 +1,8 @@
-import { Modal, ModalBody, ModalHeader } from "flowbite-react";
-import { useEffect, useState } from "react";
-import { MdInfoOutline } from "react-icons/md";
-import { IoMdClose } from "react-icons/io";
 import config from "@/app/config.js";
+import { Modal, ModalBody } from "flowbite-react";
 import { marked } from "marked";
+import { useEffect, useState } from "react";
+import { IoMdClose } from "react-icons/io";
 const basePath = process.env.BASE_PATH || "";
 export default function ModalPages({
   lang,

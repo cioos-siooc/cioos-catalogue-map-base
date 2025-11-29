@@ -1,9 +1,9 @@
 "use client";
 
-import { MapContainer, TileLayer, GeoJSON, useMap } from "react-leaflet";
-import { useEffect, useMemo } from "react";
-import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { useEffect, useMemo } from "react";
+import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet";
 
 // Component to handle fitting bounds when spatial data changes
 function FitBoundsToGeoJSON({ spatial }) {

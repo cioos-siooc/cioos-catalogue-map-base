@@ -1,6 +1,6 @@
+import config from "@/app/config.js";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import config from "@/app/config.js";
 
 const basePath = process.env.BASE_PATH || "";
 

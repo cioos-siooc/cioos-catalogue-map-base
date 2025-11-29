@@ -1,19 +1,18 @@
 "use client";
-import dynamic from "next/dynamic";
-import ItemsList from "@/components/ItemsList";
-import ModalPages from "@/components/ModalPages";
 import config from "@/app/config.js";
 import { getLocale } from "@/app/get-locale.js";
-import FilterSection, { SearchFilter } from "./FilterSection";
-import Logo from "./Logo";
+import ItemsList from "@/components/ItemsList";
+import ModalPages from "@/components/ModalPages";
 import { BsDatabase } from "react-icons/bs";
 import {
-  MdLanguage,
-  MdInfoOutline,
-  MdFilterList,
   MdClose,
+  MdFilterList,
+  MdInfoOutline,
+  MdLanguage,
   MdMenu,
 } from "react-icons/md";
+import FilterSection, { SearchFilter } from "./FilterSection";
+import Logo from "./Logo";
 
 export const TopBanner = ({ lang, toggleSidebar, isSidebarOpen }) => {
   return (

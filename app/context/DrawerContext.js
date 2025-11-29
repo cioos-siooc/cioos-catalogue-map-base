@@ -1,7 +1,7 @@
 // context/DrawerContext.js
 "use client";
 
-import React, { createContext, useState, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 
 export const DrawerContext = createContext({
   isDrawerOpen: false,

@@ -1,6 +1,6 @@
 "use client";
-import { ImSpinner2 } from "react-icons/im";
 import { getLocale } from "@/app/get-locale";
+import { ImSpinner2 } from "react-icons/im";
 
 export default function ItemsList({
   itemsList,

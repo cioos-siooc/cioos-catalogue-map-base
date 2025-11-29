@@ -1,6 +1,6 @@
+import { getLocale } from "@/app/get-locale";
 import SelectReact from "react-select";
 import makeAnimated from "react-select/animated";
-import { getLocale } from "@/app/get-locale";
 
 export function SelectReactComponent({
   filter_type,

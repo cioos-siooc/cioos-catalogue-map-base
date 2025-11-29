@@ -1,33 +1,32 @@
 "use client";
 
-import "leaflet/dist/leaflet.css";
-import "react-leaflet-markercluster/styles";
-import {
-  MapContainer,
-  TileLayer,
-  useMap,
-  Tooltip,
-  LayersControl,
-  ZoomControl,
-} from "react-leaflet";
-import { Marker } from "react-leaflet";
-import MarkerClusterGroup from "react-leaflet-markercluster";
-import * as turf from "@turf/turf";
-import { DrawerContext } from "../app/context/DrawerContext";
-import {
-  useContext,
-  useLayoutEffect,
-  useEffect,
-  forwardRef,
-  useRef,
-  memo,
-  useImperativeHandle,
-  useMemo,
-  useState,
-} from "react";
-import L from "leaflet";
 import config from "@/app/config";
 import { getLocale } from "@/app/get-locale";
+import * as turf from "@turf/turf";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import {
+  forwardRef,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  LayersControl,
+  MapContainer,
+  Marker,
+  TileLayer,
+  Tooltip,
+  useMap,
+  ZoomControl,
+} from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-markercluster";
+import "react-leaflet-markercluster/styles";
+import { DrawerContext } from "../app/context/DrawerContext";
 
 const { BaseLayer, Overlay } = LayersControl;
 

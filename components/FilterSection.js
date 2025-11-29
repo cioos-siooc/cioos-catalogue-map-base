@@ -1,20 +1,20 @@
 "use client";
 
+import { getLocale } from "@/app/get-locale";
+import { updateURLWithBadges } from "@/components/UrlParametrization";
 import {
   Button,
+  Datepicker,
+  FloatingLabel,
   Modal,
   ModalBody,
-  ModalHeader,
   ModalFooter,
-  FloatingLabel,
+  ModalHeader,
   Select,
-  Datepicker,
 } from "flowbite-react";
-import { useState, useEffect, useRef, useMemo, memo } from "react";
-import { getLocale } from "@/app/get-locale";
-import { SelectReactComponent } from "./SelectReact";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { FiDelete } from "react-icons/fi";
-import { updateURLWithBadges } from "@/components/UrlParametrization";
+import { SelectReactComponent } from "./SelectReact";
 
 // Helper to format an ISO date to YYYY-MM-DD (machine-friendly)
 function toYMD(iso) {
