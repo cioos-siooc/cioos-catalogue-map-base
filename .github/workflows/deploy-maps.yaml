@@ -25,6 +25,9 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy-pages.outputs.page_url }}
 
     steps:
       - name: Checkout Repository
@@ -243,6 +246,17 @@ jobs:
             git commit -m "Deploy ${{ env.DEPLOY_PATH }} from ${{ github.sha }}"
             git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
           fi
+
+      # Upload the site content as a Pages artifact
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: gh-pages-branch
+
+      # Deploy the artifact to GitHub Pages to create an active deployment
+      - name: Deploy Pages
+        id: deploy-pages
+        uses: actions/deploy-pages@v4
 
       # Add comment to PR with deployment URL
       - name: Comment PR with deployment URL
