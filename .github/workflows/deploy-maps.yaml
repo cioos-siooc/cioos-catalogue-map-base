@@ -25,6 +25,10 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # Attach github-pages environment so PRs and branches create active deployments
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy-pages.outputs.page_url }}
 
     steps:
       - name: Checkout Repository
