@@ -119,6 +119,9 @@ const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
     // Only add polygon if it doesn't already exist
     if (e.target._hoverPolygon) return;
 
+    // Skip drawing polygon for point geometries (causes flickering)
+    if (record.spatial.type === "Point") return;
+
     const map = e.target._map;
     const polygon = L.geoJSON(record.spatial, {
       style: {
