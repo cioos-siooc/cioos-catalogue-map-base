@@ -188,19 +188,18 @@ const TimeFilter = memo(function TimeFilter({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [badges?.filter_date, badges?.filter_date_field]);
 
-  // Apply time filter
-  const applyTimeFilter = () => {
-    if (!startDate || !endDate) return;
-    // Persist the selected type to the parent for filtering
-    if (selectedType) setSelectedOption(selectedType);
-    const strDates = `${toYMD(startDate.toISOString())}%20TO%20${toYMD(endDate.toISOString())}`;
-    setBadges((prev) => ({
-      ...prev,
-      filter_date: strDates,
-      ...(selectedType ? { filter_date_field: selectedType } : {}),
-    }));
-    setOpenModal(false);
-  };
+  // Apply time filter whenever dates or type change
+  useEffect(() => {
+    if (startDate && endDate && selectedType) {
+      const strDates = `${toYMD(startDate.toISOString())}%20TO%20${toYMD(endDate.toISOString())}`;
+      setBadges((prev) => ({
+        ...prev,
+        filter_date: strDates,
+        filter_date_field: selectedType,
+      }));
+      setSelectedOption(selectedType);
+    }
+  }, [startDate, endDate, selectedType, setBadges, setSelectedOption]);
 
   function onCloseModal() {
     setOpenModal(false);
@@ -256,14 +255,14 @@ const TimeFilter = memo(function TimeFilter({
         )}
       </Button>
       <Dialog open={openModal} onOpenChange={(open) => !open && onCloseModal()}>
-        <DialogContent className="bg-background-light dark:bg-background-dark max-w-3xl">
+        <DialogContent className="bg-background-light dark:bg-background-dark max-w-5xl">
           <DialogHeader>
             <DialogTitle>
               {t.filter_by} {t.time}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4 overflow-visible p-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-col gap-4 p-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-2">
                 <Label
                   htmlFor="date-filter-type"
@@ -278,7 +277,7 @@ const TimeFilter = memo(function TimeFilter({
                     setSelectedOption(value);
                   }}
                 >
-                  <SelectTrigger id="date-filter-type" className="w-full">
+                  <SelectTrigger id="date-filter-type" className="h-10 w-full">
                     <SelectValue placeholder={t.select} />
                   </SelectTrigger>
                   <SelectContent>
@@ -307,7 +306,7 @@ const TimeFilter = memo(function TimeFilter({
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal",
+                        "h-10 w-full justify-start text-left font-normal",
                         !startDate && "text-muted-foreground",
                       )}
                     >
@@ -345,7 +344,7 @@ const TimeFilter = memo(function TimeFilter({
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal",
+                        "h-10 w-full justify-start text-left font-normal",
                         !endDate && "text-muted-foreground",
                       )}
                     >
@@ -374,32 +373,15 @@ const TimeFilter = memo(function TimeFilter({
                   </PopoverContent>
                 </Popover>
               </div>
-            </div>
-
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-xs opacity-80">
-                {selectedType && (
-                  <span className="bg-background-light dark:bg-background-dark mr-2 inline-block rounded px-2 py-0.5">
-                    {t[selectedType] || selectedType}
-                  </span>
-                )}
-                {startDate && endDate && (
-                  <span>
-                    {toYMD(startDate.toISOString())} {t.between_date}{" "}
-                    {toYMD(endDate.toISOString())}
-                  </span>
-                )}
-              </div>
-              <div className="mt-2 flex gap-2 sm:mt-0">
-                <Button variant="outline" size="sm" onClick={clearTimeBadge}>
-                  {t.clear}
-                </Button>
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm opacity-80">&nbsp;</Label>
                 <Button
-                  size="sm"
-                  onClick={applyTimeFilter}
-                  disabled={!startDate || !endDate || !selectedType}
+                  variant="outline"
+                  className="h-10 shrink-0 hover:bg-red-100 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+                  onClick={clearTimeBadge}
+                  disabled={!badges?.filter_date}
                 >
-                  {t.apply}
+                  {t.clear}
                 </Button>
               </div>
             </div>
