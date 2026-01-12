@@ -1,20 +1,36 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  ModalFooter,
-  FloatingLabel,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
   Select,
-  Datepicker,
-} from "flowbite-react";
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useState, useEffect, useRef, useMemo, memo } from "react";
 import { getLocale } from "@/app/get-locale";
 import { SelectReactComponent } from "./SelectReact";
 import { FiDelete } from "react-icons/fi";
 import { updateURLWithBadges } from "@/components/UrlParametrization";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Helper to format an ISO date to YYYY-MM-DD (machine-friendly)
 function toYMD(iso) {
@@ -116,21 +132,22 @@ export const SearchFilter = memo(function SearchFilter({
   };
 
   return (
-    <div className="relative w-full cursor-text" onClick={handleBoxClick}>
-      <FloatingLabel
+    <div className="relative w-full" onClick={handleBoxClick}>
+      <Label htmlFor="query-input" className="mb-1.5 text-sm">
+        {t.search}
+      </Label>
+      <Input
         ref={inputRef}
         id="query-input"
-        variant="outlined"
-        label={t.search}
         value={query}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        className="focus:border-primary-500 dark:bg-background-dark border-0 bg-white focus:border"
+        className="focus:border-primary-500 dark:bg-background-dark border-0 bg-white pr-8 focus:border"
       />
       {query && (
         <button
           type="button"
-          className="hover:text-accent-500 absolute top-1/2 right-2 -translate-y-1/2 rounded-lg px-1 py-0.5 text-black"
+          className="hover:text-accent-500 absolute top-[34px] right-2 rounded-lg px-1 py-0.5 text-black dark:text-white"
           aria-label={t.remove_filter}
           onClick={clearSearchBadge}
         >
@@ -212,9 +229,7 @@ const TimeFilter = memo(function TimeFilter({
   return (
     <>
       <Button
-        className="bg-primary-500 gap-1 border border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:cursor-pointer hover:shadow-lg"
-        pill
-        size="xs"
+        className="bg-primary-500 h-7 gap-1 rounded-full border border-white/20 px-3 text-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
         onClick={() => setOpenModal(true)}
       >
         {badges?.filter_date ? (
@@ -240,115 +255,145 @@ const TimeFilter = memo(function TimeFilter({
           <div>{t.time}</div>
         )}
       </Button>
-      <Modal
-        dismissible
-        show={openModal}
-        size="3xl"
-        onClose={onCloseModal}
-        popup
-      >
-        <ModalHeader>
-          {t.filter_by} {t.time}
-        </ModalHeader>
-        <ModalBody className="flex flex-col gap-4 overflow-visible p-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="flex flex-col">
-              <label
-                htmlFor="date-filter-type"
-                className="mb-1 text-sm opacity-80"
-              >
-                {t.timefield}
-              </label>
-              <Select
-                className="w-full min-w-[180px] p-2"
-                id="date-filter-type"
-                value={selectedType}
-                onChange={(e) => {
-                  setSelectedType(e.target.value);
-                  setSelectedOption(e.target.value);
-                }}
-              >
-                <option value="">{t.select}</option>
-                <option value="temporal-extent-begin">
-                  {t["temporal-extent-begin"]}
-                </option>
-                <option value="temporal-extent-end">
-                  {t["temporal-extent-end"]}
-                </option>
-                <option value="temporal-extent-overlaps">
-                  {t["temporal-extent-overlaps"]}
-                </option>
-                <option value="metadata_created">
-                  {t["metadata_created"]}
-                </option>
-                <option value="metadata_modified">
-                  {t["metadata_modified"]}
-                </option>
-              </Select>
+      <Dialog open={openModal} onOpenChange={(open) => !open && onCloseModal()}>
+        <DialogContent className="bg-background-light dark:bg-background-dark max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>
+              {t.filter_by} {t.time}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 overflow-visible p-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="flex flex-col gap-2">
+                <Label
+                  htmlFor="date-filter-type"
+                  className="text-sm opacity-80"
+                >
+                  {t.timefield}
+                </Label>
+                <Select
+                  value={selectedType}
+                  onValueChange={(value) => {
+                    setSelectedType(value);
+                    setSelectedOption(value);
+                  }}
+                >
+                  <SelectTrigger id="date-filter-type" className="w-full">
+                    <SelectValue placeholder={t.select} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="temporal-extent-begin">
+                      {t["temporal-extent-begin"]}
+                    </SelectItem>
+                    <SelectItem value="temporal-extent-end">
+                      {t["temporal-extent-end"]}
+                    </SelectItem>
+                    <SelectItem value="temporal-extent-overlaps">
+                      {t["temporal-extent-overlaps"]}
+                    </SelectItem>
+                    <SelectItem value="metadata_created">
+                      {t["metadata_created"]}
+                    </SelectItem>
+                    <SelectItem value="metadata_modified">
+                      {t["metadata_modified"]}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm opacity-80">{t.from}</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !startDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? (
+                        format(startDate, "PPP")
+                      ) : (
+                        <span>{t.start_date}</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="bg-background-light dark:bg-background-dark w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={handleStartDateChange}
+                      disabled={(date) =>
+                        date > (endDate || new Date()) || date > new Date()
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm opacity-80">{t.to}</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !endDate && "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? (
+                        format(endDate, "PPP")
+                      ) : (
+                        <span>{t.end_date}</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="bg-background-light dark:bg-background-dark w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={handleEndDateChange}
+                      disabled={(date) => date < startDate || date > new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <label className="mb-1 text-sm opacity-80">{t.from}</label>
-              <Datepicker
-                className="w-full min-w-[180px] p-2"
-                language={`${lang}-CA`}
-                onChange={handleStartDateChange}
-                value={startDate}
-                selected={startDate}
-                maxDate={endDate || new Date()}
-                labelTodayButton={t.today}
-                labelClearButton={t.clear}
-                placeholder={t.start_date}
-                onKeyDown={(e) => e.key === "Enter" && applyTimeFilter()}
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="mb-1 text-sm opacity-80">{t.to}</label>
-              <Datepicker
-                className="w-full min-w-[180px] p-2"
-                language={`${lang}-CA`}
-                onChange={handleEndDateChange}
-                value={endDate}
-                selected={endDate}
-                minDate={startDate}
-                maxDate={new Date()}
-                labelTodayButton={t.today}
-                labelClearButton={t.clear}
-                placeholder={t.end_date}
-                onKeyDown={(e) => e.key === "Enter" && applyTimeFilter()}
-              />
-            </div>
-          </div>
 
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-xs opacity-80">
-              {selectedType && (
-                <span className="bg-background-light dark:bg-background-dark mr-2 inline-block rounded px-2 py-0.5">
-                  {t[selectedType] || selectedType}
-                </span>
-              )}
-              {startDate && endDate && (
-                <span>
-                  {toYMD(startDate.toISOString())} {t.between_date}{" "}
-                  {toYMD(endDate.toISOString())}
-                </span>
-              )}
-            </div>
-            <div className="mt-2 flex gap-2 sm:mt-0">
-              <Button color="gray" size="sm" onClick={clearTimeBadge}>
-                {t.clear}
-              </Button>
-              <Button
-                color="blue"
-                size="sm"
-                onClick={applyTimeFilter}
-                disabled={!startDate || !endDate || !selectedType}
-              >
-                {t.apply}
-              </Button>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-xs opacity-80">
+                {selectedType && (
+                  <span className="bg-background-light dark:bg-background-dark mr-2 inline-block rounded px-2 py-0.5">
+                    {t[selectedType] || selectedType}
+                  </span>
+                )}
+                {startDate && endDate && (
+                  <span>
+                    {toYMD(startDate.toISOString())} {t.between_date}{" "}
+                    {toYMD(endDate.toISOString())}
+                  </span>
+                )}
+              </div>
+              <div className="mt-2 flex gap-2 sm:mt-0">
+                <Button variant="outline" size="sm" onClick={clearTimeBadge}>
+                  {t.clear}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={applyTimeFilter}
+                  disabled={!startDate || !endDate || !selectedType}
+                >
+                  {t.apply}
+                </Button>
+              </div>
             </div>
           </div>
-        </ModalBody>
-      </Modal>
+        </DialogContent>
+      </Dialog>
     </>
   );
 });
@@ -368,7 +413,7 @@ export const FilterItems = memo(function FilterItems({
   useEffect(() => {
     // Initialize query from badges if available to load existing filters in URL
     const selectedValues = badges[filter_type]
-      ? badges[filter_type].map((arr) => arr[1])
+      ? badges[filter_type].map((arr) => arr[0])
       : [];
 
     const badgeLabels = selectedValues
@@ -445,9 +490,7 @@ export const FilterItems = memo(function FilterItems({
   return (
     <>
       <Button
-        pill
-        size="xs"
-        className="bg-primary-500 gap-1 border border-white/20 transition-all duration-200 hover:-translate-y-0.5 hover:cursor-pointer hover:shadow-lg"
+        className="bg-primary-500 h-7 gap-1 rounded-full border border-white/20 px-3 text-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
         onClick={() => setOpenModal(true)}
       >
         {count > 0 && (
@@ -475,46 +518,44 @@ export const FilterItems = memo(function FilterItems({
         )}
         {count === 0 && <div>{t[filter_type]}</div>}
       </Button>
-      <Modal
-        dismissible
-        show={openModal}
-        size="lg"
-        onClose={onCloseModal}
-        popup
-      >
-        <ModalHeader>
-          {t.filter_by} {t[filter_type].toLowerCase()}
-        </ModalHeader>
-        <ModalBody className="pb-2">
-          <SelectReactComponent
-            filter_type={filter_type}
-            options={options}
-            setQuery={setQuery}
-            query={query}
-            lang={lang}
-            handleKeyDown={handleKeyDown}
-          />
-        </ModalBody>
-        <ModalFooter className="flex justify-end gap-2 pt-2">
-          <Button
-            color="gray"
-            size="sm"
-            onClick={() => {
-              setQuery([]);
-              setBadges((prev) => {
-                const next = { ...prev };
-                delete next[filter_type];
-                return next;
-              });
-            }}
-          >
-            {t.clear}
-          </Button>
-          <Button color="blue" size="sm" onClick={onCloseModal}>
-            {t.apply}
-          </Button>
-        </ModalFooter>
-      </Modal>
+      <Dialog open={openModal} onOpenChange={(open) => !open && onCloseModal()}>
+        <DialogContent className="bg-background-light dark:bg-background-dark max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {t.filter_by} {t[filter_type].toLowerCase()}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="pb-2">
+            <SelectReactComponent
+              filter_type={filter_type}
+              options={options}
+              setQuery={setQuery}
+              query={query}
+              lang={lang}
+              handleKeyDown={handleKeyDown}
+            />
+          </div>
+          <DialogFooter className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setQuery([]);
+                setBadges((prev) => {
+                  const next = { ...prev };
+                  delete next[filter_type];
+                  return next;
+                });
+              }}
+            >
+              {t.clear}
+            </Button>
+            <Button size="sm" onClick={onCloseModal}>
+              {t.apply}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 });

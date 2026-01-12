@@ -1,5 +1,23 @@
-import SelectReact from "react-select";
-import makeAnimated from "react-select/animated";
+"use client";
+
+import * as React from "react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 import { getLocale } from "@/app/get-locale";
 
 export function SelectReactComponent({
@@ -10,65 +28,128 @@ export function SelectReactComponent({
   lang,
   handleKeyDown,
 }) {
+  const [open, setOpen] = React.useState(false);
   const t = getLocale(lang) || {};
 
+  const selectedValues = React.useMemo(
+    () => new Set(query.map((item) => item[0])),
+    [query],
+  );
+
+  const handleSelect = (value, label) => {
+    const newSet = new Set(selectedValues);
+    if (newSet.has(value)) {
+      newSet.delete(value);
+    } else {
+      newSet.add(value);
+    }
+
+    const newQuery = Array.from(newSet).map((val) => {
+      const option = options.find((opt) => opt.value === val);
+      return [val, option?.label || label];
+    });
+    setQuery(newQuery);
+  };
+
+  const handleRemove = (value) => {
+    const newQuery = query.filter((item) => item[0] !== value);
+    setQuery(newQuery);
+  };
+
+  const handleClear = () => {
+    setQuery([]);
+  };
+
   return (
-    <>
-      <SelectReact
-        id={`${t[filter_type]?.toLowerCase?.() || filter_type}-select`}
-        isMulti
-        options={options}
-        value={query.map((val) => ({
-          value: val[0],
-          label: val[1],
-        }))}
-        onChange={(selectedOptions) => {
-          const values = selectedOptions
-            ? selectedOptions.map((opt) => [opt.value, opt.label])
-            : [];
-          setQuery(values);
-        }}
-        onKeyDown={handleKeyDown}
-        closeMenuOnSelect={false}
-        placeholder={t.select || "Select"}
-        components={makeAnimated()}
-        hideSelectedOptions={false}
-        menuPortalTarget={typeof window !== "undefined" ? document.body : null}
-        menuPosition="fixed"
-        unstyled
-        styles={{
-          menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-        }}
-        classNames={{
-          menu: () =>
-            "!bg-white dark:!bg-slate-900 !text-black dark:!text-gray-100 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 mt-1 overflow-hidden",
-          menuList: () => "py-1 max-h-64 overflow-y-auto",
-          option: ({ isSelected, isFocused }) =>
-            `px-3 py-2 cursor-pointer transition-colors ${
-              isSelected
-                ? "bg-primary-100 dark:bg-background-dark"
-                : isFocused
-                  ? "bg-blue-100 dark:bg-slate-700"
-                  : "bg-white dark:bg-slate-900"
-            } hover:bg-ui-light dark:hover:bg-ui-dark`,
-          control: () =>
-            "!bg-gray-50 dark:!bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm",
-          multiValue: () =>
-            "bg-primary-100 dark:bg-background-dark rounded items-center px-2 py-0.5 gap-1.5 flex",
-          multiValueLabel: () =>
-            "text-primary-800 dark:text-primary-100 text-sm leading-none p-1",
-          multiValueRemove: () =>
-            "text-gray-600 hover:bg-slate-700 hover:text-gray-400 rounded px-1 cursor-pointer",
-          placeholder: () => "text-gray-400 dark:text-gray-500 text-sm",
-          input: () => "text-black dark:text-white",
-          valueContainer: () => "gap-1 flex flex-wrap",
-          indicatorsContainer: () => "gap-1 flex",
-          clearIndicator: () =>
-            "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer p-1",
-          dropdownIndicator: () =>
-            "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer p-1",
-        }}
-      />
-    </>
+    <div className="flex flex-col gap-2">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+            onKeyDown={handleKeyDown}
+          >
+            <span className="truncate">
+              {query.length > 0
+                ? `${query.length} selected`
+                : t.select || "Select"}
+            </span>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="bg-white p-0 dark:bg-slate-900"
+          align="start"
+          style={{ width: "var(--radix-popover-trigger-width)" }}
+        >
+          <Command className="bg-white dark:bg-slate-900">
+            <CommandInput
+              placeholder={`${t.search || "Search"}...`}
+              className="h-9"
+            />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
+                {options.map((option) => {
+                  const isSelected = selectedValues.has(option.value);
+                  return (
+                    <CommandItem
+                      key={option.value}
+                      value={option.label}
+                      onSelect={() => handleSelect(option.value, option.label)}
+                      className="cursor-pointer"
+                    >
+                      <div
+                        className={cn(
+                          "border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border",
+                          isSelected
+                            ? "bg-primary text-primary-foreground"
+                            : "opacity-50 [&_svg]:invisible",
+                        )}
+                      >
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>{option.label}</span>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      {query.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {query.map((item) => (
+            <Badge
+              key={item[0]}
+              variant="secondary"
+              className="bg-primary-500 hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 border-primary-600 dark:border-primary-500 gap-1 border px-2 py-1 text-sm font-medium text-white shadow-sm"
+            >
+              {item[1]}
+              <button
+                type="button"
+                className="hover:bg-primary-700 dark:hover:bg-primary-800 ml-1 rounded-full p-0.5 transition-colors outline-none"
+                onClick={() => handleRemove(item[0])}
+                aria-label={`Remove ${item[1]}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+            onClick={handleClear}
+          >
+            Clear all
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
