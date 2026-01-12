@@ -319,7 +319,10 @@ const TimeFilter = memo(function TimeFilter({
                       )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="bg-background-light dark:bg-background-dark w-auto p-0">
+                  <PopoverContent
+                    className="bg-background-light dark:bg-background-dark p-0"
+                    align="start"
+                  >
                     <Calendar
                       mode="single"
                       selected={startDate}
@@ -327,6 +330,9 @@ const TimeFilter = memo(function TimeFilter({
                       disabled={(date) =>
                         date > (endDate || new Date()) || date > new Date()
                       }
+                      captionLayout="dropdown"
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
                       initialFocus
                     />
                   </PopoverContent>
@@ -351,12 +357,18 @@ const TimeFilter = memo(function TimeFilter({
                       )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="bg-background-light dark:bg-background-dark w-auto p-0">
+                  <PopoverContent
+                    className="bg-background-light dark:bg-background-dark p-0"
+                    align="start"
+                  >
                     <Calendar
                       mode="single"
                       selected={endDate}
                       onSelect={handleEndDateChange}
                       disabled={(date) => date < startDate || date > new Date()}
+                      captionLayout="dropdown"
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
                       initialFocus
                     />
                   </PopoverContent>
