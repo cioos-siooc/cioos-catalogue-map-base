@@ -1,1 +1,33 @@
+#!/bin/sh
+
+# Run commitlint and capture exit code
 npx --no -- commitlint --edit $1
+COMMITLINT_EXIT_CODE=$?
+
+# Check if commitlint failed
+if [ $COMMITLINT_EXIT_CODE -ne 0 ]; then
+  echo ""
+  echo "────────────────────────────────────────────────────────────────────────────"
+  echo "❌ COMMIT REJECTED - Message does not follow Conventional Commits format"
+  echo "────────────────────────────────────────────────────────────────────────────"
+  echo ""
+  echo "Your commit message must follow this format:"
+  echo "  <type>(<scope>): <subject>"
+  echo ""
+  echo "Valid types:"
+  echo "  feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+  echo ""
+  echo "Examples:"
+  echo "  ✅ feat: add user authentication"
+  echo "  ✅ fix: resolve login button crash"
+  echo "  ✅ feat(map): add custom marker icons"
+  echo "  ✅ chore: update dependencies"
+  echo ""
+  echo "For breaking changes, use ! or add BREAKING CHANGE in footer:"
+  echo "  ✅ feat!: redesign authentication flow"
+  echo ""
+  echo "📖 See CONTRIBUTING.md for detailed guidelines"
+  echo "────────────────────────────────────────────────────────────────────────────"
+  echo ""
+  exit 1
+fi

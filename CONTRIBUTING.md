@@ -146,6 +146,55 @@ The following checks are enforced via git hooks:
 - **commit-msg**: Validates commit message format using commitlint
 - **pre-push**: Validates branch naming convention
 
+### What Happens When Validation Fails?
+
+#### Invalid Commit Message
+
+If your commit message doesn't follow the convention, you'll see a clear error message:
+
+```
+────────────────────────────────────────────────────────────────────────────
+❌ COMMIT REJECTED - Message does not follow Conventional Commits format
+────────────────────────────────────────────────────────────────────────────
+
+Your commit message must follow this format:
+  <type>(<scope>): <subject>
+
+Valid types:
+  feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+
+Examples:
+  ✅ feat: add user authentication
+  ✅ fix: resolve login button crash
+  ✅ feat(map): add custom marker icons
+  ✅ chore: update dependencies
+
+For breaking changes, use ! or add BREAKING CHANGE in footer:
+  ✅ feat!: redesign authentication flow
+
+📖 See CONTRIBUTING.md for detailed guidelines
+────────────────────────────────────────────────────────────────────────────
+```
+
+#### Invalid Branch Name
+
+If your branch name doesn't follow the convention, you'll see this error when pushing:
+
+```
+────────────────────────────────────────────────────────────────────────────
+❌ PUSH REJECTED - Invalid branch name: 'your-branch-name'
+────────────────────────────────────────────────────────────────────────────
+
+Branch names must follow the pattern: <type>/<description>
+
+Valid types:
+  feat, fix, docs, style, refactor, perf, test, build, ci, chore
+
+To fix this, rename your branch:
+  git branch -m your-branch-name <type>/<description>
+────────────────────────────────────────────────────────────────────────────
+```
+
 ### Testing Hooks Locally
 
 To test if your commit message is valid:
