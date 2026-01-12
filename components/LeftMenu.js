@@ -14,6 +14,7 @@ import {
   MdClose,
   MdMenu,
 } from "react-icons/md";
+import { Button } from "@/components/ui/button";
 
 export const TopBanner = ({ lang, toggleSidebar, isSidebarOpen }) => {
   return (
@@ -122,40 +123,37 @@ export function Sidebar({
 
       <div className="text-ui-text-light dark:text-ui-text-dark bg-ui-light dark:bg-ui-dark mx-2 mt-2 rounded-md py-1">
         <div className="flex flex-row items-center justify-center gap-2 overflow-visible">
-          <div className="group relative">
-            <button
-              className="hover:bg-primary-500 flex w-20 cursor-pointer flex-col items-center justify-center rounded-md px-2 py-1 transition-colors duration-200 hover:text-white"
-              onClick={() => setLang(lang === "en" ? "fr" : "en")}
-            >
-              <MdLanguage className="text-2xl" />
-              <span className="text-sm">{lang === "en" ? "FR" : "EN"}</span>
-            </button>
-          </div>
-          <div className="group relative">
-            <button
-              className="hover:bg-primary-500 flex w-20 cursor-pointer flex-col items-center justify-center rounded-md p-1 transition-colors duration-200 hover:text-white"
-              onClick={() => setAboutPageIndex(0)}
-            >
-              <MdInfoOutline className="text-2xl" />
-              <span className="text-sm">{t.about}</span>
-            </button>
-          </div>
-          <div className="group relative">
-            <button
-              className="hover:bg-primary-500 flex w-20 cursor-pointer flex-col items-center justify-center rounded-md p-1 transition-colors duration-200 hover:text-white"
-              onClick={() => setFilterOpen(!filterOpen)}
-            >
-              <div className="relative">
-                <MdFilterList className="text-2xl" />
-                {activeFilterCount > 0 && (
-                  <span className="bg-accent-500 text-accent-text absolute -top-1 -right-3 rounded-full px-1 text-xs text-black">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </div>
+          <Button
+            variant="ghost"
+            className="flex w-20 flex-col items-center justify-center py-8 transition-colors duration-200"
+            onClick={() => setLang(lang === "en" ? "fr" : "en")}
+          >
+            <MdLanguage />
+            <span className="text-sm">{lang === "en" ? "FR" : "EN"}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex w-20 flex-col items-center justify-center py-8 transition-colors duration-200"
+            onClick={() => setAboutPageIndex(0)}
+          >
+            <MdInfoOutline />
+            <span className="text-sm">{t.about}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className="flex w-20 flex-col items-center justify-center py-8 transition-colors duration-200"
+            onClick={() => setFilterOpen(!filterOpen)}
+          >
+            <MdFilterList />
+            <span className="flex gap-2">
               <span className="text-sm">{t.filters}</span>
-            </button>
-          </div>
+              {activeFilterCount > 0 && (
+                <span className="bg-accent-500 text-accent-text rounded-full px-1 text-xs">
+                  {activeFilterCount}
+                </span>
+              )}
+            </span>
+          </Button>
         </div>
         <FilterSection
           lang={lang}
