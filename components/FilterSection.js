@@ -228,7 +228,7 @@ const TimeFilter = memo(function TimeFilter({
   return (
     <>
       <Button
-        className="bg-primary-500 h-7 gap-1 rounded-full border border-white/20 px-3 text-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+        className="bg-primary-500 h-7 gap-1 rounded-full border border-white/20 px-3 text-xs text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
         onClick={() => setOpenModal(true)}
       >
         {badges?.filter_date ? (
@@ -484,7 +484,7 @@ export const FilterItems = memo(function FilterItems({
   return (
     <>
       <Button
-        className="bg-primary-500 h-7 gap-1 rounded-full border border-white/20 px-3 text-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+        className="bg-primary-500 h-7 gap-1 rounded-full border border-white/20 px-3 text-xs text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
         onClick={() => setOpenModal(true)}
       >
         {count > 0 && (
