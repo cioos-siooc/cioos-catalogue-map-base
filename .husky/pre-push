@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Validate branch name before pushing
+./scripts/validate-branch-name.sh

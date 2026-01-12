@@ -14,9 +14,19 @@ Once in the container:
 2. Run project in development mode: `npm run dev`
 3. Test Static Deployment: `npm build`
 4. Static Deployment should be available under the `out` directory. You can then use either an extension like LiveServer to
+
 ## Configuration
 
 For a detail documentation of the possible configuration, see [CONFIG.md](CONFIG.md).
+
+## Contributing
+
+This project uses strict commit message and branch naming conventions to enable automated semantic versioning. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
+
+- Commit message format (Conventional Commits)
+- Branch naming conventions
+- Semantic versioning and release process
+- Git hooks and enforcement
 
 ## Continous Integration
 
@@ -26,4 +36,4 @@ All commits to the `main` and `development` branches or `pull-requests` to the s
 
 ### Deployment
 
-All changes to the `main` branch update the project page deployment.
+All changes to the `main` branch update the project page deployment and trigger an automated semantic release.
