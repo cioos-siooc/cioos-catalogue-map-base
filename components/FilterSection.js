@@ -525,7 +525,7 @@ export const FilterItems = memo(function FilterItems({
               {t.filter_by} {t[filter_type].toLowerCase()}
             </DialogTitle>
           </DialogHeader>
-          <div className="pb-2">
+          <div className="p-4">
             <SelectReactComponent
               filter_type={filter_type}
               options={options}
@@ -533,27 +533,15 @@ export const FilterItems = memo(function FilterItems({
               query={query}
               lang={lang}
               handleKeyDown={handleKeyDown}
-            />
-          </div>
-          <DialogFooter className="flex justify-end gap-2 pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setQuery([]);
+              onClear={() => {
                 setBadges((prev) => {
                   const next = { ...prev };
                   delete next[filter_type];
                   return next;
                 });
               }}
-            >
-              {t.clear}
-            </Button>
-            <Button size="sm" onClick={onCloseModal}>
-              {t.apply}
-            </Button>
-          </DialogFooter>
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </>

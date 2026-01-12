@@ -27,6 +27,7 @@ export function SelectReactComponent({
   query,
   lang,
   handleKeyDown,
+  onClear,
 }) {
   const [open, setOpen] = React.useState(false);
   const t = getLocale(lang) || {};
@@ -58,71 +59,86 @@ export function SelectReactComponent({
 
   const handleClear = () => {
     setQuery([]);
+    if (onClear) {
+      onClear();
+    }
   };
 
   return (
     <div className="flex flex-col gap-2">
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
-            onKeyDown={handleKeyDown}
+      <div className="flex items-center gap-2">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="h-10 w-full justify-between border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+              onKeyDown={handleKeyDown}
+            >
+              <span className="truncate">
+                {query.length > 0
+                  ? `${query.length} selected`
+                  : t.select || "Select"}
+              </span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            className="bg-white p-0 dark:bg-slate-900"
+            align="start"
+            style={{ width: "var(--radix-popover-trigger-width)" }}
           >
-            <span className="truncate">
-              {query.length > 0
-                ? `${query.length} selected`
-                : t.select || "Select"}
-            </span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="bg-white p-0 dark:bg-slate-900"
-          align="start"
-          style={{ width: "var(--radix-popover-trigger-width)" }}
-        >
-          <Command className="bg-white dark:bg-slate-900">
-            <CommandInput
-              placeholder={`${t.search || "Search"}...`}
-              className="h-9"
-            />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                {options.map((option) => {
-                  const isSelected = selectedValues.has(option.value);
-                  return (
-                    <CommandItem
-                      key={option.value}
-                      value={option.label}
-                      onSelect={() => handleSelect(option.value, option.label)}
-                      className="cursor-pointer"
-                    >
-                      <div
-                        className={cn(
-                          "border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border",
-                          isSelected
-                            ? "bg-primary text-primary-foreground"
-                            : "opacity-50 [&_svg]:invisible",
-                        )}
+            <Command className="bg-white dark:bg-slate-900">
+              <CommandInput
+                placeholder={`${t.search || "Search"}...`}
+                className="h-9"
+              />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  {options.map((option) => {
+                    const isSelected = selectedValues.has(option.value);
+                    return (
+                      <CommandItem
+                        key={option.value}
+                        value={option.label}
+                        onSelect={() =>
+                          handleSelect(option.value, option.label)
+                        }
+                        className="cursor-pointer"
                       >
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>{option.label}</span>
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+                        <div
+                          className={cn(
+                            "border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border",
+                            isSelected
+                              ? "bg-primary text-primary-foreground"
+                              : "opacity-50 [&_svg]:invisible",
+                          )}
+                        >
+                          <Check className="h-4 w-4" />
+                        </div>
+                        <span>{option.label}</span>
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+        <Button
+          variant="outline"
+          className="h-10 shrink-0 hover:bg-red-100 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+          onClick={handleClear}
+          disabled={query.length === 0}
+        >
+          {t.clear || "Clear"}
+        </Button>
+      </div>
 
       {query.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           {query.map((item) => (
             <Badge
               key={item[0]}
@@ -140,14 +156,6 @@ export function SelectReactComponent({
               </button>
             </Badge>
           ))}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 text-xs hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400"
-            onClick={handleClear}
-          >
-            Clear all
-          </Button>
         </div>
       )}
     </div>
