@@ -6,8 +6,6 @@
 @source "../.flowbite-react/class-list.json";
 @import "./theme.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @utility -translate-x-90 {
   transform: translateX(-22.5rem);
 }
