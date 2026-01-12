@@ -1,7 +1,5 @@
-import { Modal, ModalBody, ModalHeader } from "flowbite-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
-import { MdInfoOutline } from "react-icons/md";
-import { IoMdClose } from "react-icons/io";
 import config from "@/app/config.js";
 import { marked } from "marked";
 const basePath = process.env.BASE_PATH || "";
@@ -49,33 +47,21 @@ export default function ModalPages({
   return (
     <>
       {pages.map((page, idx) => (
-        <div key={idx}>
-          <Modal
-            dismissible
-            show={openKey === idx}
-            onClose={() => setOpenKey(null)}
-            className="bg-neutral-900/75"
-          >
-            <div className="relative overflow-hidden rounded-lg">
-              <button
-                type="button"
-                aria-label="Close"
-                onClick={() => setOpenKey(null)}
-                className="absolute top-2 right-2 z-10 p-2 text-lg"
-              >
-                <IoMdClose />
-              </button>
-              <ModalBody className="bg-background-light dark:bg-background-dark custom-scrollbar max-h-[90vh] overflow-y-auto">
-                <div
-                  className="prose prose-sm prose-gray dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{
-                    __html: htmlMap[idx] || "<span>Loading...</span>",
-                  }}
-                />
-              </ModalBody>
-            </div>
-          </Modal>
-        </div>
+        <Dialog
+          key={idx}
+          open={openKey === idx}
+          onOpenChange={(open) => !open && setOpenKey(null)}
+        >
+          <DialogContent className="custom-scrollbar bg-background-light dark:bg-background-dark max-h-[90vh] max-w-3xl overflow-y-auto">
+            <DialogTitle className="sr-only">Page Content</DialogTitle>
+            <div
+              className="prose prose-sm prose-gray dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: htmlMap[idx] || "<span>Loading...</span>",
+              }}
+            />
+          </DialogContent>
+        </Dialog>
       ))}
     </>
   );
