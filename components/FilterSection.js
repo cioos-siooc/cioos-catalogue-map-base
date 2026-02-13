@@ -175,7 +175,9 @@ const TimeFilter = memo(function TimeFilter({
   const applyTimeBadge = (startDate, endDate, type) => {
     if (!startDate || !endDate || !type) return;
     const strDates = `${toYMD(startDate.toISOString())}%20TO%20${toYMD(endDate.toISOString())}`;
-    console.log("Applying time badge with value:", strDates, "and type:", type);
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Applying time badge with value:", strDates, "and type:", type);
+    }
     setBadges((prev) => ({
       ...prev,
       filter_date: strDates,
