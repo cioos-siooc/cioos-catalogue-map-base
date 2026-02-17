@@ -5,7 +5,6 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -165,10 +164,27 @@ const TimeFilter = memo(function TimeFilter({
   badges,
 }) {
   const [openModal, setOpenModal] = useState(false);
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  // Lazily initialize dates:
+  // - if URL/app state has `badges.filter_date`, we sync from it on load
+  // - otherwise we only set defaults when the modal is opened
+  const [startDate, setStartDate] = useState(undefined);
+  const [endDate, setEndDate] = useState(undefined);
   const [selectedType, setSelectedType] = useState("temporal-extent-overlaps");
   const t = getLocale(lang);
+
+  const applyTimeBadge = (startDate, endDate, type) => {
+    if (!startDate || !endDate || !type) return;
+    const strDates = `${toYMD(startDate.toISOString())}%20TO%20${toYMD(endDate.toISOString())}`;
+    if (process.env.NODE_ENV !== "production") {
+      console.log("Applying time badge with value:", strDates, "and type:", type);
+    }
+    setBadges((prev) => ({
+      ...prev,
+      filter_date: strDates,
+      filter_date_field: type,
+    }));
+    setSelectedOption(type);
+  };
 
   // Sync local UI from badges (URL/app state)
   useEffect(() => {
@@ -182,24 +198,25 @@ const TimeFilter = memo(function TimeFilter({
     }
     if (badges?.filter_date) {
       const [s, e] = String(badges.filter_date).split("%20TO%20");
-      if (s) setStartDate(new Date(s));
-      if (e) setEndDate(new Date(e));
+      setStartDate(s ? new Date(s) : undefined);
+      setEndDate(e ? new Date(e) : undefined);
+    } else {
+      // No URL/app time filter: keep dates uninitialized until the modal is opened
+      setStartDate(undefined);
+      setEndDate(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [badges?.filter_date, badges?.filter_date_field]);
 
-  // Apply time filter whenever dates or type change
+  // Lazily initialize date pickers only when the popup is opened (and no URL/app value exists)
   useEffect(() => {
-    if (startDate && endDate && selectedType) {
-      const strDates = `${toYMD(startDate.toISOString())}%20TO%20${toYMD(endDate.toISOString())}`;
-      setBadges((prev) => ({
-        ...prev,
-        filter_date: strDates,
-        filter_date_field: selectedType,
-      }));
-      setSelectedOption(selectedType);
+    if (!openModal) return;
+    if (!badges?.filter_date) {
+      const now = new Date();
+      setStartDate((prev) => prev ?? now);
+      setEndDate((prev) => prev ?? now);
     }
-  }, [startDate, endDate, selectedType, setBadges, setSelectedOption]);
+  }, [openModal, badges?.filter_date]);
 
   function onCloseModal() {
     setOpenModal(false);
@@ -207,10 +224,12 @@ const TimeFilter = memo(function TimeFilter({
 
   const handleStartDateChange = (date) => {
     setStartDate(date);
+    applyTimeBadge(date, endDate, selectedType);
   };
 
   const handleEndDateChange = (date) => {
     setEndDate(date);
+    applyTimeBadge(startDate, date, selectedType);
   };
 
   // Clear the time badge and local UI state
@@ -223,6 +242,8 @@ const TimeFilter = memo(function TimeFilter({
       return next;
     });
     setSelectedOption("");
+    setStartDate(undefined);
+    setEndDate(undefined);
   };
 
   return (
@@ -275,6 +296,7 @@ const TimeFilter = memo(function TimeFilter({
                   onValueChange={(value) => {
                     setSelectedType(value);
                     setSelectedOption(value);
+                    applyTimeBadge(startDate, endDate, value);
                   }}
                 >
                   <SelectTrigger id="date-filter-type" className="h-10 w-full">
