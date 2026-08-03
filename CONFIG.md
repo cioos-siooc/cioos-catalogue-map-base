@@ -552,9 +552,17 @@ The `overlays` section defines transparent map layers that can be toggled on/off
 
 ### Overlay Properties
 
-Overlays use the same properties as basemaps (see above), with the same structure and options.
+Overlays use the same properties as basemaps (see above), with the same structure and options, plus one overlay-only property:
 
-**Example:**
+#### `lang`
+
+**Type:** String (`en` | `fr`)
+**Required:** No
+**Example:** `"fr"`
+
+Restricts this overlay to a single site language (same convention as `main_logo[].lang`). An overlay with `lang` set only appears in the layer control — and only loads its tiles — when the site language matches; overlays with no `lang` always show, in every language. Use this to swap a language-specific data source (e.g. a French-labelled place-names layer) automatically when the user changes language, instead of showing both at once.
+
+**Example (single overlay, all languages):**
 
 ```yaml
 overlays:
@@ -564,6 +572,28 @@ overlays:
     key: "geographic_names"
     url: "https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}"
     attribution: "Data &copy; Esri, HERE, Garmin"
+    checked: true
+```
+
+**Example (language-specific overlays, auto-swapped):**
+
+```yaml
+overlays:
+  - name:
+      en: "Geographic Names"
+      fr: "Noms géographiques"
+    key: "geographic_names"
+    lang: en
+    url: "https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}"
+    attribution: "Data &copy; Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS"
+    checked: true
+  - name:
+      en: "Geographic Names (FR)"
+      fr: "Noms géographiques"
+    key: "geographic_names_fr"
+    lang: fr
+    url: "https://maps-cartes.services.geo.ca/server2_serveur2/rest/services/BaseMaps/CBCT_TXT_3857/MapServer/tile/{z}/{y}/{x}"
+    attribution: "Data &copy; Ressources naturelles Canada"
     checked: true
 ```
 
