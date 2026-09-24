@@ -183,7 +183,9 @@ const BaseLayers = ({ basemaps, lang }) => (
   </>
 );
 
-// Render overlays defined in config.overlays inside LayersControl as Overlay entries
+// Render overlays defined in config.overlays inside LayersControl as Overlay entries.
+// An overlay with a `lang` field only shows up when it matches the current site
+// language (same convention as `main_logo[].lang`); overlays without `lang` always show.
 const Overlays = ({ overlays, lang }) => {
   const map = useMap();
 
@@ -191,10 +193,14 @@ const Overlays = ({ overlays, lang }) => {
     // No-op for now; vector overlays mount/unmount are handled per-overlay via child components
   }, [map]);
 
+  const visibleOverlays = (overlays || []).filter(
+    (ov) => !ov.lang || ov.lang === lang,
+  );
+
   return (
     <>
-      {overlays && overlays.length
-        ? overlays.map((ov) => (
+      {visibleOverlays.length
+        ? visibleOverlays.map((ov) => (
             <Overlay
               key={ov.key}
               name={ov.name && ov.name[lang] ? ov.name[lang] : ov.key}
