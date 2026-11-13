@@ -76,16 +76,17 @@ This document explains all the configuration options available in [config.yaml](
 
 ### Basemaps & Overlays
 
-| Property                 | Type    | Required | Default | Description                                   |
-| ------------------------ | ------- | -------- | ------- | --------------------------------------------- |
-| `basemaps[].name.{lang}` | String  | Yes      | -       | Display name per locale.                      |
-| `basemaps[].key`         | String  | Yes      | -       | Unique identifier key.                        |
-| `basemaps[].url`         | String  | Yes      | -       | Tile URL template.                            |
-| `basemaps[].attribution` | String  | Yes      | -       | Required provider attribution.                |
-| `basemaps[].checked`     | Boolean | No       | `false` | Pre-selected basemap.                         |
-| `basemaps[].maxZoom`     | Number  | No       | -       | Max zoom extent.                              |
-| `basemaps[].minZoom`     | Number  | No       | `0`     | Min zoom extent.                              |
-| `overlays[].*`           | —       | No       | -       | Same structure as basemaps; stackable layers. |
+| Property                 | Type    | Required | Default | Description                                                                                           |
+| ------------------------ | ------- | -------- | ------- | ----------------------------------------------------------------------------------------------------- |
+| `basemaps[].name.{lang}` | String  | Yes      | -       | Display name per locale.                                                                              |
+| `basemaps[].key`         | String  | Yes      | -       | Unique identifier key.                                                                                |
+| `basemaps[].style`       | String  | No\*     | -       | MapTiler SDK reference style (e.g. `"OCEAN"`); labels follow the site language automatically.         |
+| `basemaps[].url`         | String  | No\*     | -       | Raster tile URL template (ignored if `style` is set).                                                 |
+| `basemaps[].attribution` | String  | Yes\*\*  | -       | Required provider attribution (not needed with `style`; MapTiler attribution is shown automatically). |
+| `basemaps[].checked`     | Boolean | No       | `false` | Pre-selected basemap.                                                                                 |
+| `basemaps[].maxZoom`     | Number  | No       | -       | Max zoom extent.                                                                                      |
+| `basemaps[].minZoom`     | Number  | No       | `0`     | Min zoom extent.                                                                                      |
+| `overlays[].*`           | —       | No       | -       | Same structure as basemaps; stackable layers.                                                         |
 
 ### Pages
 
@@ -102,6 +103,7 @@ This document explains all the configuration options available in [config.yaml](
 - `banner.message` required if `banner.enabled` is true.
 - Logo arrays require at least one entry for `main_logo`.
 - Basemap properties also apply to overlays unless otherwise noted.
+- Each basemap needs exactly one of `style` or `url`; `attribution` is required for `url`-based (raster) basemaps and not needed for `style`-based (vector) ones.
 - † For each page, supply at least one of `markdown_content` or `content` per locale; markdown takes precedence.
 
 ## Table of Contents
@@ -498,21 +500,29 @@ Display name for the basemap in each language.
 
 Unique identifier for the basemap.
 
+#### `style`
+
+**Type:** String
+**Required:** No (one of `style` or `url` is required)
+**Example:** `"OCEAN"`
+
+Name of a [MapTiler SDK reference style](https://docs.maptiler.com/sdk-js/api/map-styles/) (e.g. `"OCEAN"`, `"STREETS"`). Renders a bilingual vector basemap whose labels (place names, water/landform names, etc.) switch automatically to match the site language — no separate per-language overlay needed. Requires the `MAPTILER_KEY` environment variable to be set at build time.
+
 #### `url`
 
 **Type:** String
-**Required:** Yes
+**Required:** No (one of `style` or `url` is required)
 **Example:** `"https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"`
 
-Tile server URL template. Use `{z}`, `{y}`, `{x}` placeholders for zoom and tile coordinates.
+Raster tile server URL template. Use `{z}`, `{y}`, `{x}` placeholders for zoom and tile coordinates. Ignored if `style` is set.
 
 #### `attribution`
 
 **Type:** String
-**Required:** Yes
+**Required:** Yes for `url`-based basemaps; not needed for `style`-based ones
 **Example:** `"Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS"`
 
-Attribution text to display for this basemap layer, crediting data sources.
+Attribution text to display for this basemap layer, crediting data sources. MapTiler's own attribution is shown automatically for `style`-based basemaps.
 
 #### `checked`
 
@@ -530,7 +540,7 @@ Set to `true` to make this the default selected basemap on initial load.
 
 Maximum zoom level available for this basemap. Prevents zooming beyond the available tile resolution.
 
-**Example:**
+**Example (vector `style` basemap, bilingual labels):**
 
 ```yaml
 basemaps:
@@ -538,9 +548,20 @@ basemaps:
       fr: "Bathymétrie"
       en: "Bathymetry"
     key: "bathymetry"
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
-    attribution: "Tiles &copy; Esri"
+    style: "OCEAN"
     checked: true
+```
+
+**Example (raster `url` basemap):**
+
+```yaml
+basemaps:
+  - name:
+      fr: "Satellite"
+      en: "Satellite"
+    key: "satellite"
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+    attribution: "Tiles &copy; Esri"
     maxZoom: 10
 ```
 
@@ -548,7 +569,7 @@ basemaps:
 
 ## Overlays
 
-The `overlays` section defines transparent map layers that can be toggled on/off over the basemap.
+The `overlays` section defines transparent map layers that can be toggled on/off over the basemap. It's empty by default (`overlays: []`) — bilingual place/water/landform labels are now intrinsic to the `style`-based basemap (see [Basemaps](#basemaps) above) rather than a separate per-language overlay pair.
 
 ### Overlay Properties
 
@@ -560,9 +581,9 @@ Overlays use the same properties as basemaps (see above), with the same structur
 **Required:** No
 **Example:** `"fr"`
 
-Restricts this overlay to a single site language (same convention as `main_logo[].lang`). An overlay with `lang` set only appears in the layer control — and only loads its tiles — when the site language matches; overlays with no `lang` always show, in every language. Use this to swap a language-specific data source (e.g. a French-labelled place-names layer) automatically when the user changes language, instead of showing both at once.
+Restricts this overlay to a single site language (same convention as `main_logo[].lang`). An overlay with `lang` set only appears in the layer control — and only loads its tiles — when the site language matches; overlays with no `lang` always show, in every language. Use this for a genuinely language-specific data overlay (not for basemap labels, which no longer need this pattern).
 
-**Example (single overlay, all languages):**
+**Example:**
 
 ```yaml
 overlays:
@@ -572,28 +593,6 @@ overlays:
     key: "geographic_names"
     url: "https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}"
     attribution: "Data &copy; Esri, HERE, Garmin"
-    checked: true
-```
-
-**Example (language-specific overlays, auto-swapped):**
-
-```yaml
-overlays:
-  - name:
-      en: "Geographic Names"
-      fr: "Noms géographiques"
-    key: "geographic_names"
-    lang: en
-    url: "https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}"
-    attribution: "Data &copy; Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS"
-    checked: true
-  - name:
-      en: "Geographic Names (FR)"
-      fr: "Noms géographiques"
-    key: "geographic_names_fr"
-    lang: fr
-    url: "https://maps-cartes.services.geo.ca/server2_serveur2/rest/services/BaseMaps/CBCT_TXT_3857/MapServer/tile/{z}/{y}/{x}"
-    attribution: "Data &copy; Ressources naturelles Canada"
     checked: true
 ```
 

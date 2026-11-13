@@ -101,6 +101,7 @@ jobs:
         env:
           BASE_PATH: ${{ env.BASE_PATH }}
           SKIP_FETCH: true
+          MAPTILER_KEY: ${{ secrets.MAPTILER_KEY }}
         run: npm run build
 
       # Verify build output contains required files
