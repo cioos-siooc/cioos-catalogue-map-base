@@ -311,11 +311,15 @@ const Map = forwardRef(function Map(
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const styleBasemap =
-      config.basemaps.find((b) => b.style) || config.basemaps[0];
-    styleBasemapKeyRef.current = styleBasemap?.key;
+    // Only treat a basemap as the underlying MapLibre "style" when it explicitly opts
+    // in with `style:` - falling back to a MapTiler-hosted style here would silently
+    // replace an all-raster config's intended look with an unrelated vector basemap.
+    const styleBasemap = config.basemaps.find((b) => b.style) || null;
+    styleBasemapKeyRef.current = styleBasemap?.key ?? null;
     initialBasemapKeyRef.current =
-      config.basemaps.find((b) => b.checked)?.key || styleBasemap?.key;
+      config.basemaps.find((b) => b.checked)?.key ||
+      styleBasemap?.key ||
+      config.basemaps[0]?.key;
 
     const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
     const centerLngLat = [config.map.center[1], config.map.center[0]];
@@ -328,9 +332,14 @@ const Map = forwardRef(function Map(
 
     const map = new MaptilerMap({
       container: containerRef.current,
-      style: styleBasemap?.style
+      style: styleBasemap
         ? MapStyle[styleBasemap.style]
-        : MapStyle.STREETS,
+        : {
+            version: 8,
+            sources: {},
+            layers: [],
+            glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${maptilerConfig.apiKey}`,
+          },
       center: boundsLngLat ? undefined : centerLngLat,
       zoom: boundsLngLat
         ? undefined
@@ -607,7 +616,7 @@ const Map = forwardRef(function Map(
   // Basemap selection changed via the LayersMenu.
   useEffect(() => {
     const map = mapInstanceRef.current;
-    if (!map || !styleBasemapKeyRef.current) return;
+    if (!map || !mapReadyRef.current) return;
     applyBasemap(map, basemapKey, {
       terrainLayerIds: terrainLayerIdsRef.current,
       rasterBasemapKeys: rasterBasemapKeysRef.current,
