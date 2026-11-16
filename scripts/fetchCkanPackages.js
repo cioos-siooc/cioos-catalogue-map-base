@@ -14,16 +14,27 @@ function ensureDir(dirPath) {
   if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
 }
 
+const FETCH_TIMEOUT = 30000;
+
 async function retryingFetch(url, fallbackUrl) {
   let attempt = 0;
   let current = url;
   while (attempt < maxRetries) {
     try {
-      const res = await fetch(current);
+      const res = await fetch(current, { timeout: FETCH_TIMEOUT });
       if (res.ok) return res;
       console.log(
         `Attempt ${attempt + 1} failed (${res.status}) for ${current}`,
       );
+      // 4xx (sauf 429) : inutile de réessayer la même URL
+      if (
+        res.status >= 400 &&
+        res.status < 500 &&
+        res.status !== 429 &&
+        !fallbackUrl
+      ) {
+        break;
+      }
     } catch (e) {
       console.log(`Attempt ${attempt + 1} error for ${current}: ${e.message}`);
     }
@@ -31,25 +42,36 @@ async function retryingFetch(url, fallbackUrl) {
     if (attempt === 1 && fallbackUrl) {
       current = fallbackUrl; // switch to fallback once
       console.log(`Switching to fallback: ${current}`);
-    } else {
-      await new Promise((r) => setTimeout(r, 1000));
+    } else if (attempt < maxRetries) {
+      await new Promise((r) => setTimeout(r, 1000 * 2 ** (attempt - 1)));
     }
   }
   throw new Error(`HTTP error after retries for ${url}`);
 }
-
+const logoCache = new Map(); // imageUrl -> chemin local ou null
 async function downloadFile(url, destPath) {
+  if (logoCache.has(url)) return logoCache.get(url);
+  let result = null;
   try {
-    if (fs.existsSync(destPath)) return destPath;
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const buf = Buffer.from(await res.arrayBuffer());
-    fs.writeFileSync(destPath, buf);
-    return destPath;
+    if (fs.existsSync(destPath)) {
+      result = destPath;
+    } else {
+      const res = await fetch(url, {
+        timeout: FETCH_TIMEOUT,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; OGSL-harvester/1.0)",
+        },
+      });
+      if (res.ok) {
+        fs.writeFileSync(destPath, Buffer.from(await res.arrayBuffer()));
+        result = destPath;
+      }
+    }
   } catch (e) {
     console.warn(`Failed to download ${url}: ${e.message}`);
-    return null;
   }
+  logoCache.set(url, result);
+  return result;
 }
 
 async function fetchDatasetFullRecord(id) {
