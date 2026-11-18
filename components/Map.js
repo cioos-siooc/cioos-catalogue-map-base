@@ -165,21 +165,7 @@ function recomputeClusterColors(map) {
   ]);
 }
 
-function applyBasemap(
-  map,
-  key,
-  { terrainLayerIds, rasterBasemapKeys, styleBasemapKey },
-) {
-  const showStyleTerrain = key === styleBasemapKey;
-  terrainLayerIds.forEach((id) => {
-    if (map.getLayer(id)) {
-      map.setLayoutProperty(
-        id,
-        "visibility",
-        showStyleTerrain ? "visible" : "none",
-      );
-    }
-  });
+function applyBasemap(map, key, { rasterBasemapKeys }) {
   rasterBasemapKeys.forEach((k) => {
     const layerId = `basemap-${k}`;
     if (map.getLayer(layerId)) {
@@ -284,9 +270,7 @@ const Map = forwardRef(function Map(
   const mapInstanceRef = useRef(null);
   const mapReadyRef = useRef(false);
   const popupRef = useRef(null);
-  const terrainLayerIdsRef = useRef([]);
   const rasterBasemapKeysRef = useRef([]);
-  const styleBasemapKeyRef = useRef(null);
   const initialBasemapKeyRef = useRef(null);
 
   // Always-fresh refs so imperative MapLibre event handlers (registered once on
@@ -311,15 +295,8 @@ const Map = forwardRef(function Map(
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Only treat a basemap as the underlying MapLibre "style" when it explicitly opts
-    // in with `style:` - falling back to a MapTiler-hosted style here would silently
-    // replace an all-raster config's intended look with an unrelated vector basemap.
-    const styleBasemap = config.basemaps.find((b) => b.style) || null;
-    styleBasemapKeyRef.current = styleBasemap?.key ?? null;
     initialBasemapKeyRef.current =
-      config.basemaps.find((b) => b.checked)?.key ||
-      styleBasemap?.key ||
-      config.basemaps[0]?.key;
+      config.basemaps.find((b) => b.checked)?.key || config.basemaps[0]?.key;
 
     const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
     const centerLngLat = [config.map.center[1], config.map.center[0]];
@@ -332,14 +309,10 @@ const Map = forwardRef(function Map(
 
     const map = new MaptilerMap({
       container: containerRef.current,
-      style: styleBasemap
-        ? MapStyle[styleBasemap.style]
-        : {
-            version: 8,
-            sources: {},
-            layers: [],
-            glyphs: `https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=${maptilerConfig.apiKey}`,
-          },
+      // Always the vector Ocean style, purely as a carrier for the bilingual place
+      // labels (and the "maptiler_planet" source/glyphs they need) - its own terrain
+      // rendering is hidden below in favour of the raster basemaps in config.yaml.
+      style: MapStyle.OCEAN,
       center: boundsLngLat ? undefined : centerLngLat,
       zoom: boundsLngLat
         ? undefined
@@ -352,16 +325,17 @@ const Map = forwardRef(function Map(
     mapInstanceRef.current = map;
 
     map.on("load", () => {
-      // Terrain layers belonging to the vector style (everything except "Background"
-      // and label layers), toggled off when a raster basemap like satellite is active.
+      // Permanently hide the Ocean style's own terrain rendering (everything except
+      // "Background" and label layers) - every basemap in config.yaml is now a raster
+      // layer, and this vector style is kept only for its bilingual place labels.
       const initialLayerIds = map.getStyle().layers.map((l) => l.id);
       const isLabelLayer = (id) => /label/i.test(id);
-      terrainLayerIdsRef.current = initialLayerIds.filter(
-        (id) => id !== "Background" && !isLabelLayer(id),
-      );
+      initialLayerIds
+        .filter((id) => id !== "Background" && !isLabelLayer(id))
+        .forEach((id) => map.setLayoutProperty(id, "visibility", "none"));
       const firstLabelLayerId = initialLayerIds.find(isLabelLayer);
 
-      const rasterBasemaps = config.basemaps.filter((b) => !b.style);
+      const rasterBasemaps = config.basemaps;
       rasterBasemapKeysRef.current = rasterBasemaps.map((b) => b.key);
       rasterBasemaps.forEach((basemap) => {
         const sourceId = `basemap-${basemap.key}`;
@@ -567,9 +541,7 @@ const Map = forwardRef(function Map(
       });
 
       applyBasemap(map, initialBasemapKeyRef.current, {
-        terrainLayerIds: terrainLayerIdsRef.current,
         rasterBasemapKeys: rasterBasemapKeysRef.current,
-        styleBasemapKey: styleBasemapKeyRef.current,
       });
       setBasemapKey(initialBasemapKeyRef.current);
 
@@ -618,9 +590,7 @@ const Map = forwardRef(function Map(
     const map = mapInstanceRef.current;
     if (!map || !mapReadyRef.current) return;
     applyBasemap(map, basemapKey, {
-      terrainLayerIds: terrainLayerIdsRef.current,
       rasterBasemapKeys: rasterBasemapKeysRef.current,
-      styleBasemapKey: styleBasemapKeyRef.current,
     });
   }, [basemapKey]);
 

@@ -130,14 +130,16 @@ bottom_logo:
   #   className: "h-[6vh] max-h-[50px] w-auto m-2"
 
 basemaps:
-  # `style` (MapTiler SDK reference style, e.g. "OCEAN") renders a vector basemap whose
-  # labels (place names, water/landform names, etc.) automatically follow the site
-  # language - use this instead of `url` for bilingual vector basemaps.
+  # Every basemap here is a raster tile layer. The underlying vector Ocean style is
+  # always loaded (see Map.js) purely to provide bilingual place labels on top of
+  # whichever raster layer below is selected - its own terrain rendering is never shown.
   - name:
       fr: "Bathymétrie"
       en: "Bathymetry"
     key: "bathymetry"
-    style: "OCEAN"
+    url: "https://tiles.emodnet-bathymetry.eu/2020/baselayer/web_mercator/{z}/{x}/{y}.png"
+    maxZoom: 14
+    attribution: "EMODnet Bathymetry Consortium (2020): EMODnet Digital Bathymetry (DTM 2020), <a href=\"https://doi.org/10.12770/bb6a87dd-e579-4036-abe1-e649cea9881a\" target=\"_blank\">CC BY 4.0</a>"
     checked: true
   - name:
       fr: "Satellite"
