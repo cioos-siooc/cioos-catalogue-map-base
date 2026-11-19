@@ -157,6 +157,57 @@ function recomputeClusterColors(map) {
   ]);
 }
 
+function lngLatToTileXY(lng, lat, zoom) {
+  const n = 2 ** zoom;
+  const x = Math.floor(((lng + 180) / 360) * n);
+  const latRad = (lat * Math.PI) / 180;
+  const y = Math.floor(
+    ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * n,
+  );
+  return [x, y];
+}
+
+// Warms the browser's HTTP cache (the tile servers in config.yaml send long
+// max-age Cache-Control headers) for a one-tile ring around the current viewport,
+// so tiles are already cached by the time the user pans into them instead of
+// popping in. `prefetched` tracks URLs already requested this session.
+function prefetchSurroundingTiles(map, basemap, prefetched) {
+  if (!basemap?.url) return;
+  const zoom = Math.round(map.getZoom());
+  if (zoom < (basemap.minZoom || 0) || zoom > (basemap.maxZoom || 19)) return;
+
+  const n = 2 ** zoom;
+  const bounds = map.getBounds();
+  const [minX, minY] = lngLatToTileXY(
+    bounds.getWest(),
+    bounds.getNorth(),
+    zoom,
+  );
+  const [maxX, maxY] = lngLatToTileXY(
+    bounds.getEast(),
+    bounds.getSouth(),
+    zoom,
+  );
+
+  const RING = 1;
+  for (let x = minX - RING; x <= maxX + RING; x++) {
+    const wrappedX = ((x % n) + n) % n;
+    for (
+      let y = Math.max(0, minY - RING);
+      y <= Math.min(n - 1, maxY + RING);
+      y++
+    ) {
+      const url = basemap.url
+        .replace("{z}", zoom)
+        .replace("{x}", wrappedX)
+        .replace("{y}", y);
+      if (prefetched.has(url)) continue;
+      prefetched.add(url);
+      new Image().src = url;
+    }
+  }
+}
+
 function applyBasemap(map, key, { rasterBasemapKeys }) {
   rasterBasemapKeys.forEach((k) => {
     const layerId = `basemap-${k}`;
@@ -272,6 +323,8 @@ const Map = forwardRef(function Map(
   const popupRef = useRef(null);
   const rasterBasemapKeysRef = useRef([]);
   const initialBasemapKeyRef = useRef(null);
+  const prefetchedTilesRef = useRef(new Set());
+  const prefetchActiveBasemapTilesRef = useRef(() => {});
 
   // Always-fresh refs so imperative MapLibre event handlers (registered once on
   // "load") never see stale props/closures.
@@ -288,6 +341,8 @@ const Map = forwardRef(function Map(
     () =>
       config.basemaps.find((b) => b.checked)?.key || config.basemaps[0]?.key,
   );
+  const basemapKeyRef = useRef(basemapKey);
+  basemapKeyRef.current = basemapKey;
   const [markersVisible, setMarkersVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -532,6 +587,16 @@ const Map = forwardRef(function Map(
       });
       setBasemapKey(initialBasemapKeyRef.current);
 
+      const prefetchActiveBasemapTiles = () =>
+        prefetchSurroundingTiles(
+          map,
+          config.basemaps.find((b) => b.key === basemapKeyRef.current),
+          prefetchedTilesRef.current,
+        );
+      prefetchActiveBasemapTiles();
+      map.on("moveend", prefetchActiveBasemapTiles);
+      prefetchActiveBasemapTilesRef.current = prefetchActiveBasemapTiles;
+
       recomputeClusterColors(map);
       map.on("moveend", () => recomputeClusterColors(map));
       map.on("zoomend", () => recomputeClusterColors(map));
@@ -578,6 +643,7 @@ const Map = forwardRef(function Map(
     applyBasemap(map, basemapKey, {
       rasterBasemapKeys: rasterBasemapKeysRef.current,
     });
+    prefetchActiveBasemapTilesRef.current();
   }, [basemapKey]);
 
   // Dataset-markers visibility toggle.
