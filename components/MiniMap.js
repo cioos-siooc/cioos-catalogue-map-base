@@ -1,7 +1,7 @@
 "use client";
 
-import "@maptiler/sdk/dist/maptiler-sdk.css";
-import { Map as MaptilerMap } from "@maptiler/sdk";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { Map as MapLibreMap } from "maplibre-gl";
 import * as turf from "@turf/turf";
 import { useEffect, useRef } from "react";
 
@@ -27,7 +27,7 @@ export function MiniMap({ spatial, className = "" }) {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const map = new MaptilerMap({
+    const map = new MapLibreMap({
       container: containerRef.current,
       interactive: false,
       attributionControl: false,

@@ -1,13 +1,7 @@
 "use client";
 
-import "@maptiler/sdk/dist/maptiler-sdk.css";
-import {
-  Map as MaptilerMap,
-  config as maptilerConfig,
-  Language,
-  MapStyle,
-  Popup,
-} from "@maptiler/sdk";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { Map as MapLibreMap, NavigationControl, Popup } from "maplibre-gl";
 import * as turf from "@turf/turf";
 import { DrawerContext } from "../app/context/DrawerContext";
 import {
@@ -21,7 +15,12 @@ import {
 import config from "@/app/config";
 import { getLocale } from "@/app/get-locale";
 
-maptilerConfig.apiKey = process.env.MAPTILER_KEY || "";
+// OpenFreeMap (no account/API key needed) - serves the same OpenMapTiles vector
+// schema MapTiler uses, including per-language "name:xx" fields on place features.
+const OPENMAPTILES_SOURCE_ID = "openmaptiles";
+const OPENMAPTILES_TILES_URL = "https://tiles.openfreemap.org/planet";
+const OPENMAPTILES_GLYPHS_URL =
+  "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf";
 
 // Layer/source ids used by the dataset markers + highlight layers we add on top of the basemap.
 const CLUSTER_SOURCE_ID = "dataset-points";
@@ -33,13 +32,6 @@ const HOVER_HIGHLIGHT_LAYER_ID = "dataset-hover-highlight-line";
 const SELECTION_HIGHLIGHT_SOURCE_ID = "dataset-selection-highlight";
 const SELECTION_HIGHLIGHT_LAYER_ID = "dataset-selection-highlight-line";
 const PLACE_LABELS_LAYER_ID = "place-labels";
-// The Ocean style's own "maptiler_planet" source has the city/town/village data we
-// want, but @maptiler/sdk auto-scans every symbol layer reading from a maptiler.com
-// source to apply its own language rewriting, and chokes on our custom expression.
-// Cloning the resolved tile URLs into our own source keeps the data but keeps our
-// layer off that auto-scan (its source is no longer flagged as a MapTiler source).
-const PLANET_SOURCE_ID = "maptiler_planet";
-const PLACE_LABELS_SOURCE_ID = "place-labels-source";
 const EMPTY_FEATURE_COLLECTION = { type: "FeatureCollection", features: [] };
 
 // Utility functions
@@ -233,13 +225,18 @@ function LayersMenu({
   );
 }
 
-// Attribution popover for whichever raster basemap is currently active (the vector
-// Ocean style shows MapTiler's own required attribution itself, via the SDK default).
+// OpenFreeMap's required credit line, always shown alongside whichever basemap's
+// own attribution is currently active (we run MapLibre with its default attribution
+// control disabled, so this popover is the only attribution surfaced to the user).
+const OPENFREEMAP_ATTRIBUTION =
+  '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> &copy; ' +
+  '<a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> ' +
+  'Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
+
 function AttributionToggle({ basemaps, basemapKey }) {
   const [hovered, setHovered] = useState(false);
   const active = basemaps.find((b) => b.key === basemapKey);
 
-  if (!active?.attribution) return null;
   return (
     <div
       className="pointer-events-none absolute right-[64px] bottom-[20px] z-[600] flex flex-col items-end gap-2"
@@ -248,7 +245,10 @@ function AttributionToggle({ basemaps, basemapKey }) {
     >
       {hovered && (
         <div className="pointer-events-auto max-h-40 w-64 overflow-y-auto rounded-md bg-black/40 p-2 text-[10px] leading-relaxed shadow-md backdrop-blur">
-          <div dangerouslySetInnerHTML={{ __html: active.attribution }} />
+          {active?.attribution && (
+            <div dangerouslySetInnerHTML={{ __html: active.attribution }} />
+          )}
+          <div dangerouslySetInnerHTML={{ __html: OPENFREEMAP_ATTRIBUTION }} />
         </div>
       )}
       <div className="bg-primary-500 dark:bg-background-dark pointer-events-auto rounded-xl px-2 py-1 text-[11px] font-medium text-white shadow">
@@ -291,7 +291,7 @@ const Map = forwardRef(function Map(
   const [markersVisible, setMarkersVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Mount the MapLibre/MapTiler map once.
+  // Mount the MapLibre map once.
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -307,12 +307,25 @@ const Map = forwardRef(function Map(
         ]
       : undefined;
 
-    const map = new MaptilerMap({
+    const map = new MapLibreMap({
       container: containerRef.current,
-      // Always the vector Ocean style, purely as a carrier for the bilingual place
-      // labels (and the "maptiler_planet" source/glyphs they need) - its own terrain
-      // rendering is hidden below in favour of the raster basemaps in config.yaml.
-      style: MapStyle.OCEAN,
+      // Our own AttributionToggle popover covers both OpenFreeMap's and the active
+      // basemap's attribution, so the default bottom-right MapLibre control is redundant.
+      attributionControl: false,
+      // A minimal style of our own: no base layers (every basemap in config.yaml is
+      // a raster layer we add below), just the OpenFreeMap vector source + glyphs
+      // needed for our bilingual place-labels layer. No account/API key needed.
+      style: {
+        version: 8,
+        sources: {
+          [OPENMAPTILES_SOURCE_ID]: {
+            type: "vector",
+            url: OPENMAPTILES_TILES_URL,
+          },
+        },
+        layers: [],
+        glyphs: OPENMAPTILES_GLYPHS_URL,
+      },
       center: boundsLngLat ? undefined : centerLngLat,
       zoom: boundsLngLat
         ? undefined
@@ -320,21 +333,11 @@ const Map = forwardRef(function Map(
           ? config.map.zoom_mobile
           : config.map.zoom,
       bounds: boundsLngLat,
-      language: langRef.current === "fr" ? Language.FRENCH : Language.ENGLISH,
     });
     mapInstanceRef.current = map;
+    map.addControl(new NavigationControl({ showCompass: false }), "top-right");
 
     map.on("load", () => {
-      // Permanently hide the Ocean style's own terrain rendering (everything except
-      // "Background" and label layers) - every basemap in config.yaml is now a raster
-      // layer, and this vector style is kept only for its bilingual place labels.
-      const initialLayerIds = map.getStyle().layers.map((l) => l.id);
-      const isLabelLayer = (id) => /label/i.test(id);
-      initialLayerIds
-        .filter((id) => id !== "Background" && !isLabelLayer(id))
-        .forEach((id) => map.setLayoutProperty(id, "visibility", "none"));
-      const firstLabelLayerId = initialLayerIds.find(isLabelLayer);
-
       const rasterBasemaps = config.basemaps;
       rasterBasemapKeysRef.current = rasterBasemaps.map((b) => b.key);
       rasterBasemaps.forEach((basemap) => {
@@ -347,55 +350,39 @@ const Map = forwardRef(function Map(
           minzoom: basemap.minZoom || 0,
           maxzoom: basemap.maxZoom || 19,
         });
-        map.addLayer(
-          {
-            id: sourceId,
-            type: "raster",
-            source: sourceId,
-            layout: { visibility: "none" },
-          },
-          firstLabelLayerId,
-        );
+        map.addLayer({
+          id: sourceId,
+          type: "raster",
+          source: sourceId,
+          layout: { visibility: "none" },
+        });
       });
 
-      const planetSource = map.getSource(PLANET_SOURCE_ID);
-      if (planetSource?.tiles?.length) {
-        map.addSource(PLACE_LABELS_SOURCE_ID, {
-          type: "vector",
-          tiles: planetSource.tiles,
-          minzoom: planetSource.minzoom ?? 0,
-          maxzoom: planetSource.maxzoom ?? 14,
-        });
-        map.addLayer({
-          id: PLACE_LABELS_LAYER_ID,
-          type: "symbol",
-          source: PLACE_LABELS_SOURCE_ID,
-          "source-layer": "place",
-          filter: [
-            "in",
-            ["get", "class"],
-            ["literal", ["city", "town", "village"]],
+      map.addLayer({
+        id: PLACE_LABELS_LAYER_ID,
+        type: "symbol",
+        source: OPENMAPTILES_SOURCE_ID,
+        "source-layer": "place",
+        filter: [
+          "in",
+          ["get", "class"],
+          ["literal", ["city", "town", "village"]],
+        ],
+        layout: {
+          "text-field": [
+            "coalesce",
+            ["get", `name:${langRef.current}`],
+            ["get", "name"],
           ],
-          layout: {
-            "text-field": [
-              "coalesce",
-              ["get", `name:${langRef.current}`],
-              ["get", "name"],
-            ],
-            "text-font": ["Noto Sans Regular"],
-            "text-size": 12,
-          },
-          paint: {
-            "text-color": "#333333",
-            "text-halo-color": "#ffffff",
-            "text-halo-width": 1.2,
-          },
-        });
-      } else {
-        console.warn(
-          `MapTiler style has no "${PLANET_SOURCE_ID}" source; skipping city labels.`,
-        );
-      }
+          "text-font": ["Noto Sans Regular"],
+          "text-size": 12,
+        },
+        paint: {
+          "text-color": "#333333",
+          "text-halo-color": "#ffffff",
+          "text-halo-width": 1.2,
+        },
+      });
 
       map.addSource(HOVER_HIGHLIGHT_SOURCE_ID, {
         type: "geojson",
@@ -559,12 +546,11 @@ const Map = forwardRef(function Map(
     };
   }, []);
 
-  // Language changes: swap built-in Ocean labels + our own place-labels layer, without
-  // touching the basemap/terrain layers at all.
+  // Language changes: swap our place-labels layer's text, without touching the
+  // basemap layers at all.
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !mapReadyRef.current) return;
-    map.setLanguage(lang === "fr" ? Language.FRENCH : Language.ENGLISH);
     if (map.getLayer(PLACE_LABELS_LAYER_ID)) {
       map.setLayoutProperty(PLACE_LABELS_LAYER_ID, "text-field", [
         "coalesce",

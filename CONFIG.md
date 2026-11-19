@@ -76,17 +76,16 @@ This document explains all the configuration options available in [config.yaml](
 
 ### Basemaps & Overlays
 
-| Property                 | Type    | Required | Default | Description                                                                                           |
-| ------------------------ | ------- | -------- | ------- | ----------------------------------------------------------------------------------------------------- |
-| `basemaps[].name.{lang}` | String  | Yes      | -       | Display name per locale.                                                                              |
-| `basemaps[].key`         | String  | Yes      | -       | Unique identifier key.                                                                                |
-| `basemaps[].style`       | String  | No\*     | -       | MapTiler SDK reference style (e.g. `"OCEAN"`); labels follow the site language automatically.         |
-| `basemaps[].url`         | String  | No\*     | -       | Raster tile URL template (ignored if `style` is set).                                                 |
-| `basemaps[].attribution` | String  | Yes\*\*  | -       | Required provider attribution (not needed with `style`; MapTiler attribution is shown automatically). |
-| `basemaps[].checked`     | Boolean | No       | `false` | Pre-selected basemap.                                                                                 |
-| `basemaps[].maxZoom`     | Number  | No       | -       | Max zoom extent.                                                                                      |
-| `basemaps[].minZoom`     | Number  | No       | `0`     | Min zoom extent.                                                                                      |
-| `overlays[].*`           | —       | No       | -       | Same structure as basemaps; stackable layers.                                                         |
+| Property                 | Type    | Required | Default | Description                                                            |
+| ------------------------ | ------- | -------- | ------- | ---------------------------------------------------------------------- |
+| `basemaps[].name.{lang}` | String  | Yes      | -       | Display name per locale.                                               |
+| `basemaps[].key`         | String  | Yes      | -       | Unique identifier key.                                                 |
+| `basemaps[].url`         | String  | Yes      | -       | Raster tile URL template.                                              |
+| `basemaps[].attribution` | String  | Yes      | -       | Required provider attribution, shown in the map's attribution popover. |
+| `basemaps[].checked`     | Boolean | No       | `false` | Pre-selected basemap.                                                  |
+| `basemaps[].maxZoom`     | Number  | No       | -       | Max zoom extent.                                                       |
+| `basemaps[].minZoom`     | Number  | No       | `0`     | Min zoom extent.                                                       |
+| `overlays[].*`           | —       | No       | -       | Same structure as basemaps; stackable layers.                          |
 
 ### Pages
 
@@ -103,7 +102,7 @@ This document explains all the configuration options available in [config.yaml](
 - `banner.message` required if `banner.enabled` is true.
 - Logo arrays require at least one entry for `main_logo`.
 - Basemap properties also apply to overlays unless otherwise noted.
-- Each basemap needs exactly one of `style` or `url`; `attribution` is required for `url`-based (raster) basemaps and not needed for `style`-based (vector) ones.
+- Every basemap is a raster tile layer (`url` + `attribution` are both required). Bilingual place labels are rendered separately, on top of every basemap, from OpenFreeMap vector tiles — no basemap-level opt-in needed.
 - † For each page, supply at least one of `markdown_content` or `content` per locale; markdown takes precedence.
 
 ## Table of Contents
@@ -500,29 +499,21 @@ Display name for the basemap in each language.
 
 Unique identifier for the basemap.
 
-#### `style`
-
-**Type:** String
-**Required:** No (one of `style` or `url` is required)
-**Example:** `"OCEAN"`
-
-Name of a [MapTiler SDK reference style](https://docs.maptiler.com/sdk-js/api/map-styles/) (e.g. `"OCEAN"`, `"STREETS"`). Renders a bilingual vector basemap whose labels (place names, water/landform names, etc.) switch automatically to match the site language — no separate per-language overlay needed. Requires the `MAPTILER_KEY` environment variable to be set at build time.
-
 #### `url`
 
 **Type:** String
-**Required:** No (one of `style` or `url` is required)
+**Required:** Yes
 **Example:** `"https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"`
 
-Raster tile server URL template. Use `{z}`, `{y}`, `{x}` placeholders for zoom and tile coordinates. Ignored if `style` is set.
+Raster tile server URL template. Use `{z}`, `{y}`, `{x}` placeholders for zoom and tile coordinates.
 
 #### `attribution`
 
 **Type:** String
-**Required:** Yes for `url`-based basemaps; not needed for `style`-based ones
+**Required:** Yes
 **Example:** `"Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS"`
 
-Attribution text to display for this basemap layer, crediting data sources. MapTiler's own attribution is shown automatically for `style`-based basemaps.
+Attribution text to display for this basemap layer, crediting data sources. Shown in the map's attribution popover alongside the required OpenFreeMap/OpenStreetMap credit (used for the bilingual place labels drawn on top of every basemap).
 
 #### `checked`
 

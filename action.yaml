@@ -4,10 +4,6 @@ inputs:
   token:
     description: 'GitHub token to access the repository'
     required: true
-  maptiler_key:
-    description: 'MapTiler API key, used for the vector basemap (see config.yaml basemaps[].style)'
-    required: false
-    default: ''
 
 runs:
   using: "composite"
@@ -73,7 +69,6 @@ runs:
       shell: bash
       env:
         GITHUB_PAGES_URL: ${{ env.GITHUB_PAGES_URL }}
-        MAPTILER_KEY: ${{ inputs.maptiler_key }}
     
     - name: Setup Pages
       uses: actions/configure-pages@v5
