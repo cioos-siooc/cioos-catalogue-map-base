@@ -130,14 +130,17 @@ bottom_logo:
   #   className: "h-[6vh] max-h-[50px] w-auto m-2"
 
 basemaps:
+  # Every basemap here is a raster tile layer. The underlying vector Ocean style is
+  # always loaded (see Map.js) purely to provide bilingual place labels on top of
+  # whichever raster layer below is selected - its own terrain rendering is never shown.
   - name:
       fr: "Bathymétrie"
       en: "Bathymetry"
     key: "bathymetry"
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}"
-    attribution: "Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri"
+    url: "https://tiles.emodnet-bathymetry.eu/2020/baselayer/web_mercator/{z}/{x}/{y}.png"
+    maxZoom: 14
+    attribution: "EMODnet Bathymetry Consortium (2020): EMODnet Digital Bathymetry (DTM 2020), <a href=\"https://doi.org/10.12770/bb6a87dd-e579-4036-abe1-e649cea9881a\" target=\"_blank\">CC BY 4.0</a>"
     checked: true
-    maxZoom: 10
   - name:
       fr: "Satellite"
       en: "Satellite"
@@ -145,27 +148,7 @@ basemaps:
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
     attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
 
-overlays:
-  # `lang` (optional, same convention as main_logo[].lang) restricts an overlay to a
-  # single site language; overlays with no `lang` always show, in every language.
-  - name:
-      fr: "Noms géographiques"
-      en: "Geographic Names"
-    key: "geographic_names"
-    lang: en
-    url: "https://services.arcgisonline.com/arcgis/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}"
-    attribution: "Data &copy; Esri, HERE, Garmin, USGS, NGA, EPA, USDA, NPS"
-    checked: true
-    maxZoom: 10
-  - name:
-      fr: "Noms géographiques"
-      en: "Geographic Names (FR)"
-    key: "geographic_names_fr"
-    lang: fr
-    url: "https://maps-cartes.services.geo.ca/server2_serveur2/rest/services/BaseMaps/CBCT_TXT_3857/MapServer/tile/{z}/{y}/{x}"
-    attribution: "Data &copy; Ressources naturelles Canada; Sa Majesté le Roi du chef du Canada, représenté par le ministre de Ressources naturelles Canada"
-    checked: true
-    maxZoom: 10
+overlays: []
 # Pages Configuration
 # ==========================
 # This section defines the pages that will be available in the application.

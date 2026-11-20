@@ -1,225 +1,313 @@
 "use client";
 
-import "leaflet/dist/leaflet.css";
-import "react-leaflet-markercluster/styles";
-import {
-  MapContainer,
-  TileLayer,
-  useMap,
-  Tooltip,
-  LayersControl,
-  ZoomControl,
-} from "react-leaflet";
-import { Marker } from "react-leaflet";
-import MarkerClusterGroup from "react-leaflet-markercluster";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { Map as MapLibreMap, NavigationControl, Popup } from "maplibre-gl";
 import * as turf from "@turf/turf";
 import { DrawerContext } from "../app/context/DrawerContext";
 import {
   useContext,
-  useLayoutEffect,
   useEffect,
   forwardRef,
   useRef,
-  memo,
   useImperativeHandle,
-  useMemo,
   useState,
 } from "react";
-import L from "leaflet";
 import config from "@/app/config";
 import { getLocale } from "@/app/get-locale";
 
-const { BaseLayer, Overlay } = LayersControl;
+// OpenFreeMap (no account/API key needed) - serves the same OpenMapTiles vector
+// schema MapTiler uses, including per-language "name:xx" fields on place features.
+const OPENMAPTILES_SOURCE_ID = "openmaptiles";
+const OPENMAPTILES_TILES_URL = "https://tiles.openfreemap.org/planet";
+const OPENMAPTILES_GLYPHS_URL =
+  "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf";
+
+// Layer/source ids used by the dataset markers + highlight layers we add on top of the basemap.
+const CLUSTER_SOURCE_ID = "dataset-points";
+const CLUSTERS_LAYER_ID = "dataset-clusters";
+const CLUSTER_COUNT_LAYER_ID = "dataset-cluster-count";
+const UNCLUSTERED_LAYER_ID = "dataset-unclustered";
+const HOVER_HIGHLIGHT_SOURCE_ID = "dataset-hover-highlight";
+const HOVER_HIGHLIGHT_LAYER_ID = "dataset-hover-highlight-line";
+const SELECTION_HIGHLIGHT_SOURCE_ID = "dataset-selection-highlight";
+const SELECTION_HIGHLIGHT_LAYER_ID = "dataset-selection-highlight-line";
+const PLACE_LABELS_LAYER_ID = "place-labels";
+const EMPTY_FEATURE_COLLECTION = { type: "FeatureCollection", features: [] };
 
 // Utility functions
-const getPrimaryColor = () => {
-  const primaryColor = getComputedStyle(document.documentElement)
-    .getPropertyValue("--color-primary-500")
+function getCssVar(name, fallback) {
+  if (typeof document === "undefined") return fallback;
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
     .trim();
-  return primaryColor;
-};
+  return value || fallback;
+}
 
-// Only clear polygon/geojson overlays we add imperatively; DO NOT remove markers managed by React
-const clearMapLayers = (map) => {
-  map.eachLayer((layer) => {
-    if (layer instanceof L.Polygon || layer instanceof L.GeoJSON) {
-      map.removeLayer(layer);
-    }
-  });
-};
+const getPrimaryColor = () => getCssVar("--color-primary-500", "#0891b2");
 
-// Map components
-const FitBounds = ({ bounds }) => {
-  console.log("Before bounds:", bounds);
-  const map = useMap();
+function escapeHtml(value) {
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[c],
+  );
+}
 
-  useLayoutEffect(() => {
-    fitBounds(bounds, map);
-  }, [bounds, map]); // Run effect when bounds or map changes
+// Falls back to a guaranteed-inside point for concave/multi-part geometries, and
+// unwraps longitude relative to the map center so markers don't jump across the antimeridian.
+function getMarkerLngLat(record, centerLng) {
+  let point = turf.centerOfMass(record.spatial);
+  if (!turf.booleanPointInPolygon(point, record.spatial)) {
+    point = turf.pointOnFeature(record.spatial);
+  }
+  let [lng, lat] = point.geometry.coordinates;
+  while (lng - centerLng > 180) lng -= 360;
+  while (lng - centerLng < -180) lng += 360;
+  return [lng, lat];
+}
 
-  return null;
-};
+function buildPointsFeatureCollection(items, centerLng) {
+  return {
+    type: "FeatureCollection",
+    features: items.map((item) => ({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: getMarkerLngLat(item, centerLng),
+      },
+      properties: { id: item.id },
+    })),
+  };
+}
 
-function fitBounds(newBounds, map) {
-  console.log("FitBounds effect triggered with bounds:", newBounds);
-  if (newBounds) {
-    clearMapLayers(map);
-    const polygon = L.geoJSON(newBounds, { color: getPrimaryColor() }).addTo(
-      map,
-    );
+function flyToBounds(map, newBounds) {
+  if (!map || !newBounds) return;
+  map.getSource(SELECTION_HIGHLIGHT_SOURCE_ID)?.setData(newBounds);
 
-    // Check if screen is mobile (768px breakpoint)
-    const isMobile = window.innerWidth < 768;
+  const [west, south, east, north] = turf.bbox(newBounds);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
-    map.flyToBounds(polygon.getBounds(), {
-      animate: true,
-      // Less padding on mobile for closer view
-      padding: isMobile ? [50, 50] : [150, 250],
-      // Higher max zoom on mobile for closer view
+  map.fitBounds(
+    [
+      [west, south],
+      [east, north],
+    ],
+    {
+      padding: isMobile
+        ? { top: 50, bottom: 50, left: 50, right: 50 }
+        : { top: 250, bottom: 250, left: 150, right: 150 },
       maxZoom: isMobile ? 13 : 10,
-      duration: 0.3,
-    });
+      duration: 300,
+    },
+  );
+}
+
+// Recomputes small/medium/large percentile thresholds from the clusters currently
+// rendered on screen, then applies them as `step` paint expressions on the cluster layers.
+function recomputeClusterColors(map) {
+  if (!map.getLayer(CLUSTERS_LAYER_ID)) return;
+
+  const counts = map
+    .querySourceFeatures(CLUSTER_SOURCE_ID, { filter: ["has", "point_count"] })
+    .map((f) => f.properties.point_count)
+    .sort((a, b) => a - b);
+  if (!counts.length) return;
+
+  const p33 = counts[Math.floor(counts.length * 0.33)] ?? counts[0];
+  const p66raw =
+    counts[Math.floor(counts.length * 0.66)] ?? counts[counts.length - 1];
+  const p66 = p66raw > p33 ? p66raw : p33 + 1;
+
+  const small = getCssVar("--color-primary-200", "#bae6fd");
+  const medium = getCssVar("--color-primary-500", "#0891b2");
+  const large = getCssVar("--color-primary-700", "#155e75");
+  const textDark = getCssVar("--color-black", "#000000");
+  const textLight = getCssVar("--color-white", "#ffffff");
+
+  map.setPaintProperty(CLUSTERS_LAYER_ID, "circle-color", [
+    "step",
+    ["get", "point_count"],
+    small,
+    p33,
+    medium,
+    p66,
+    large,
+  ]);
+  map.setPaintProperty(CLUSTERS_LAYER_ID, "circle-radius", [
+    "step",
+    ["get", "point_count"],
+    16,
+    p33,
+    20,
+    p66,
+    24,
+  ]);
+  map.setPaintProperty(CLUSTER_COUNT_LAYER_ID, "text-color", [
+    "step",
+    ["get", "point_count"],
+    textDark,
+    p33,
+    textLight,
+  ]);
+}
+
+function lngLatToTileXY(lng, lat, zoom) {
+  const n = 2 ** zoom;
+  const x = Math.floor(((lng + 180) / 360) * n);
+  const latRad = (lat * Math.PI) / 180;
+  const y = Math.floor(
+    ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * n,
+  );
+  return [x, y];
+}
+
+// Warms the browser's HTTP cache (the tile servers in config.yaml send long
+// max-age Cache-Control headers) for a one-tile ring around the current viewport,
+// so tiles are already cached by the time the user pans into them instead of
+// popping in. `prefetched` tracks URLs already requested this session.
+function prefetchSurroundingTiles(map, basemap, prefetched) {
+  if (!basemap?.url) return;
+  const zoom = Math.round(map.getZoom());
+  if (zoom < (basemap.minZoom || 0) || zoom > (basemap.maxZoom || 19)) return;
+
+  const n = 2 ** zoom;
+  const bounds = map.getBounds();
+  const [minX, minY] = lngLatToTileXY(
+    bounds.getWest(),
+    bounds.getNorth(),
+    zoom,
+  );
+  const [maxX, maxY] = lngLatToTileXY(
+    bounds.getEast(),
+    bounds.getSouth(),
+    zoom,
+  );
+
+  const RING = 1;
+  for (let x = minX - RING; x <= maxX + RING; x++) {
+    const wrappedX = ((x % n) + n) % n;
+    for (
+      let y = Math.max(0, minY - RING);
+      y <= Math.min(n - 1, maxY + RING);
+      y++
+    ) {
+      const url = basemap.url
+        .replace("{z}", zoom)
+        .replace("{x}", wrappedX)
+        .replace("{y}", y);
+      if (prefetched.has(url)) continue;
+      prefetched.add(url);
+      new Image().src = url;
+    }
   }
 }
 
-// Dataset marker component
-const DatasetMarker = ({ record, handleListItemClick, lang, openDrawer }) => {
-  let point = turf.centerOfMass(record.spatial);
-  // Verify if point within the polygon
-  const isPointInPolygon = turf.booleanPointInPolygon(point, record.spatial);
-  if (!isPointInPolygon) {
-    point = turf.pointOnFeature(record.spatial);
-  }
-
-  // Wrap longitude based on map center
-  let [lng, lat] = point.geometry.coordinates;
-  const centerLng = config.map.center[1];
-  while (lng - centerLng > 180) lng -= 360;
-  while (lng - centerLng < -180) lng += 360;
-
-  // Function to remove the polygon layer
-  function removeLayer(e) {
-    const map = e.target._map;
-    if (e.target._hoverPolygon) {
-      map.removeLayer(e.target._hoverPolygon);
-      e.target._hoverPolygon = null;
+function applyBasemap(map, key, { rasterBasemapKeys }) {
+  rasterBasemapKeys.forEach((k) => {
+    const layerId = `basemap-${k}`;
+    if (map.getLayer(layerId)) {
+      map.setLayoutProperty(
+        layerId,
+        "visibility",
+        k === key ? "visible" : "none",
+      );
     }
-  }
+  });
+}
 
-  const handleMouseOver = (e) => {
-    // Only add polygon if it doesn't already exist
-    if (e.target._hoverPolygon) return;
-
-    // Skip drawing polygon for point geometries (causes flickering)
-    if (record.spatial.type === "Point") return;
-
-    const map = e.target._map;
-    const polygon = L.geoJSON(record.spatial, {
-      style: {
-        color: getPrimaryColor(),
-        weight: 2,
-        fillColor: getPrimaryColor(),
-        fillOpacity: 0.5,
-      },
-    }).addTo(map);
-
-    // Store the polygon layer on the marker for later removal
-    e.target._hoverPolygon = polygon;
-  };
-
-  const handleMouseOut = (e) => {
-    // Remove the polygon layer when the mouse leaves the marker
-    removeLayer(e);
-  };
-
-  const handleMarkerClick = (e) => {
-    removeLayer(e);
-    handleListItemClick(record);
-    openDrawer();
-  };
-
+// Basemap radio group plus a dataset-markers checkbox, driven entirely by our own
+// React state (no control rebuild on language/data change, so the basemap selection
+// never resets).
+function LayersMenu({
+  basemaps,
+  basemapKey,
+  setBasemapKey,
+  markersVisible,
+  setMarkersVisible,
+  lang,
+  t,
+  open,
+  setOpen,
+}) {
   return (
-    <Marker
-      key={record.id}
-      position={[lat, lng]}
-      eventHandlers={{
-        click: handleMarkerClick,
-        mouseover: handleMouseOver,
-        mouseout: handleMouseOut,
-      }}
-    >
-      <Tooltip>
-        <div className="w-[200px]">
-          <h2 className="font-bold text-wrap">
-            {record.title_translated[lang]}
-          </h2>
-          <p className="text-xs text-wrap">
-            {record.organization.title_translated[lang]}
-          </p>
+    <div className="absolute right-[10px] bottom-[20px] z-[600]">
+      {open && (
+        <div className="text-ui-text-light dark:text-ui-text-dark bg-background-light dark:bg-background-dark mb-2 w-52 rounded-md p-3 text-sm shadow-md">
+          <div className="mb-2 font-semibold">{t.basemap}</div>
+          {basemaps.map((b) => (
+            <label key={b.key} className="mb-1 flex items-center gap-2">
+              <input
+                type="radio"
+                name="basemap"
+                checked={basemapKey === b.key}
+                onChange={() => setBasemapKey(b.key)}
+              />
+              {b.name?.[lang] || b.key}
+            </label>
+          ))}
+          <div className="mt-2 border-t pt-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={markersVisible}
+                onChange={(e) => setMarkersVisible(e.target.checked)}
+              />
+              {t.dataset_markers}
+            </label>
+          </div>
         </div>
-      </Tooltip>
-    </Marker>
-  );
-};
-
-// Base map layers component
-const BaseLayers = ({ basemaps, lang }) => (
-  <>
-    {basemaps.map((layer) => (
-      <BaseLayer
-        key={layer.key}
-        checked={layer.checked || false}
-        name={layer.name[lang]}
+      )}
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="bg-primary-500 flex h-9 w-9 items-center justify-center rounded-md text-lg text-white shadow"
+        aria-label={t.layers}
+        aria-expanded={open}
       >
-        <TileLayer
-          url={layer.url}
-          attribution={layer.attribution}
-          minZoom={layer.minZoom || 0}
-          maxZoom={layer.maxZoom || 10}
-        />
-        {/* Optional label overlay (cities, place names) rendered on top of base tiles */}
-      </BaseLayer>
-    ))}
-  </>
-);
-
-// Render overlays defined in config.overlays inside LayersControl as Overlay entries.
-// An overlay with a `lang` field only shows up when it matches the current site
-// language (same convention as `main_logo[].lang`); overlays without `lang` always show.
-const Overlays = ({ overlays, lang }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    // No-op for now; vector overlays mount/unmount are handled per-overlay via child components
-  }, [map]);
-
-  const visibleOverlays = (overlays || []).filter(
-    (ov) => !ov.lang || ov.lang === lang,
+        ▤
+      </button>
+    </div>
   );
+}
+
+// OpenFreeMap's required credit line, always shown alongside whichever basemap's
+// own attribution is currently active (we run MapLibre with its default attribution
+// control disabled, so this popover is the only attribution surfaced to the user).
+const OPENFREEMAP_ATTRIBUTION =
+  '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> &copy; ' +
+  '<a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> ' +
+  'Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>';
+
+function AttributionToggle({ basemaps, basemapKey }) {
+  const [hovered, setHovered] = useState(false);
+  const active = basemaps.find((b) => b.key === basemapKey);
 
   return (
-    <>
-      {visibleOverlays.length
-        ? visibleOverlays.map((ov) => (
-            <Overlay
-              key={ov.key}
-              name={ov.name && ov.name[lang] ? ov.name[lang] : ov.key}
-              checked={ov.checked || false}
-            >
-              {
-                <TileLayer
-                  url={ov.url}
-                  attribution={ov.attribution}
-                  minZoom={ov.minZoom || 0}
-                  maxZoom={ov.maxZoom || 10}
-                />
-              }
-            </Overlay>
-          ))
-        : null}
-    </>
+    <div
+      className="pointer-events-none absolute right-[64px] bottom-[20px] z-[600] flex flex-col items-end gap-2"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {hovered && (
+        <div className="pointer-events-auto max-h-40 w-64 overflow-y-auto rounded-md bg-black/40 p-2 text-[10px] leading-relaxed shadow-md backdrop-blur">
+          {active?.attribution && (
+            <div dangerouslySetInnerHTML={{ __html: active.attribution }} />
+          )}
+          <div dangerouslySetInnerHTML={{ __html: OPENFREEMAP_ATTRIBUTION }} />
+        </div>
+      )}
+      <div className="bg-primary-500 dark:bg-background-dark pointer-events-auto rounded-xl px-2 py-1 text-[11px] font-medium text-white shadow">
+        ?
+      </div>
+    </div>
   );
-};
+}
 
 // Main Map component
 const Map = forwardRef(function Map(
@@ -229,267 +317,403 @@ const Map = forwardRef(function Map(
   const { openDrawer } = useContext(DrawerContext);
   const t = getLocale(lang);
 
-  const mapRef = useRef();
-  // Remount key for cluster group to force updates on filter change
-  const clusterKey = useMemo(() => {
-    try {
-      let hash = 0;
-      for (const item of filteredItems) {
-        const id = String(item.id);
-        for (let i = 0; i < id.length; i++) {
-          hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0;
-        }
-      }
-      return `cluster-${filteredItems.length}-${hash}`;
-    } catch {
-      return `cluster-${filteredItems.length}`;
-    }
-  }, [filteredItems]);
+  const containerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const mapReadyRef = useRef(false);
+  const popupRef = useRef(null);
+  const rasterBasemapKeysRef = useRef([]);
+  const initialBasemapKeyRef = useRef(null);
+  const prefetchedTilesRef = useRef(new Set());
+  const prefetchActiveBasemapTilesRef = useRef(() => {});
 
-  // Calculate percentile thresholds for cluster coloring
-  const [clusterThresholds, setClusterThresholds] = useState({
-    p33: 10,
-    p66: 50,
-  });
+  // Always-fresh refs so imperative MapLibre event handlers (registered once on
+  // "load") never see stale props/closures.
+  const langRef = useRef(lang);
+  langRef.current = lang;
+  const itemsRef = useRef(filteredItems);
+  itemsRef.current = filteredItems;
+  const handleListItemClickRef = useRef(handleListItemClick);
+  handleListItemClickRef.current = handleListItemClick;
+  const openDrawerRef = useRef(openDrawer);
+  openDrawerRef.current = openDrawer;
 
-  // Update cluster thresholds when map or filteredItems change
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    const calculateThresholds = () => {
-      if (!map || !map._layers) return;
-
-      const clusterCounts = [];
-
-      // Find the MarkerClusterGroup layer and get all cluster counts
-      Object.values(map._layers).forEach((layer) => {
-        if (
-          layer.getAllChildMarkers &&
-          typeof layer.getAllChildMarkers === "function"
-        ) {
-          // This is the cluster group layer
-          // Get visible clusters at current zoom
-          if (layer._featureGroup && layer._featureGroup._layers) {
-            Object.values(layer._featureGroup._layers).forEach(
-              (clusterOrMarker) => {
-                if (
-                  clusterOrMarker.getChildCount &&
-                  typeof clusterOrMarker.getChildCount === "function"
-                ) {
-                  clusterCounts.push(clusterOrMarker.getChildCount());
-                }
-              },
-            );
-          }
-        }
-      });
-
-      if (clusterCounts.length > 0) {
-        // Sort counts and calculate percentiles
-        clusterCounts.sort((a, b) => a - b);
-        const p33Index = Math.floor(clusterCounts.length * 0.33);
-        const p66Index = Math.floor(clusterCounts.length * 0.66);
-
-        setClusterThresholds({
-          p33: clusterCounts[p33Index] || clusterCounts[0],
-          p66:
-            clusterCounts[p66Index] || clusterCounts[clusterCounts.length - 1],
-        });
-      }
-    };
-
-    // Calculate thresholds on map events
-    map.on("zoomend moveend", calculateThresholds);
-
-    // Initial calculation
-    setTimeout(calculateThresholds, 100);
-
-    return () => {
-      map.off("zoomend moveend", calculateThresholds);
-    };
-  }, [filteredItems]);
-
-  // Custom icon creation function with percentile-based colors
-  const iconCreateFunction = useMemo(() => {
-    return (cluster) => {
-      const childCount = cluster.getChildCount();
-
-      // Assign class based on percentile thresholds
-      let className = "marker-cluster-small";
-      if (childCount >= clusterThresholds.p66) {
-        className = "marker-cluster-large";
-      } else if (childCount >= clusterThresholds.p33) {
-        className = "marker-cluster-medium";
-      }
-
-      return L.divIcon({
-        html: `<div><span>${childCount}</span></div>`,
-        className: `marker-cluster ${className}`,
-        iconSize: L.point(40, 40),
-      });
-    };
-  }, [clusterThresholds]);
-  // Expose clearMapLayers to parent via ref
-  useImperativeHandle(ref, () => ({
-    clearMapLayers: () => {
-      if (mapRef.current) {
-        clearMapLayers(mapRef.current);
-      }
-    },
-    recenterToDefault: () => {
-      if (mapRef.current) {
-        if (config.map.default_bounds) {
-          mapRef.current.fitBounds(config.map.default_bounds);
-        } else {
-          mapRef.current.setView(config.map.center, config.map.zoom);
-        }
-      }
-    },
-    updateBounds: (newBounds, setDatasetSpatial) => {
-      console.log("UPDATE BOUND : ", newBounds);
-      if (mapRef.current) {
-        fitBounds(newBounds, mapRef.current);
-        // Clear previous dataset spatial if any
-        if (setDatasetSpatial) {
-          setDatasetSpatial(null);
-        }
-      }
-    },
-  }));
-
-  return (
-    <MapContainer
-      className="h-full w-full"
-      center={config.map.default_bounds ? undefined : config.map.center}
-      zoom={
-        config.map.default_bounds
-          ? undefined
-          : typeof window !== "undefined" && window.innerWidth < 1024
-            ? config.map.zoom_mobile
-            : config.map.zoom
-      }
-      bounds={config.map.default_bounds}
-      zoomControl={false}
-      scrollWheelZoom={true}
-      boundsOptions={{ padding: [1, 1] }}
-      attributionControl={false}
-      ref={mapRef}
-      whenReady={(mapInstance) => {
-        mapRef.current = mapInstance;
-        console.log(
-          "This function will fire once the map is created",
-          mapRef.current,
-        );
-      }}
-      whenCreated={(map) => {
-        console.log("The underlying leaflet map instance:", map);
-      }}
-    >
-      <ZoomControl position="topright" />
-      <LayersControl position="bottomright">
-        <BaseLayers basemaps={config.basemaps} lang={lang} />
-        <Overlays overlays={config.overlays} lang={lang} />
-        {bounds && <FitBounds key={bounds} bounds={bounds} />}
-        <Overlay checked name={t.dataset_markers}>
-          <MarkerClusterGroup
-            key={clusterKey}
-            iconCreateFunction={iconCreateFunction}
-          >
-            {filteredItems.map((item) => (
-              <DatasetMarker
-                key={item.id}
-                record={item}
-                handleListItemClick={handleListItemClick}
-                lang={lang}
-                openDrawer={openDrawer}
-              />
-            ))}
-          </MarkerClusterGroup>
-        </Overlay>
-      </LayersControl>
-      {/* Custom attribution toggle positioned near LayersControl (bottom-right) */}
-      <AttributionToggle />
-    </MapContainer>
+  const [basemapKey, setBasemapKey] = useState(
+    () =>
+      config.basemaps.find((b) => b.checked)?.key || config.basemaps[0]?.key,
   );
-});
+  const basemapKeyRef = useRef(basemapKey);
+  basemapKeyRef.current = basemapKey;
+  const [markersVisible, setMarkersVisible] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-// Attribution toggle component (no SSR dependencies beyond config)
-function AttributionToggle() {
-  const [hovered, setHovered] = useState(false);
-  const [attributions, setAttributions] = useState([]);
-  const map = useMap();
-
+  // Mount the MapLibre map once.
   useEffect(() => {
-    if (!map) return;
+    if (!containerRef.current) return;
 
-    const updateAttributions = () => {
-      const list = [];
-      try {
-        // Get active base layer attribution
-        for (const b of config.basemaps || []) {
-          const layer =
-            map._layers[
-              Object.keys(map._layers).find((key) => {
-                const l = map._layers[key];
-                return l.options && l.options.attribution === b.attribution;
-              })
-            ];
-          if (layer && map.hasLayer(layer) && b.attribution) {
-            list.push(b.attribution);
-            break; // Only one base layer should be active
-          }
+    initialBasemapKeyRef.current =
+      config.basemaps.find((b) => b.checked)?.key || config.basemaps[0]?.key;
+
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
+    const centerLngLat = [config.map.center[1], config.map.center[0]];
+    const boundsLngLat = config.map.default_bounds
+      ? [
+          [config.map.default_bounds[0][1], config.map.default_bounds[0][0]],
+          [config.map.default_bounds[1][1], config.map.default_bounds[1][0]],
+        ]
+      : undefined;
+
+    const map = new MapLibreMap({
+      container: containerRef.current,
+      // Our own AttributionToggle popover covers both OpenFreeMap's and the active
+      // basemap's attribution, so the default bottom-right MapLibre control is redundant.
+      attributionControl: false,
+      // A minimal style of our own: no base layers (every basemap in config.yaml is
+      // a raster layer we add below), just the OpenFreeMap vector source + glyphs
+      // needed for our bilingual place-labels layer. No account/API key needed.
+      style: {
+        version: 8,
+        sources: {
+          [OPENMAPTILES_SOURCE_ID]: {
+            type: "vector",
+            url: OPENMAPTILES_TILES_URL,
+          },
+        },
+        layers: [],
+        glyphs: OPENMAPTILES_GLYPHS_URL,
+      },
+      center: boundsLngLat ? undefined : centerLngLat,
+      zoom: boundsLngLat
+        ? undefined
+        : isMobile
+          ? config.map.zoom_mobile
+          : config.map.zoom,
+      bounds: boundsLngLat,
+    });
+    mapInstanceRef.current = map;
+    map.addControl(new NavigationControl({ showCompass: false }), "top-right");
+
+    map.on("load", () => {
+      const rasterBasemaps = config.basemaps;
+      rasterBasemapKeysRef.current = rasterBasemaps.map((b) => b.key);
+      rasterBasemaps.forEach((basemap) => {
+        const sourceId = `basemap-${basemap.key}`;
+        map.addSource(sourceId, {
+          type: "raster",
+          tiles: [basemap.url],
+          tileSize: 256,
+          attribution: basemap.attribution,
+          minzoom: basemap.minZoom || 0,
+          maxzoom: basemap.maxZoom || 19,
+        });
+        map.addLayer({
+          id: sourceId,
+          type: "raster",
+          source: sourceId,
+          layout: { visibility: "none" },
+        });
+      });
+
+      map.addLayer({
+        id: PLACE_LABELS_LAYER_ID,
+        type: "symbol",
+        source: OPENMAPTILES_SOURCE_ID,
+        "source-layer": "place",
+        filter: [
+          "in",
+          ["get", "class"],
+          ["literal", ["city", "town", "village"]],
+        ],
+        layout: {
+          "text-field": [
+            "coalesce",
+            ["get", `name:${langRef.current}`],
+            ["get", "name"],
+          ],
+          "text-font": ["Noto Sans Regular"],
+          "text-size": 12,
+        },
+        paint: {
+          "text-color": "#333333",
+          "text-halo-color": "#ffffff",
+          "text-halo-width": 1.2,
+        },
+      });
+
+      map.addSource(HOVER_HIGHLIGHT_SOURCE_ID, {
+        type: "geojson",
+        data: EMPTY_FEATURE_COLLECTION,
+      });
+      map.addLayer({
+        id: HOVER_HIGHLIGHT_LAYER_ID,
+        type: "line",
+        source: HOVER_HIGHLIGHT_SOURCE_ID,
+        paint: { "line-color": getPrimaryColor(), "line-width": 2 },
+      });
+
+      map.addSource(SELECTION_HIGHLIGHT_SOURCE_ID, {
+        type: "geojson",
+        data: EMPTY_FEATURE_COLLECTION,
+      });
+      map.addLayer({
+        id: SELECTION_HIGHLIGHT_LAYER_ID,
+        type: "line",
+        source: SELECTION_HIGHLIGHT_SOURCE_ID,
+        paint: { "line-color": getPrimaryColor(), "line-width": 2 },
+      });
+
+      map.addSource(CLUSTER_SOURCE_ID, {
+        type: "geojson",
+        data: buildPointsFeatureCollection(
+          itemsRef.current,
+          config.map.center[1],
+        ),
+        cluster: true,
+        clusterRadius: 60,
+        clusterMaxZoom: 14,
+      });
+      map.addLayer({
+        id: CLUSTERS_LAYER_ID,
+        type: "circle",
+        source: CLUSTER_SOURCE_ID,
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": getCssVar("--color-primary-200", "#bae6fd"),
+          "circle-radius": 16,
+          "circle-stroke-width": 1,
+          "circle-stroke-color": "#ffffff",
+        },
+      });
+      map.addLayer({
+        id: CLUSTER_COUNT_LAYER_ID,
+        type: "symbol",
+        source: CLUSTER_SOURCE_ID,
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": ["get", "point_count_abbreviated"],
+          "text-font": ["Noto Sans Bold"],
+          "text-size": 12,
+        },
+        paint: { "text-color": "#000000" },
+      });
+      map.addLayer({
+        id: UNCLUSTERED_LAYER_ID,
+        type: "circle",
+        source: CLUSTER_SOURCE_ID,
+        filter: ["!", ["has", "point_count"]],
+        paint: {
+          "circle-color": getPrimaryColor(),
+          "circle-radius": 7,
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#ffffff",
+        },
+      });
+
+      // Cluster click: zoom/expand.
+      map.on("click", CLUSTERS_LAYER_ID, (e) => {
+        const feature = e.features?.[0];
+        if (!feature) return;
+        map
+          .getSource(CLUSTER_SOURCE_ID)
+          .getClusterExpansionZoom(
+            feature.properties.cluster_id,
+            (err, zoom) => {
+              if (err) return;
+              map.easeTo({
+                center: feature.geometry.coordinates,
+                zoom,
+                duration: 500,
+              });
+            },
+          );
+      });
+      map.on("mouseenter", CLUSTERS_LAYER_ID, () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+      map.on("mouseleave", CLUSTERS_LAYER_ID, () => {
+        map.getCanvas().style.cursor = "";
+      });
+
+      // Individual marker: click opens drawer, hover shows popup + highlight outline.
+      map.on("click", UNCLUSTERED_LAYER_ID, (e) => {
+        const feature = e.features?.[0];
+        if (!feature) return;
+        const record = itemsRef.current.find(
+          (item) => String(item.id) === String(feature.properties.id),
+        );
+        if (!record) return;
+        handleListItemClickRef.current(record);
+        openDrawerRef.current();
+      });
+      map.on("mouseenter", UNCLUSTERED_LAYER_ID, (e) => {
+        map.getCanvas().style.cursor = "pointer";
+        const feature = e.features?.[0];
+        if (!feature) return;
+        const record = itemsRef.current.find(
+          (item) => String(item.id) === String(feature.properties.id),
+        );
+        if (!record) return;
+
+        if (record.spatial?.type !== "Point") {
+          map.getSource(HOVER_HIGHLIGHT_SOURCE_ID)?.setData(record.spatial);
         }
-        // Get active overlay attributions
-        for (const o of config.overlays || []) {
-          const layer =
-            map._layers[
-              Object.keys(map._layers).find((key) => {
-                const l = map._layers[key];
-                return l.options && l.options.attribution === o.attribution;
-              })
-            ];
-          if (layer && map.hasLayer(layer) && o.attribution) {
-            list.push(o.attribution);
-          }
+
+        const currentLang = langRef.current;
+        const html = `<div style="width:200px">
+          <strong>${escapeHtml(record.title_translated?.[currentLang])}</strong>
+          <div style="font-size:11px">${escapeHtml(record.organization?.title_translated?.[currentLang])}</div>
+        </div>`;
+        if (!popupRef.current) {
+          popupRef.current = new Popup({
+            closeButton: false,
+            closeOnClick: false,
+            offset: 12,
+          });
         }
-      } catch {}
-      setAttributions([...new Set(list)]);
-    };
+        popupRef.current
+          .setLngLat(feature.geometry.coordinates)
+          .setHTML(html)
+          .addTo(map);
+      });
+      map.on("mouseleave", UNCLUSTERED_LAYER_ID, () => {
+        map.getCanvas().style.cursor = "";
+        map
+          .getSource(HOVER_HIGHLIGHT_SOURCE_ID)
+          ?.setData(EMPTY_FEATURE_COLLECTION);
+        popupRef.current?.remove();
+      });
 
-    updateAttributions();
+      applyBasemap(map, initialBasemapKeyRef.current, {
+        rasterBasemapKeys: rasterBasemapKeysRef.current,
+      });
+      setBasemapKey(initialBasemapKeyRef.current);
 
-    // Listen for layer add/remove events
-    map.on("layeradd layerremove", updateAttributions);
+      const prefetchActiveBasemapTiles = () =>
+        prefetchSurroundingTiles(
+          map,
+          config.basemaps.find((b) => b.key === basemapKeyRef.current),
+          prefetchedTilesRef.current,
+        );
+      prefetchActiveBasemapTiles();
+      map.on("moveend", prefetchActiveBasemapTiles);
+      prefetchActiveBasemapTilesRef.current = prefetchActiveBasemapTiles;
+
+      recomputeClusterColors(map);
+      map.on("moveend", () => recomputeClusterColors(map));
+      map.on("zoomend", () => recomputeClusterColors(map));
+
+      mapReadyRef.current = true;
+    });
 
     return () => {
-      map.off("layeradd layerremove", updateAttributions);
+      popupRef.current?.remove();
+      map.remove();
+      mapInstanceRef.current = null;
     };
-  }, [map]);
+  }, []);
 
-  if (!attributions.length) return null;
+  // Language changes: swap our place-labels layer's text, without touching the
+  // basemap layers at all.
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !mapReadyRef.current) return;
+    if (map.getLayer(PLACE_LABELS_LAYER_ID)) {
+      map.setLayoutProperty(PLACE_LABELS_LAYER_ID, "text-field", [
+        "coalesce",
+        ["get", `name:${lang}`],
+        ["get", "name"],
+      ]);
+    }
+  }, [lang]);
+
+  // Filtered dataset list changed: just update the GeoJSON source data in place.
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    const source = map?.getSource(CLUSTER_SOURCE_ID);
+    if (!source) return;
+    source.setData(
+      buildPointsFeatureCollection(filteredItems, config.map.center[1]),
+    );
+    setTimeout(() => recomputeClusterColors(map), 150);
+  }, [filteredItems]);
+
+  // Basemap selection changed via the LayersMenu.
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !mapReadyRef.current) return;
+    applyBasemap(map, basemapKey, {
+      rasterBasemapKeys: rasterBasemapKeysRef.current,
+    });
+    prefetchActiveBasemapTilesRef.current();
+  }, [basemapKey]);
+
+  // Dataset-markers visibility toggle.
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    const visibility = markersVisible ? "visible" : "none";
+    [CLUSTERS_LAYER_ID, CLUSTER_COUNT_LAYER_ID, UNCLUSTERED_LAYER_ID].forEach(
+      (id) => {
+        if (map.getLayer(id))
+          map.setLayoutProperty(id, "visibility", visibility);
+      },
+    );
+  }, [markersVisible]);
+
+  // `bounds` prop changes (e.g. sidebar item click) fly the map there, same as the
+  // imperative `updateBounds` ref method used for URL deep-links.
+  useEffect(() => {
+    if (bounds) flyToBounds(mapInstanceRef.current, bounds);
+  }, [bounds]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      clearMapLayers: () => {
+        mapInstanceRef.current
+          ?.getSource(SELECTION_HIGHLIGHT_SOURCE_ID)
+          ?.setData(EMPTY_FEATURE_COLLECTION);
+      },
+      recenterToDefault: () => {
+        const map = mapInstanceRef.current;
+        if (!map) return;
+        if (config.map.default_bounds) {
+          const b = config.map.default_bounds;
+          map.fitBounds([
+            [b[0][1], b[0][0]],
+            [b[1][1], b[1][0]],
+          ]);
+        } else {
+          map.jumpTo({
+            center: [config.map.center[1], config.map.center[0]],
+            zoom: config.map.zoom,
+          });
+        }
+      },
+      updateBounds: (newBounds, setDatasetSpatial) => {
+        flyToBounds(mapInstanceRef.current, newBounds);
+        if (setDatasetSpatial) setDatasetSpatial(null);
+      },
+    }),
+    [],
+  );
+
   return (
-    <div
-      className="pointer-events-none absolute right-[64px] bottom-[20px] z-[600] flex flex-col items-end gap-2"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {hovered && (
-        <div className="pointer-events-auto max-h-40 w-64 overflow-y-auto rounded-md bg-black/40 p-2 text-[10px] leading-relaxed shadow-md backdrop-blur">
-          {attributions.map((a, i) => (
-            <div
-              key={i}
-              className="mb-1 last:mb-0"
-              dangerouslySetInnerHTML={{ __html: a }}
-            />
-          ))}
-        </div>
-      )}
-      <div className="bg-primary-500 dark:bg-background-dark pointer-events-auto rounded-xl px-2 py-1 text-[11px] font-medium text-white shadow">
-        ?
-      </div>
+    <div className="relative h-full w-full">
+      <div ref={containerRef} className="h-full w-full" />
+      <LayersMenu
+        basemaps={config.basemaps}
+        basemapKey={basemapKey}
+        setBasemapKey={setBasemapKey}
+        markersVisible={markersVisible}
+        setMarkersVisible={setMarkersVisible}
+        lang={lang}
+        t={t}
+        open={menuOpen}
+        setOpen={setMenuOpen}
+      />
+      <AttributionToggle basemaps={config.basemaps} basemapKey={basemapKey} />
     </div>
   );
-}
+});
 
 export default Map;

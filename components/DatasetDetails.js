@@ -13,7 +13,7 @@ import { GoLinkExternal } from "react-icons/go";
 import { marked } from "marked";
 import dynamic from "next/dynamic";
 
-// Dynamically import MiniMap to avoid SSR issues with Leaflet
+// Dynamically import MiniMap to avoid SSR issues with the browser-only map library
 const MiniMap = dynamic(
   () => import("@/components/MiniMap").then((mod) => mod.MiniMap),
   {
