@@ -8,12 +8,17 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Resolve pinned ref
+      id: resolve-ref
+      shell: bash
+      run: echo "ref=${{ github.action_ref }}" >> "$GITHUB_OUTPUT"
+
     - name: Clone catalogue map repository
       uses: actions/checkout@v4
       with:
         token: ${{ inputs.token }}
         repository: cioos-siooc/cioos-catalogue-map-base
-        ref: ${{ github.action_ref }}
+        ref: ${{ steps.resolve-ref.outputs.ref }}
 
     - name: Clone config repository
       uses: actions/checkout@v4
