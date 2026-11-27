@@ -13,7 +13,7 @@ runs:
       with:
         token: ${{ inputs.token }}
         repository: cioos-siooc/cioos-catalogue-map-base
-        ref: ${{ github.action_ref }}
+        ref: main
 
     - name: Clone config repository
       uses: actions/checkout@v4
